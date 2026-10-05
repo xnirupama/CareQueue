@@ -1,0 +1,295 @@
+const imgCareQueueIconSettings = "https://www.figma.com/api/mcp/asset/8a55b989-fb36-4d10-b990-867085c6e8ba.svg";
+const imgCareQueueIconBell = "https://www.figma.com/api/mcp/asset/db5f3d8e-fc41-4d15-be74-1babd8f25329.svg";
+const imgCareQueueIconQueue = "https://www.figma.com/api/mcp/asset/7c7e71be-b7b3-474c-9436-6f82a1f87c28.svg";
+const imgCareQueueIconHome = "https://www.figma.com/api/mcp/asset/4e913fe6-5718-4f72-81ad-a13edc5ae29d.svg";
+const imgCareQueueIconBell1 = "https://www.figma.com/api/mcp/asset/2a8a70f5-d0bb-47f0-8106-0a41077bc2f7.svg";
+
+function CareQueueIconSettings({ className }: { className?: string }) {
+  return (
+    <div className={className || "relative size-[24px]"} data-node-id="119:11" data-name="CareQueue / Icon / settings">
+      <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgCareQueueIconSettings} />
+    </div>
+  );
+}
+
+function CareQueueIconBell({ className }: { className?: string }) {
+  return (
+    <div className={className || "relative size-[24px]"} data-node-id="118:14" data-name="CareQueue / Icon / bell">
+      <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgCareQueueIconBell} />
+    </div>
+  );
+}
+
+function CareQueueIconQueue({ className }: { className?: string }) {
+  return (
+    <div className={className || "relative size-[24px]"} data-node-id="118:7" data-name="CareQueue / Icon / queue">
+      <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgCareQueueIconQueue} />
+    </div>
+  );
+}
+
+function CareQueueIconHome({ className }: { className?: string }) {
+  return (
+    <div className={className || "relative size-[24px]"} data-node-id="118:4" data-name="CareQueue / Icon / home">
+      <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgCareQueueIconHome} />
+    </div>
+  );
+}
+
+type CareQueueButtonProps = {
+  className?: string;
+  label?: string;
+  state?: "Default";
+  style?: "Primary";
+};
+
+function CareQueueButton({ className, label = "Continue", state = "Default", style = "Primary" }: CareQueueButtonProps) {
+  return (
+    <div className={className || "bg-[var(--cq-brand-navy,#09386b)] content-stretch drop-shadow-[0px_2px_3px_rgba(5,33,71,0.06)] flex h-[56px] items-center justify-center p-[var(--cq-space-lg,16px)] relative rounded-[var(--cq-radius-md,16px)] w-[327px]"} data-node-id="114:2">
+      <p className="[word-break:break-word] flex-[1_0_0] font-['Inter:Bold'] font-bold leading-[20px] min-w-px not-italic relative text-[16px] text-[color:var(--cq-surface-card,white)] text-center" data-node-id="114:3">
+        {label}
+      </p>
+    </div>
+  );
+}
+
+export default function A03BottleneckAnalyticsMobile() {
+  return (
+    <div className="bg-[var(--cq-surface-page,#f8fafc)] overflow-clip relative rounded-[24px] size-full" data-node-id="35:281" data-name="A03 — Bottleneck analytics · Mobile">
+      <div className="absolute h-[764px] left-0 overflow-x-clip overflow-y-auto top-0 w-[375px]" data-node-id="408:1508" data-name="Scrollable content">
+        <div className="absolute content-stretch flex flex-col items-start left-0 overflow-clip top-0 w-[375px]" data-node-id="408:1509" data-name="Admin mobile content">
+          <div className="bg-[var(--cq-brand-navy,#09386b)] content-stretch flex flex-col gap-[var(--cq-space-lg,16px)] items-start mb-[-24px] overflow-clip pb-[48px] pt-[var(--cq-space-xl,24px)] px-[var(--cq-space-xl,24px)] relative rounded-[var(--cq-radius-lg,24px)] shrink-0 w-[375px]" data-node-id="408:1510" data-name="Admin header">
+            <div className="content-stretch flex gap-[var(--cq-space-md,12px)] items-center overflow-clip relative shrink-0 w-[327px]" data-node-id="408:1511" data-name="Brand and notifications">
+              <div className="[word-break:break-word] content-stretch flex flex-col font-['Inter:Bold'] font-bold gap-[4px] items-start not-italic overflow-clip relative shrink-0 text-[color:var(--cq-surface-card,white)] w-[271px]" data-node-id="408:1512" data-name="Admin identity">
+                <p className="leading-[26px] relative shrink-0 text-[18px] w-[271px]" data-node-id="408:1513">
+                  Admin Portal
+                </p>
+                <p className="leading-[16px] opacity-78 relative shrink-0 text-[10px] w-[271px]" data-node-id="408:1514">
+                  GAMPAHA DGH · OPERATIONS
+                </p>
+              </div>
+              <a className="bg-[var(--cq-brand-navy-dark,#052347)] content-stretch cursor-pointer flex flex-col items-center justify-center overflow-clip relative rounded-[var(--cq-radius-sm,12px)] shrink-0 size-[44px]" data-node-id="408:1515" data-name="Notifications button">
+                <div className="relative shrink-0 size-[24px]" data-node-id="408:1516" data-name="CareQueue / Icon / bell">
+                  <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgCareQueueIconBell1} />
+                </div>
+              </a>
+            </div>
+            <p className="[word-break:break-word] font-['Inter:Bold'] font-bold leading-[32px] not-italic relative shrink-0 text-[24px] text-[color:var(--cq-surface-card,white)] w-[327px]" data-node-id="408:1518">
+              Bottleneck analytics
+            </p>
+            <p className="[word-break:break-word] font-['Inter:Regular'] font-normal leading-[18px] not-italic opacity-85 relative shrink-0 text-[12px] text-[color:var(--cq-surface-card,white)] w-[327px]" data-node-id="408:1519">
+              12–18 September 2026
+            </p>
+          </div>
+          <div className="content-stretch flex flex-col gap-[var(--cq-space-lg,16px)] items-start overflow-clip pb-[var(--cq-space-xl,24px)] px-[var(--cq-space-xl,24px)] relative shrink-0 w-[375px]" data-node-id="408:1520" data-name="Screen body">
+            <div className="[word-break:break-word] content-stretch flex gap-[var(--cq-space-lg,16px)] items-start not-italic overflow-clip relative shrink-0 w-[327px]" data-node-id="408:1521" data-name="Metrics">
+              <div className="bg-[var(--cq-surface-card,white)] border border-[var(--cq-border-default,#d3e1eb)] border-solid content-stretch drop-shadow-[0px_2px_3px_rgba(5,33,71,0.06)] flex flex-col gap-[var(--cq-space-sm,8px)] h-[136px] items-start p-[var(--cq-space-md,12px)] relative rounded-[var(--cq-radius-md,16px)] shrink-0 w-[155.5px]" data-node-id="408:1522" data-name="Metric / MEDIAN WAIT">
+                <p className="font-['Inter:Bold'] font-bold leading-[16px] relative shrink-0 text-[10px] text-[color:var(--cq-text-muted,#52697a)] tracking-[1px] w-full" data-node-id="I408:1522;114:5">
+                  MEDIAN WAIT
+                </p>
+                <p className="font-['Inter:Bold'] font-bold leading-[34px] relative shrink-0 text-[28px] text-[color:var(--cq-brand-navy,#09386b)] w-full" data-node-id="I408:1522;114:6">
+                  16 min
+                </p>
+                <p className="font-['Inter:Regular'] font-normal leading-[18px] relative shrink-0 text-[12px] text-[color:var(--cq-text-muted,#52697a)] w-full" data-node-id="I408:1522;114:7">
+                  12–18 September
+                </p>
+              </div>
+              <div className="bg-[var(--cq-surface-card,white)] border border-[var(--cq-border-default,#d3e1eb)] border-solid content-stretch drop-shadow-[0px_2px_3px_rgba(5,33,71,0.06)] flex flex-col gap-[var(--cq-space-sm,8px)] h-[136px] items-start p-[var(--cq-space-md,12px)] relative rounded-[var(--cq-radius-md,16px)] shrink-0 w-[155.5px]" data-node-id="408:1526" data-name="Metric / PEAK HOUR">
+                <p className="font-['Inter:Bold'] font-bold leading-[16px] relative shrink-0 text-[10px] text-[color:var(--cq-text-muted,#52697a)] tracking-[1px] w-full" data-node-id="I408:1526;114:5">
+                  PEAK HOUR
+                </p>
+                <p className="font-['Inter:Bold'] font-bold leading-[34px] relative shrink-0 text-[28px] text-[color:var(--cq-brand-teal,#0a8a8c)] w-full" data-node-id="I408:1526;114:6">
+                  10–11
+                </p>
+                <p className="font-['Inter:Regular'] font-normal leading-[18px] relative shrink-0 text-[12px] text-[color:var(--cq-text-muted,#52697a)] w-full" data-node-id="I408:1526;114:7">
+                  Highest arrivals
+                </p>
+              </div>
+            </div>
+            <div className="[word-break:break-word] content-stretch flex gap-[var(--cq-space-lg,16px)] items-start not-italic overflow-clip relative shrink-0 w-[327px]" data-node-id="408:1530" data-name="Metrics">
+              <div className="bg-[var(--cq-surface-card,white)] border border-[var(--cq-border-default,#d3e1eb)] border-solid content-stretch drop-shadow-[0px_2px_3px_rgba(5,33,71,0.06)] flex flex-col gap-[var(--cq-space-sm,8px)] h-[136px] items-start p-[var(--cq-space-md,12px)] relative rounded-[var(--cq-radius-md,16px)] shrink-0 w-[155.5px]" data-node-id="408:1531" data-name="Metric / MISSED TURNS">
+                <p className="font-['Inter:Bold'] font-bold leading-[16px] relative shrink-0 text-[10px] text-[color:var(--cq-text-muted,#52697a)] tracking-[1px] w-full" data-node-id="I408:1531;114:5">
+                  MISSED TURNS
+                </p>
+                <p className="font-['Inter:Bold'] font-bold leading-[34px] relative shrink-0 text-[28px] text-[color:var(--cq-status-warning,#ad4a0a)] w-full" data-node-id="I408:1531;114:6">
+                  4
+                </p>
+                <p className="font-['Inter:Regular'] font-normal leading-[18px] relative shrink-0 text-[12px] text-[color:var(--cq-text-muted,#52697a)] w-full" data-node-id="I408:1531;114:7">
+                  Recorded today
+                </p>
+              </div>
+              <div className="bg-[var(--cq-surface-card,white)] border border-[var(--cq-border-default,#d3e1eb)] border-solid content-stretch drop-shadow-[0px_2px_3px_rgba(5,33,71,0.06)] flex flex-col gap-[var(--cq-space-sm,8px)] h-[136px] items-start p-[var(--cq-space-md,12px)] relative rounded-[var(--cq-radius-md,16px)] shrink-0 w-[155.5px]" data-node-id="408:1535" data-name="Metric / SERVED">
+                <p className="font-['Inter:Bold'] font-bold leading-[16px] relative shrink-0 text-[10px] text-[color:var(--cq-text-muted,#52697a)] tracking-[1px] w-full" data-node-id="I408:1535;114:5">
+                  SERVED
+                </p>
+                <p className="font-['Inter:Bold'] font-bold leading-[34px] relative shrink-0 text-[28px] text-[color:var(--cq-brand-navy,#09386b)] w-full" data-node-id="I408:1535;114:6">
+                  184
+                </p>
+                <p className="font-['Inter:Regular'] font-normal leading-[18px] relative shrink-0 text-[12px] text-[color:var(--cq-text-muted,#52697a)] w-full" data-node-id="I408:1535;114:7">
+                  Today across OPD
+                </p>
+              </div>
+            </div>
+            <div className="bg-[var(--cq-surface-card,white)] border border-[var(--cq-border-default,#d3e1eb)] border-solid content-stretch flex flex-col gap-[var(--cq-space-md,12px)] items-start overflow-clip p-[var(--cq-space-lg,16px)] relative rounded-[var(--cq-radius-lg,24px)] shrink-0 w-[327px]" data-node-id="408:1539" data-name="Daily waiting time chart">
+              <p className="[word-break:break-word] font-['Inter:Bold'] font-bold leading-[26px] not-italic relative shrink-0 text-[18px] text-[color:var(--cq-text-primary,#141f2b)] w-[293px]" data-node-id="408:1540">
+                Waiting time by day
+              </p>
+              <p className="[word-break:break-word] font-['Inter:Regular'] font-normal leading-[18px] not-italic relative shrink-0 text-[12px] text-[color:var(--cq-text-muted,#52697a)] w-[293px]" data-node-id="408:1541">
+                Average wait · minutes · 12–18 Sep 2026
+              </p>
+              <div className="h-[202px] overflow-clip relative shrink-0 w-[293px]" data-node-id="408:1542" data-name="Editable chart">
+                <div className="absolute bg-[var(--cq-border-default,#d3e1eb)] h-px left-[27px] top-[170px] w-[257px]" data-node-id="408:1543" data-name="Grid 0" />
+                <p className="[word-break:break-word] absolute font-['Inter:Regular'] font-normal leading-[18px] left-0 not-italic text-[10px] text-[color:var(--cq-text-muted,#52697a)] top-[163px] w-[22px]" data-node-id="408:1544">
+                  0
+                </p>
+                <div className="absolute bg-[var(--cq-border-default,#d3e1eb)] h-px left-[27px] top-[144px] w-[257px]" data-node-id="408:1545" data-name="Grid 5" />
+                <p className="[word-break:break-word] absolute font-['Inter:Regular'] font-normal leading-[18px] left-0 not-italic text-[10px] text-[color:var(--cq-text-muted,#52697a)] top-[137px] w-[22px]" data-node-id="408:1546">
+                  5
+                </p>
+                <div className="absolute bg-[var(--cq-border-default,#d3e1eb)] h-px left-[27px] top-[118px] w-[257px]" data-node-id="408:1547" data-name="Grid 10" />
+                <p className="[word-break:break-word] absolute font-['Inter:Regular'] font-normal leading-[18px] left-0 not-italic text-[10px] text-[color:var(--cq-text-muted,#52697a)] top-[111px] w-[22px]" data-node-id="408:1548">
+                  10
+                </p>
+                <div className="absolute bg-[var(--cq-border-default,#d3e1eb)] h-px left-[27px] top-[92px] w-[257px]" data-node-id="408:1549" data-name="Grid 15" />
+                <p className="[word-break:break-word] absolute font-['Inter:Regular'] font-normal leading-[18px] left-0 not-italic text-[10px] text-[color:var(--cq-text-muted,#52697a)] top-[85px] w-[22px]" data-node-id="408:1550">
+                  15
+                </p>
+                <div className="absolute bg-[var(--cq-border-default,#d3e1eb)] h-px left-[27px] top-[66px] w-[257px]" data-node-id="408:1551" data-name="Grid 20" />
+                <p className="[word-break:break-word] absolute font-['Inter:Regular'] font-normal leading-[18px] left-0 not-italic text-[10px] text-[color:var(--cq-text-muted,#52697a)] top-[59px] w-[22px]" data-node-id="408:1552">
+                  20
+                </p>
+                <div className="absolute bg-[var(--cq-border-default,#d3e1eb)] h-px left-[27px] top-[40px] w-[257px]" data-node-id="408:1553" data-name="Grid 25" />
+                <p className="[word-break:break-word] absolute font-['Inter:Regular'] font-normal leading-[18px] left-0 not-italic text-[10px] text-[color:var(--cq-text-muted,#52697a)] top-[33px] w-[22px]" data-node-id="408:1554">
+                  25
+                </p>
+                <div className="absolute bg-[var(--cq-brand-navy,#09386b)] h-[62.4px] left-[34px] rounded-tl-[4px] rounded-tr-[4px] top-[107.6px] w-[21px]" data-node-id="408:1555" data-name="September 12 / 12 minutes" />
+                <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Inter:Regular'] font-normal leading-[18px] left-[44.5px] not-italic text-[10px] text-[color:var(--cq-text-muted,#52697a)] text-center top-[87.6px] w-[27px]" data-node-id="408:1556">
+                  12
+                </p>
+                <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Inter:Regular'] font-normal leading-[18px] left-[44.5px] not-italic text-[10px] text-[color:var(--cq-text-muted,#52697a)] text-center top-[179px] w-[27px]" data-node-id="408:1557">
+                  12
+                </p>
+                <div className="absolute bg-[var(--cq-brand-navy,#09386b)] h-[83.2px] left-[70px] rounded-tl-[4px] rounded-tr-[4px] top-[86.8px] w-[21px]" data-node-id="408:1558" data-name="September 13 / 16 minutes" />
+                <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Inter:Regular'] font-normal leading-[18px] left-[80.5px] not-italic text-[10px] text-[color:var(--cq-text-muted,#52697a)] text-center top-[66.8px] w-[27px]" data-node-id="408:1559">
+                  16
+                </p>
+                <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Inter:Regular'] font-normal leading-[18px] left-[80.5px] not-italic text-[10px] text-[color:var(--cq-text-muted,#52697a)] text-center top-[179px] w-[27px]" data-node-id="408:1560">
+                  13
+                </p>
+                <div className="absolute bg-[var(--cq-brand-navy,#09386b)] h-[104px] left-[106px] rounded-tl-[4px] rounded-tr-[4px] top-[66px] w-[21px]" data-node-id="408:1561" data-name="September 14 / 20 minutes" />
+                <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Inter:Regular'] font-normal leading-[18px] left-[116.5px] not-italic text-[10px] text-[color:var(--cq-text-muted,#52697a)] text-center top-[46px] w-[27px]" data-node-id="408:1562">
+                  20
+                </p>
+                <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Inter:Regular'] font-normal leading-[18px] left-[116.5px] not-italic text-[10px] text-[color:var(--cq-text-muted,#52697a)] text-center top-[179px] w-[27px]" data-node-id="408:1563">
+                  14
+                </p>
+                <div className="absolute bg-[var(--cq-brand-teal,#0a8a8c)] h-[124.8px] left-[142px] rounded-tl-[4px] rounded-tr-[4px] top-[45.2px] w-[21px]" data-node-id="408:1564" data-name="September 15 / 24 minutes" />
+                <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Inter:Regular'] font-normal leading-[18px] left-[152.5px] not-italic text-[10px] text-[color:var(--cq-text-muted,#52697a)] text-center top-[25.2px] w-[27px]" data-node-id="408:1565">
+                  24
+                </p>
+                <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Inter:Regular'] font-normal leading-[18px] left-[152.5px] not-italic text-[10px] text-[color:var(--cq-text-muted,#52697a)] text-center top-[179px] w-[27px]" data-node-id="408:1566">
+                  15
+                </p>
+                <div className="absolute bg-[var(--cq-brand-navy,#09386b)] h-[62.4px] left-[178px] rounded-tl-[4px] rounded-tr-[4px] top-[107.6px] w-[21px]" data-node-id="408:1567" data-name="September 16 / 12 minutes" />
+                <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Inter:Regular'] font-normal leading-[18px] left-[188.5px] not-italic text-[10px] text-[color:var(--cq-text-muted,#52697a)] text-center top-[87.6px] w-[27px]" data-node-id="408:1568">
+                  12
+                </p>
+                <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Inter:Regular'] font-normal leading-[18px] left-[188.5px] not-italic text-[10px] text-[color:var(--cq-text-muted,#52697a)] text-center top-[179px] w-[27px]" data-node-id="408:1569">
+                  16
+                </p>
+                <div className="absolute bg-[var(--cq-brand-navy,#09386b)] h-[83.2px] left-[214px] rounded-tl-[4px] rounded-tr-[4px] top-[86.8px] w-[21px]" data-node-id="408:1570" data-name="September 17 / 16 minutes" />
+                <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Inter:Regular'] font-normal leading-[18px] left-[224.5px] not-italic text-[10px] text-[color:var(--cq-text-muted,#52697a)] text-center top-[66.8px] w-[27px]" data-node-id="408:1571">
+                  16
+                </p>
+                <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Inter:Regular'] font-normal leading-[18px] left-[224.5px] not-italic text-[10px] text-[color:var(--cq-text-muted,#52697a)] text-center top-[179px] w-[27px]" data-node-id="408:1572">
+                  17
+                </p>
+                <div className="absolute bg-[var(--cq-brand-navy,#09386b)] h-[104px] left-[250px] rounded-tl-[4px] rounded-tr-[4px] top-[66px] w-[21px]" data-node-id="408:1573" data-name="September 18 / 20 minutes" />
+                <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Inter:Regular'] font-normal leading-[18px] left-[260.5px] not-italic text-[10px] text-[color:var(--cq-text-muted,#52697a)] text-center top-[46px] w-[27px]" data-node-id="408:1574">
+                  20
+                </p>
+                <p className="-translate-x-1/2 [word-break:break-word] absolute font-['Inter:Regular'] font-normal leading-[18px] left-[260.5px] not-italic text-[10px] text-[color:var(--cq-text-muted,#52697a)] text-center top-[179px] w-[27px]" data-node-id="408:1575">
+                  18
+                </p>
+              </div>
+            </div>
+            <div className="[word-break:break-word] bg-[var(--cq-surface-card,white)] border border-[var(--cq-border-default,#d3e1eb)] border-solid content-stretch drop-shadow-[0px_2px_3px_rgba(5,33,71,0.06)] flex flex-col gap-[var(--cq-space-sm,8px)] items-start not-italic p-[var(--cq-space-xl,24px)] relative rounded-[var(--cq-radius-lg,24px)] shrink-0 w-[327px]" data-node-id="408:1576" data-name="Card / Review the morning peak">
+              <p className="font-['Inter:Bold'] font-bold leading-[16px] relative shrink-0 text-[10px] text-[color:var(--cq-text-muted,#52697a)] tracking-[1px] w-full" data-node-id="I408:1576;114:5">
+                OPERATIONAL INSIGHT
+              </p>
+              <p className="font-['Inter:Bold'] font-bold leading-[26px] relative shrink-0 text-[20px] text-[color:var(--cq-text-primary,#141f2b)] w-full" data-node-id="I408:1576;114:6">
+                Review the morning peak
+              </p>
+              <p className="font-['Inter:Regular'] font-normal leading-[21px] relative shrink-0 text-[14px] text-[color:var(--cq-text-muted,#52697a)] w-full" data-node-id="I408:1576;114:7">
+                Consider additional registration support between 10:00 and 11:00. Compare with service staffing before making changes.
+              </p>
+            </div>
+            <CareQueueButton className="bg-[var(--cq-brand-navy,#09386b)] content-stretch cursor-pointer drop-shadow-[0px_2px_3px_rgba(5,33,71,0.06)] flex h-[56px] items-center justify-center p-[var(--cq-space-lg,16px)] relative rounded-[var(--cq-radius-md,16px)] shrink-0 w-[327px]" label="Open detailed report" />
+          </div>
+        </div>
+      </div>
+      <div className="absolute bg-[var(--cq-surface-card,white)] border border-[var(--cq-border-default,#d3e1eb)] border-solid content-stretch cursor-pointer flex gap-[var(--cq-space-xs,4px)] h-[80px] items-start left-0 overflow-clip p-[var(--cq-space-sm,8px)] top-[764px] w-[375px]" data-node-id="408:1582" data-name="Admin bottom navigation">
+        <a className="content-stretch flex flex-col gap-[var(--cq-space-xs,4px)] h-[64px] items-center justify-center p-[var(--cq-space-sm,8px)] relative rounded-[var(--cq-radius-sm,12px)] shrink-0 w-[86.75px]" data-node-id="408:1583" data-name="Navigate / Home">
+          <CareQueueIconHome className="relative shrink-0 size-[24px]" />
+          <p className="[word-break:break-word] font-['Inter:Regular'] font-normal leading-[18px] min-w-full not-italic relative shrink-0 text-[10px] text-[color:var(--cq-text-muted,#52697a)] text-center w-[min-content]" data-node-id="I408:1583;119:15">
+            Home
+          </p>
+        </a>
+        <a className="content-stretch flex flex-col gap-[var(--cq-space-xs,4px)] h-[64px] items-center justify-center p-[var(--cq-space-sm,8px)] relative rounded-[var(--cq-radius-sm,12px)] shrink-0 w-[86.75px]" data-node-id="408:1588" data-name="Navigate / Queue">
+          <CareQueueIconQueue className="relative shrink-0 size-[24px]" />
+          <p className="[word-break:break-word] font-['Inter:Regular'] font-normal leading-[18px] min-w-full not-italic relative shrink-0 text-[10px] text-[color:var(--cq-text-muted,#52697a)] text-center w-[min-content]" data-node-id="I408:1588;119:15">
+            Queue
+          </p>
+        </a>
+        <button className="content-stretch flex flex-col gap-[var(--cq-space-xs,4px)] h-[64px] items-center justify-center p-[var(--cq-space-sm,8px)] relative rounded-[var(--cq-radius-sm,12px)] shrink-0 w-[86.75px]" data-node-id="408:1593" data-name="Navigate / Incidents">
+          <CareQueueIconBell className="relative shrink-0 size-[24px]" />
+          <p className="[word-break:break-word] font-['Inter:Regular'] font-normal leading-[18px] min-w-full not-italic relative shrink-0 text-[10px] text-[color:var(--cq-text-muted,#52697a)] text-center w-[min-content]" data-node-id="I408:1593;119:15">
+            Incidents
+          </p>
+        </button>
+        <a className="bg-[var(--cq-surface-blue,#f0f7ff)] content-stretch flex flex-col gap-[var(--cq-space-xs,4px)] h-[64px] items-center justify-center p-[var(--cq-space-sm,8px)] relative rounded-[var(--cq-radius-sm,12px)] shrink-0 w-[86.75px]" data-node-id="408:1598" data-name="Navigate / More">
+          <CareQueueIconSettings className="relative shrink-0 size-[24px]" />
+          <p className="[word-break:break-word] font-['Inter:Bold'] font-bold leading-[18px] min-w-full not-italic relative shrink-0 text-[10px] text-[color:var(--cq-brand-navy,#09386b)] text-center w-[min-content]" data-node-id="I408:1598;119:18">
+            More
+          </p>
+        </a>
+      </div>
+    </div>
+  );
+}
+SUPER CRITICAL: The generated React+Tailwind code MUST be converted to match the target project's technology stack and styling system.
+1. Analyze the target codebase to identify: technology stack, styling approach, component patterns, and design tokens
+2. Convert React syntax to the target framework/library
+3. Transform all Tailwind classes to the target styling system while preserving exact visual design
+4. Follow the project's existing patterns and conventions
+DO NOT install any Tailwind as a dependency unless the user instructs you to do so.
+
+Node ids have been added to the code as data attributes, e.g. `data-node-id="1:2"`.
+These styles are contained in the design: CareQueue / Mobile / Section: Font(family: "Inter", style: Bold, size: 18, weight: 700, lineHeight: 26, letterSpacing: 0), CareQueue / Mobile / Overline: Font(family: "Inter", style: Bold, size: 10, weight: 700, lineHeight: 16, letterSpacing: 0), CareQueue / Mobile / Title: Font(family: "Inter", style: Bold, size: 24, weight: 700, lineHeight: 32, letterSpacing: 0), CareQueue / Mobile / Caption: Font(family: "Inter", style: Regular, size: 12, weight: 400, lineHeight: 18, letterSpacing: 0), CareQueue / Card: Effect(type: DROP_SHADOW, color: #0521470F, offset: (0, 2), radius: 6, spread: 0), CareQueue / Mobile / Body: Font(family: "Inter", style: Regular, size: 14, weight: 400, lineHeight: 21, letterSpacing: 0).
+Component descriptions: The following components have usage descriptions or documentation links defined in Figma. These descriptions provide important context about the intended usage, best practices, and any constraints for each component. Follow these guidelines when implementing or using these components.
+
+## CareQueue / Icon / bell
+**Node ID:** 118:14
+
+24 px navigation icon.
+
+## CareQueue / Card / Neutral
+**Node ID:** 114:4
+
+Information card. Eyebrow identifies context; title gives the important result; body supplies the next step.
+
+## Style=Primary, State=Default
+**Node ID:** 114:2
+
+Primary action. Minimum height 56 px; use one main action per task section.
+
+## CareQueue / Icon / home
+**Node ID:** 118:4
+
+24 px navigation icon.
+
+## CareQueue / Icon / queue
+**Node ID:** 118:7
+
+24 px navigation icon.
+Images and SVGs will be stored as constants, e.g. const image = 'https://www.figma.com/api/mcp/asset/550e8400-e29b-41d4-a716-446655440000.png'. These constants will be used in the code as the source for the image, ex: <img src={image} />. Image assets are stored on a remote server for 7 days and can be fetched using the provided URLs until they expire.

@@ -1,0 +1,211 @@
+const imgCareQueueIconSettings = "https://www.figma.com/api/mcp/asset/5de0097e-a5fd-43ce-a5d1-0620eda31987.svg";
+const imgCareQueueIconBell = "https://www.figma.com/api/mcp/asset/88b0b472-e75b-4f5f-b239-56cca50ab616.svg";
+const imgCareQueueIconQueue = "https://www.figma.com/api/mcp/asset/6368645b-7ec9-4894-aa3e-7b6687b214b0.svg";
+const imgCareQueueIconHome = "https://www.figma.com/api/mcp/asset/57a9e13f-3741-4b02-9f41-a56dd9dd1be4.svg";
+const imgCareQueueIconBell1 = "https://www.figma.com/api/mcp/asset/43dd39f8-f52b-48e7-ace6-382aa21fa87e.svg";
+
+function CareQueueIconSettings({ className }: { className?: string }) {
+  return (
+    <div className={className || "relative size-[24px]"} data-node-id="119:11" data-name="CareQueue / Icon / settings">
+      <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgCareQueueIconSettings} />
+    </div>
+  );
+}
+
+function CareQueueIconBell({ className }: { className?: string }) {
+  return (
+    <div className={className || "relative size-[24px]"} data-node-id="118:14" data-name="CareQueue / Icon / bell">
+      <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgCareQueueIconBell} />
+    </div>
+  );
+}
+
+function CareQueueIconQueue({ className }: { className?: string }) {
+  return (
+    <div className={className || "relative size-[24px]"} data-node-id="118:7" data-name="CareQueue / Icon / queue">
+      <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgCareQueueIconQueue} />
+    </div>
+  );
+}
+
+function CareQueueIconHome({ className }: { className?: string }) {
+  return (
+    <div className={className || "relative size-[24px]"} data-node-id="118:4" data-name="CareQueue / Icon / home">
+      <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgCareQueueIconHome} />
+    </div>
+  );
+}
+
+type CareQueueButtonProps = {
+  className?: string;
+  label?: string;
+  state?: "Default";
+  style?: "Primary" | "Secondary";
+};
+
+function CareQueueButton({ className, label = "Continue", state = "Default", style = "Primary" }: CareQueueButtonProps) {
+  const isSecondaryAndDefault = style === "Secondary" && state === "Default";
+  return (
+    <div className={className || `content-stretch drop-shadow-[0px_2px_3px_rgba(5,33,71,0.06)] flex h-[56px] items-center justify-center p-[var(--cq-space-lg,16px)] relative rounded-[var(--cq-radius-md,16px)] w-[327px] ${isSecondaryAndDefault ? "bg-[var(--cq-surface-card,white)] border border-[var(--cq-border-default,#d3e1eb)] border-solid" : "bg-[var(--cq-brand-navy,#09386b)]"}`} id={isSecondaryAndDefault ? "node-115_2" : "node-114_2"}>
+      {style === "Primary" && state === "Default" && (
+        <p className="[word-break:break-word] flex-[1_0_0] font-['Inter:Bold'] font-bold leading-[20px] min-w-px not-italic relative text-[16px] text-[color:var(--cq-surface-card,white)] text-center" data-node-id="114:3">
+          {label}
+        </p>
+      )}
+      {isSecondaryAndDefault && (
+        <p className="[word-break:break-word] flex-[1_0_0] font-['Inter:Bold'] font-bold leading-[20px] min-w-px not-italic relative text-[16px] text-[color:var(--cq-brand-navy,#09386b)] text-center" data-node-id="115:3">
+          {label}
+        </p>
+      )}
+    </div>
+  );
+}
+
+export default function A05BroadcastCentreMobile() {
+  return (
+    <div className="bg-[var(--cq-surface-page,#f8fafc)] overflow-clip relative rounded-[24px] size-full" data-node-id="35:374" data-name="A05 — Broadcast centre · Mobile">
+      <div className="absolute h-[764px] left-0 overflow-x-clip overflow-y-auto top-0 w-[375px]" data-node-id="408:1668" data-name="Scrollable content">
+        <div className="absolute content-stretch flex flex-col items-start left-0 overflow-clip top-0 w-[375px]" data-node-id="408:1669" data-name="Admin mobile content">
+          <div className="bg-[var(--cq-brand-navy,#09386b)] content-stretch flex flex-col gap-[var(--cq-space-lg,16px)] items-start mb-[-24px] overflow-clip pb-[48px] pt-[var(--cq-space-xl,24px)] px-[var(--cq-space-xl,24px)] relative rounded-[var(--cq-radius-lg,24px)] shrink-0 w-[375px]" data-node-id="408:1670" data-name="Admin header">
+            <div className="content-stretch flex gap-[var(--cq-space-md,12px)] items-center overflow-clip relative shrink-0 w-[327px]" data-node-id="408:1671" data-name="Brand and notifications">
+              <div className="[word-break:break-word] content-stretch flex flex-col font-['Inter:Bold'] font-bold gap-[4px] items-start not-italic overflow-clip relative shrink-0 text-[color:var(--cq-surface-card,white)] w-[271px]" data-node-id="408:1672" data-name="Admin identity">
+                <p className="leading-[26px] relative shrink-0 text-[18px] w-[271px]" data-node-id="408:1673">
+                  Admin Portal
+                </p>
+                <p className="leading-[16px] opacity-78 relative shrink-0 text-[10px] w-[271px]" data-node-id="408:1674">
+                  GAMPAHA DGH · OPERATIONS
+                </p>
+              </div>
+              <a className="bg-[var(--cq-brand-navy-dark,#052347)] content-stretch cursor-pointer flex flex-col items-center justify-center overflow-clip relative rounded-[var(--cq-radius-sm,12px)] shrink-0 size-[44px]" data-node-id="408:1675" data-name="Notifications button">
+                <div className="relative shrink-0 size-[24px]" data-node-id="408:1676" data-name="CareQueue / Icon / bell">
+                  <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgCareQueueIconBell1} />
+                </div>
+              </a>
+            </div>
+            <p className="[word-break:break-word] font-['Inter:Bold'] font-bold leading-[32px] not-italic relative shrink-0 text-[24px] text-[color:var(--cq-surface-card,white)] w-[327px]" data-node-id="408:1678">
+              Broadcast centre
+            </p>
+            <p className="[word-break:break-word] font-['Inter:Regular'] font-normal leading-[18px] not-italic opacity-85 relative shrink-0 text-[12px] text-[color:var(--cq-surface-card,white)] w-[327px]" data-node-id="408:1679">
+              INC-018 · Verified service update
+            </p>
+          </div>
+          <div className="content-stretch flex flex-col gap-[var(--cq-space-lg,16px)] items-start overflow-clip pb-[var(--cq-space-xl,24px)] px-[var(--cq-space-xl,24px)] relative shrink-0 w-[375px]" data-node-id="408:1680" data-name="Screen body">
+            <div className="[word-break:break-word] bg-[var(--cq-surface-card,white)] border border-[var(--cq-border-default,#d3e1eb)] border-solid content-stretch drop-shadow-[0px_2px_3px_rgba(5,33,71,0.06)] flex flex-col gap-[var(--cq-space-sm,8px)] items-start not-italic p-[var(--cq-space-xl,24px)] relative rounded-[var(--cq-radius-lg,24px)] shrink-0 w-[327px]" data-node-id="408:1681" data-name="Card / General OPD service update">
+              <p className="font-['Inter:Bold'] font-bold leading-[16px] relative shrink-0 text-[10px] text-[color:var(--cq-text-muted,#52697a)] tracking-[1px] w-full" data-node-id="I408:1681;114:5">
+                DRAFT · REVIEW BEFORE PUBLISHING
+              </p>
+              <p className="font-['Inter:Bold'] font-bold leading-[26px] relative shrink-0 text-[20px] text-[color:var(--cq-text-primary,#141f2b)] w-full" data-node-id="I408:1681;114:6">
+                General OPD service update
+              </p>
+              <p className="font-['Inter:Regular'] font-normal leading-[21px] relative shrink-0 text-[14px] text-[color:var(--cq-text-muted,#52697a)] w-full" data-node-id="I408:1681;114:7">
+                The medical officer is delayed. Estimated wait: 35–50 minutes. Please use the OPD waiting area and watch for queue updates.
+              </p>
+            </div>
+            <div className="[word-break:break-word] bg-[var(--cq-surface-card,white)] border border-[var(--cq-border-default,#d3e1eb)] border-solid content-stretch drop-shadow-[0px_2px_3px_rgba(5,33,71,0.06)] flex flex-col gap-[var(--cq-space-sm,8px)] items-start not-italic p-[var(--cq-space-xl,24px)] relative rounded-[var(--cq-radius-lg,24px)] shrink-0 w-[327px]" data-node-id="408:1685" data-name="Card / Distribution">
+              <p className="font-['Inter:Bold'] font-bold leading-[16px] relative shrink-0 text-[10px] text-[color:var(--cq-text-muted,#52697a)] tracking-[1px] w-full" data-node-id="I408:1685;114:5">
+                3 CHANNELS
+              </p>
+              <p className="font-['Inter:Bold'] font-bold leading-[26px] relative shrink-0 text-[18px] text-[color:var(--cq-text-primary,#141f2b)] w-full" data-node-id="I408:1685;114:6">
+                Distribution
+              </p>
+              <div className="font-['Inter:Regular'] font-normal leading-[0] relative shrink-0 text-[13px] text-[color:var(--cq-text-muted,#52697a)] w-full" data-node-id="I408:1685;114:7">
+                <p className="leading-[21px] mb-0">Audience: General OPD waiting patients</p>
+                <p className="leading-[21px] mb-0">Channels: Patient app · consented SMS · hospital display</p>
+                <p className="leading-[21px]">Staff: Receive the operational update</p>
+              </div>
+            </div>
+            <div className="[word-break:break-word] bg-[var(--cq-surface-success,#e9f7ef)] border border-[var(--cq-surface-success,#e9f7ef)] border-solid content-stretch drop-shadow-[0px_2px_3px_rgba(5,33,71,0.06)] flex flex-col gap-[var(--cq-space-sm,8px)] items-start not-italic p-[var(--cq-space-xl,24px)] relative rounded-[var(--cq-radius-lg,24px)] shrink-0 w-[327px]" data-node-id="408:1689" data-name="Card / Service information only">
+              <p className="font-['Inter:Bold'] font-bold leading-[16px] relative shrink-0 text-[10px] text-[color:var(--cq-status-success,#16854a)] tracking-[1px] w-full" data-node-id="I408:1689;116:7">
+                PRIVACY CHECK
+              </p>
+              <p className="font-['Inter:Bold'] font-bold leading-[26px] relative shrink-0 text-[20px] text-[color:var(--cq-text-primary,#141f2b)] w-full" data-node-id="I408:1689;116:8">
+                Service information only
+              </p>
+              <p className="font-['Inter:Regular'] font-normal leading-[21px] relative shrink-0 text-[14px] text-[color:var(--cq-text-muted,#52697a)] w-full" data-node-id="I408:1689;116:9">
+                No patient names, phone numbers, medical details or individual token numbers are included.
+              </p>
+            </div>
+            <button className="bg-[var(--cq-brand-navy,#09386b)] content-stretch cursor-pointer drop-shadow-[0px_2px_3px_rgba(5,33,71,0.06)] flex h-[56px] items-center justify-center p-[var(--cq-space-lg,16px)] relative rounded-[var(--cq-radius-md,16px)] shrink-0 w-[327px]" data-node-id="408:1693" data-name="Action / Review and publish">
+              <p className="[word-break:break-word] flex-[1_0_0] font-['Inter:Bold'] font-bold leading-[20px] min-w-px not-italic relative text-[16px] text-[color:var(--cq-surface-card,white)] text-center" data-node-id="I408:1693;114:3">
+                Review and publish
+              </p>
+            </button>
+            <CareQueueButton className="bg-[var(--cq-surface-card,white)] border border-[var(--cq-border-default,#d3e1eb)] border-solid content-stretch cursor-pointer drop-shadow-[0px_2px_3px_rgba(5,33,71,0.06)] flex h-[56px] items-center justify-center p-[var(--cq-space-lg,16px)] relative rounded-[var(--cq-radius-md,16px)] shrink-0 w-[327px]" label="View verified incident" style="Secondary" />
+          </div>
+        </div>
+      </div>
+      <div className="absolute bg-[var(--cq-surface-card,white)] border border-[var(--cq-border-default,#d3e1eb)] border-solid content-stretch cursor-pointer flex gap-[var(--cq-space-xs,4px)] h-[80px] items-start left-0 overflow-clip p-[var(--cq-space-sm,8px)] top-[764px] w-[375px]" data-node-id="408:1697" data-name="Admin bottom navigation">
+        <a className="content-stretch flex flex-col gap-[var(--cq-space-xs,4px)] h-[64px] items-center justify-center p-[var(--cq-space-sm,8px)] relative rounded-[var(--cq-radius-sm,12px)] shrink-0 w-[86.75px]" data-node-id="408:1698" data-name="Navigate / Home">
+          <CareQueueIconHome className="relative shrink-0 size-[24px]" />
+          <p className="[word-break:break-word] font-['Inter:Regular'] font-normal leading-[18px] min-w-full not-italic relative shrink-0 text-[10px] text-[color:var(--cq-text-muted,#52697a)] text-center w-[min-content]" data-node-id="I408:1698;119:15">
+            Home
+          </p>
+        </a>
+        <a className="content-stretch flex flex-col gap-[var(--cq-space-xs,4px)] h-[64px] items-center justify-center p-[var(--cq-space-sm,8px)] relative rounded-[var(--cq-radius-sm,12px)] shrink-0 w-[86.75px]" data-node-id="408:1703" data-name="Navigate / Queue">
+          <CareQueueIconQueue className="relative shrink-0 size-[24px]" />
+          <p className="[word-break:break-word] font-['Inter:Regular'] font-normal leading-[18px] min-w-full not-italic relative shrink-0 text-[10px] text-[color:var(--cq-text-muted,#52697a)] text-center w-[min-content]" data-node-id="I408:1703;119:15">
+            Queue
+          </p>
+        </a>
+        <button className="content-stretch flex flex-col gap-[var(--cq-space-xs,4px)] h-[64px] items-center justify-center p-[var(--cq-space-sm,8px)] relative rounded-[var(--cq-radius-sm,12px)] shrink-0 w-[86.75px]" data-node-id="408:1708" data-name="Navigate / Incidents">
+          <CareQueueIconBell className="relative shrink-0 size-[24px]" />
+          <p className="[word-break:break-word] font-['Inter:Regular'] font-normal leading-[18px] min-w-full not-italic relative shrink-0 text-[10px] text-[color:var(--cq-text-muted,#52697a)] text-center w-[min-content]" data-node-id="I408:1708;119:15">
+            Incidents
+          </p>
+        </button>
+        <a className="bg-[var(--cq-surface-blue,#f0f7ff)] content-stretch flex flex-col gap-[var(--cq-space-xs,4px)] h-[64px] items-center justify-center p-[var(--cq-space-sm,8px)] relative rounded-[var(--cq-radius-sm,12px)] shrink-0 w-[86.75px]" data-node-id="408:1713" data-name="Navigate / More">
+          <CareQueueIconSettings className="relative shrink-0 size-[24px]" />
+          <p className="[word-break:break-word] font-['Inter:Bold'] font-bold leading-[18px] min-w-full not-italic relative shrink-0 text-[10px] text-[color:var(--cq-brand-navy,#09386b)] text-center w-[min-content]" data-node-id="I408:1713;119:18">
+            More
+          </p>
+        </a>
+      </div>
+    </div>
+  );
+}
+SUPER CRITICAL: The generated React+Tailwind code MUST be converted to match the target project's technology stack and styling system.
+1. Analyze the target codebase to identify: technology stack, styling approach, component patterns, and design tokens
+2. Convert React syntax to the target framework/library
+3. Transform all Tailwind classes to the target styling system while preserving exact visual design
+4. Follow the project's existing patterns and conventions
+DO NOT install any Tailwind as a dependency unless the user instructs you to do so.
+
+Node ids have been added to the code as data attributes, e.g. `data-node-id="1:2"`.
+These styles are contained in the design: CareQueue / Mobile / Section: Font(family: "Inter", style: Bold, size: 18, weight: 700, lineHeight: 26, letterSpacing: 0), CareQueue / Mobile / Overline: Font(family: "Inter", style: Bold, size: 10, weight: 700, lineHeight: 16, letterSpacing: 0), CareQueue / Mobile / Title: Font(family: "Inter", style: Bold, size: 24, weight: 700, lineHeight: 32, letterSpacing: 0), CareQueue / Mobile / Caption: Font(family: "Inter", style: Regular, size: 12, weight: 400, lineHeight: 18, letterSpacing: 0), CareQueue / Mobile / Body: Font(family: "Inter", style: Regular, size: 14, weight: 400, lineHeight: 21, letterSpacing: 0), CareQueue / Card: Effect(type: DROP_SHADOW, color: #0521470F, offset: (0, 2), radius: 6, spread: 0).
+Component descriptions: The following components have usage descriptions or documentation links defined in Figma. These descriptions provide important context about the intended usage, best practices, and any constraints for each component. Follow these guidelines when implementing or using these components.
+
+## CareQueue / Icon / bell
+**Node ID:** 118:14
+
+24 px navigation icon.
+
+## CareQueue / Card / Neutral
+**Node ID:** 114:4
+
+Information card. Eyebrow identifies context; title gives the important result; body supplies the next step.
+
+## CareQueue / Card / Success
+**Node ID:** 116:6
+
+Information card. Eyebrow identifies context; title gives the important result; body supplies the next step.
+
+## Style=Primary, State=Default
+**Node ID:** 114:2
+
+Primary action. Minimum height 56 px; use one main action per task section.
+
+## Style=Secondary, State=Default
+**Node ID:** 115:2
+
+Primary action. Minimum height 56 px; use one main action per task section.
+
+## CareQueue / Icon / home
+**Node ID:** 118:4
+
+24 px navigation icon.
+
+## CareQueue / Icon / queue
+**Node ID:** 118:7
+
+24 px navigation icon.
+Images and SVGs will be stored as constants, e.g. const image = 'https://www.figma.com/api/mcp/asset/550e8400-e29b-41d4-a716-446655440000.png'. These constants will be used in the code as the source for the image, ex: <img src={image} />. Image assets are stored on a remote server for 7 days and can be fetched using the provided URLs until they expire.

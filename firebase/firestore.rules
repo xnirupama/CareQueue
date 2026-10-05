@@ -1,0 +1,29 @@
+rules_version = '2';
+service cloud.firestore {
+ match /databases/{database}/documents {
+  function signedIn(){return request.auth != null;}
+  function staff(){return signedIn() && request.auth.token.role in ['staff','admin'];}
+  function admin(){return signedIn() && request.auth.token.role == 'admin';}
+  function owner(uid){return signedIn() && request.auth.uid == uid;}
+  match /services/{id}{allow read: if signedIn(); allow write: if staff() && request.resource.data.keys().hasOnly(['nowServing','serviceStatus','updatedAt','broadcasts']);}
+  match /operations/{id}{allow read: if staff();allow update: if staff() && (admin() || request.resource.data.incidentVerified == resource.data.incidentVerified);allow create: if admin();allow delete: if false;}
+  match /audit/{id}{allow read,create: if staff();allow update,delete:if false;}
+  match /patients/{uid}{
+   allow read: if owner(uid);
+   allow create,update: if owner(uid) && request.resource.data.keys().hasOnly(['sms','appAlerts','language','largeText','caregiver'])
+    && (!('sms' in request.resource.data)||request.resource.data.sms is bool)
+    && (!('appAlerts' in request.resource.data)||request.resource.data.appAlerts is bool)
+    && (!('language' in request.resource.data)||request.resource.data.language in ['en','si','ta'])
+    && (!('largeText' in request.resource.data)||request.resource.data.largeText is bool);
+   allow delete: if owner(uid);
+  }
+  match /tickets/{uid}{allow read: if owner(uid)||staff();allow write: if staff();}
+  match /recoveryRequests/{uid}{
+   allow read: if owner(uid)||staff();
+   allow create: if owner(uid) && request.resource.data.keys().hasOnly(['patientId','token','status','requestedAt']) && request.resource.data.patientId==uid && request.resource.data.status=='pending' && request.resource.data.token==get(/databases/$(database)/documents/tickets/$(uid)).data.token;
+   allow update: if staff() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']) && request.resource.data.status in ['approved','pending','rejected'];
+   allow delete: if false;
+  }
+  match /{document=**}{allow read,write:if false;}
+ }
+}

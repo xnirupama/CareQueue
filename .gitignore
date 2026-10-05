@@ -1,0 +1,24 @@
+node_modules/
+.expo/
+dist/
+web-build/
+.env
+.env.*
+!.env.example
+*.jks
+*.p8
+*.p12
+*.mobileprovision
+credentials.json
+firebase-debug.log
+firestore-debug.log
+.DS_Store
+coverage/
+
+# Generated native projects are reproduced with Expo prebuild.
+android/
+ios/
+artifacts/*.apk
+service-account*.json
+*serviceAccount*.json
+.firebase/

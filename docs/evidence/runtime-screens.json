@@ -1,0 +1,598 @@
+{
+  "checkedAt": "2026-10-05T17:03:23.813Z",
+  "surface": "Chrome browser preview",
+  "checks": [
+    {
+      "buttons": 9,
+      "height": 842,
+      "id": "16:7",
+      "svg": 4,
+      "text": 391,
+      "width": 373
+    },
+    {
+      "buttons": 6,
+      "height": 842,
+      "id": "16:28",
+      "svg": 13,
+      "text": 401,
+      "width": 373
+    },
+    {
+      "buttons": 4,
+      "height": 842,
+      "id": "16:60",
+      "svg": 4,
+      "text": 395,
+      "width": 373
+    },
+    {
+      "buttons": 5,
+      "height": 842,
+      "id": "16:95",
+      "svg": 11,
+      "text": 319,
+      "width": 373
+    },
+    {
+      "buttons": 5,
+      "height": 842,
+      "id": "16:122",
+      "svg": 4,
+      "text": 380,
+      "width": 373
+    },
+    {
+      "buttons": 6,
+      "height": 842,
+      "id": "16:154",
+      "svg": 4,
+      "text": 400,
+      "width": 373
+    },
+    {
+      "buttons": 5,
+      "height": 842,
+      "id": "16:189",
+      "svg": 7,
+      "text": 419,
+      "width": 373
+    },
+    {
+      "buttons": 6,
+      "height": 842,
+      "id": "16:206",
+      "svg": 4,
+      "text": 487,
+      "width": 373
+    },
+    {
+      "buttons": 5,
+      "height": 842,
+      "id": "16:227",
+      "svg": 4,
+      "text": 493,
+      "width": 373
+    },
+    {
+      "buttons": 6,
+      "height": 842,
+      "id": "16:247",
+      "svg": 4,
+      "text": 453,
+      "width": 373
+    },
+    {
+      "buttons": 10,
+      "height": 842,
+      "id": "16:276",
+      "svg": 4,
+      "text": 403,
+      "width": 373
+    },
+    {
+      "buttons": 7,
+      "height": 842,
+      "id": "18:576",
+      "svg": 4,
+      "text": 423,
+      "width": 373
+    },
+    {
+      "buttons": 5,
+      "height": 842,
+      "id": "18:599",
+      "svg": 4,
+      "text": 379,
+      "width": 373
+    },
+    {
+      "buttons": 5,
+      "height": 842,
+      "id": "18:636",
+      "svg": 7,
+      "text": 296,
+      "width": 373
+    },
+    {
+      "buttons": 6,
+      "height": 842,
+      "id": "18:648",
+      "svg": 4,
+      "text": 433,
+      "width": 373
+    },
+    {
+      "buttons": 5,
+      "height": 842,
+      "id": "135:656",
+      "svg": 4,
+      "text": 478,
+      "width": 373
+    },
+    {
+      "buttons": 6,
+      "height": 842,
+      "id": "151:769",
+      "svg": 4,
+      "text": 328,
+      "width": 373
+    },
+    {
+      "buttons": 6,
+      "height": 842,
+      "id": "151:835",
+      "svg": 4,
+      "text": 315,
+      "width": 373
+    },
+    {
+      "buttons": 6,
+      "height": 842,
+      "id": "153:847",
+      "svg": 4,
+      "text": 377,
+      "width": 373
+    },
+    {
+      "buttons": 6,
+      "height": 842,
+      "id": "153:919",
+      "svg": 4,
+      "text": 267,
+      "width": 373
+    },
+    {
+      "buttons": 6,
+      "height": 842,
+      "id": "153:987",
+      "svg": 4,
+      "text": 265,
+      "width": 373
+    },
+    {
+      "buttons": 6,
+      "height": 842,
+      "id": "153:1049",
+      "svg": 4,
+      "text": 257,
+      "width": 373
+    },
+    {
+      "buttons": 5,
+      "height": 842,
+      "id": "153:1117",
+      "svg": 7,
+      "text": 302,
+      "width": 373
+    },
+    {
+      "buttons": 6,
+      "height": 842,
+      "id": "153:1207",
+      "svg": 4,
+      "text": 405,
+      "width": 373
+    },
+    {
+      "buttons": 6,
+      "height": 842,
+      "id": "153:1292",
+      "svg": 4,
+      "text": 351,
+      "width": 373
+    },
+    {
+      "buttons": 8,
+      "height": 842,
+      "id": "158:1140",
+      "svg": 4,
+      "text": 392,
+      "width": 373
+    },
+    {
+      "buttons": 8,
+      "height": 842,
+      "id": "158:1207",
+      "svg": 4,
+      "text": 394,
+      "width": 373
+    },
+    {
+      "buttons": 6,
+      "height": 842,
+      "id": "159:1248",
+      "svg": 4,
+      "text": 380,
+      "width": 373
+    },
+    {
+      "buttons": 6,
+      "height": 842,
+      "id": "159:1314",
+      "svg": 4,
+      "text": 380,
+      "width": 373
+    },
+    {
+      "buttons": 6,
+      "height": 842,
+      "id": "159:1380",
+      "svg": 4,
+      "text": 380,
+      "width": 373
+    },
+    {
+      "buttons": 5,
+      "height": 842,
+      "id": "159:1446",
+      "svg": 4,
+      "text": 381,
+      "width": 373
+    },
+    {
+      "buttons": 5,
+      "height": 842,
+      "id": "160:1464",
+      "svg": 4,
+      "text": 352,
+      "width": 373
+    },
+    {
+      "buttons": 7,
+      "height": 842,
+      "id": "138:4",
+      "svg": 15,
+      "text": 408,
+      "width": 373
+    },
+    {
+      "buttons": 4,
+      "height": 842,
+      "id": "139:223",
+      "svg": 4,
+      "text": 369,
+      "width": 373
+    },
+    {
+      "buttons": 8,
+      "height": 842,
+      "id": "139:297",
+      "svg": 4,
+      "text": 352,
+      "width": 373
+    },
+    {
+      "buttons": 6,
+      "height": 842,
+      "id": "139:376",
+      "svg": 4,
+      "text": 404,
+      "width": 373
+    },
+    {
+      "buttons": 5,
+      "height": 842,
+      "id": "139:445",
+      "svg": 4,
+      "text": 428,
+      "width": 373
+    },
+    {
+      "buttons": 6,
+      "height": 842,
+      "id": "140:243",
+      "svg": 4,
+      "text": 462,
+      "width": 373
+    },
+    {
+      "buttons": 6,
+      "height": 842,
+      "id": "140:1066",
+      "svg": 4,
+      "text": 405,
+      "width": 373
+    },
+    {
+      "buttons": 7,
+      "height": 842,
+      "id": "140:1131",
+      "svg": 4,
+      "text": 494,
+      "width": 373
+    },
+    {
+      "buttons": 8,
+      "height": 842,
+      "id": "140:1208",
+      "svg": 4,
+      "text": 337,
+      "width": 373
+    },
+    {
+      "buttons": 6,
+      "height": 842,
+      "id": "154:453",
+      "svg": 4,
+      "text": 330,
+      "width": 373
+    },
+    {
+      "buttons": 6,
+      "height": 842,
+      "id": "154:528",
+      "svg": 4,
+      "text": 285,
+      "width": 373
+    },
+    {
+      "buttons": 6,
+      "height": 842,
+      "id": "154:605",
+      "svg": 4,
+      "text": 249,
+      "width": 373
+    },
+    {
+      "buttons": 5,
+      "height": 842,
+      "id": "154:675",
+      "svg": 4,
+      "text": 225,
+      "width": 373
+    },
+    {
+      "buttons": 5,
+      "height": 842,
+      "id": "154:745",
+      "svg": 4,
+      "text": 191,
+      "width": 373
+    },
+    {
+      "buttons": 6,
+      "height": 842,
+      "id": "154:813",
+      "svg": 4,
+      "text": 310,
+      "width": 373
+    },
+    {
+      "buttons": 5,
+      "height": 842,
+      "id": "154:889",
+      "svg": 4,
+      "text": 206,
+      "width": 373
+    },
+    {
+      "buttons": 6,
+      "height": 842,
+      "id": "154:957",
+      "svg": 4,
+      "text": 382,
+      "width": 373
+    },
+    {
+      "buttons": 5,
+      "height": 842,
+      "id": "154:1025",
+      "svg": 4,
+      "text": 259,
+      "width": 373
+    },
+    {
+      "buttons": 6,
+      "height": 842,
+      "id": "154:1087",
+      "svg": 4,
+      "text": 320,
+      "width": 373
+    },
+    {
+      "buttons": 5,
+      "height": 842,
+      "id": "154:1166",
+      "svg": 4,
+      "text": 254,
+      "width": 373
+    },
+    {
+      "buttons": 6,
+      "height": 842,
+      "id": "154:1237",
+      "svg": 4,
+      "text": 354,
+      "width": 373
+    },
+    {
+      "buttons": 6,
+      "height": 842,
+      "id": "155:931",
+      "svg": 4,
+      "text": 439,
+      "width": 373
+    },
+    {
+      "buttons": 5,
+      "height": 842,
+      "id": "155:1008",
+      "svg": 4,
+      "text": 288,
+      "width": 373
+    },
+    {
+      "buttons": 12,
+      "height": 842,
+      "id": "35:168",
+      "svg": 6,
+      "text": 615,
+      "width": 373
+    },
+    {
+      "buttons": 8,
+      "height": 842,
+      "id": "35:212",
+      "svg": 5,
+      "text": 622,
+      "width": 373
+    },
+    {
+      "buttons": 6,
+      "height": 842,
+      "id": "35:281",
+      "svg": 5,
+      "text": 488,
+      "width": 373
+    },
+    {
+      "buttons": 6,
+      "height": 842,
+      "id": "35:332",
+      "svg": 5,
+      "text": 531,
+      "width": 373
+    },
+    {
+      "buttons": 7,
+      "height": 842,
+      "id": "35:374",
+      "svg": 5,
+      "text": 608,
+      "width": 373
+    },
+    {
+      "buttons": 6,
+      "height": 842,
+      "id": "35:416",
+      "svg": 5,
+      "text": 687,
+      "width": 373
+    },
+    {
+      "buttons": 7,
+      "height": 842,
+      "id": "35:485",
+      "svg": 5,
+      "text": 705,
+      "width": 373
+    },
+    {
+      "buttons": 6,
+      "height": 842,
+      "id": "35:537",
+      "svg": 5,
+      "text": 701,
+      "width": 373
+    },
+    {
+      "buttons": 7,
+      "height": 842,
+      "id": "156:921",
+      "svg": 5,
+      "text": 343,
+      "width": 373
+    },
+    {
+      "buttons": 6,
+      "height": 842,
+      "id": "156:3178",
+      "svg": 5,
+      "text": 344,
+      "width": 373
+    },
+    {
+      "buttons": 7,
+      "height": 842,
+      "id": "156:3305",
+      "svg": 5,
+      "text": 514,
+      "width": 373
+    },
+    {
+      "buttons": 7,
+      "height": 842,
+      "id": "156:3432",
+      "svg": 5,
+      "text": 333,
+      "width": 373
+    },
+    {
+      "buttons": 7,
+      "height": 842,
+      "id": "157:1337",
+      "svg": 5,
+      "text": 394,
+      "width": 373
+    },
+    {
+      "buttons": 7,
+      "height": 842,
+      "id": "157:3600",
+      "svg": 5,
+      "text": 511,
+      "width": 373
+    },
+    {
+      "buttons": 8,
+      "height": 842,
+      "id": "208:1545",
+      "svg": 5,
+      "text": 256,
+      "width": 373
+    },
+    {
+      "buttons": 10,
+      "height": 842,
+      "id": "405:2122",
+      "svg": 5,
+      "text": 556,
+      "width": 373
+    },
+    {
+      "buttons": 8,
+      "height": 842,
+      "id": "405:2123",
+      "svg": 5,
+      "text": 431,
+      "width": 373
+    },
+    {
+      "buttons": 7,
+      "height": 842,
+      "id": "405:2124",
+      "svg": 5,
+      "text": 419,
+      "width": 373
+    },
+    {
+      "buttons": 6,
+      "height": 842,
+      "id": "405:2125",
+      "svg": 5,
+      "text": 734,
+      "width": 373
+    }
+  ]
+}

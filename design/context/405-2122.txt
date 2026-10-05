@@ -1,0 +1,252 @@
+const imgCareQueueIconSettings = "https://www.figma.com/api/mcp/asset/09f56904-8239-49db-9830-5ef2276e0ef4.svg";
+const imgCareQueueIconBell = "https://www.figma.com/api/mcp/asset/314d61c8-4730-4b8b-8846-91d4929bb537.svg";
+const imgCareQueueIconQueue = "https://www.figma.com/api/mcp/asset/3410b9ab-ba89-405f-9737-cd6cd3727089.svg";
+const imgCareQueueIconHome = "https://www.figma.com/api/mcp/asset/a4de366d-b32b-4dcf-b541-0399c15d5f5d.svg";
+const imgCareQueueIconBell1 = "https://www.figma.com/api/mcp/asset/bc5f15b0-f29b-46c3-bbd5-28c8f2f3a2ef.svg";
+
+function CareQueueIconSettings({ className }: { className?: string }) {
+  return (
+    <div className={className || "relative size-[24px]"} data-node-id="119:11" data-name="CareQueue / Icon / settings">
+      <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgCareQueueIconSettings} />
+    </div>
+  );
+}
+
+function CareQueueIconBell({ className }: { className?: string }) {
+  return (
+    <div className={className || "relative size-[24px]"} data-node-id="118:14" data-name="CareQueue / Icon / bell">
+      <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgCareQueueIconBell} />
+    </div>
+  );
+}
+
+function CareQueueIconQueue({ className }: { className?: string }) {
+  return (
+    <div className={className || "relative size-[24px]"} data-node-id="118:7" data-name="CareQueue / Icon / queue">
+      <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgCareQueueIconQueue} />
+    </div>
+  );
+}
+
+function CareQueueIconHome({ className }: { className?: string }) {
+  return (
+    <div className={className || "relative size-[24px]"} data-node-id="118:4" data-name="CareQueue / Icon / home">
+      <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgCareQueueIconHome} />
+    </div>
+  );
+}
+
+export default function AmoreAdminToolsMobile() {
+  return (
+    <div className="bg-[var(--cq-surface-page,#f8fafc)] overflow-clip relative rounded-[24px] size-full" data-node-id="405:2122" data-name="AMORE — Admin tools · Mobile">
+      <div className="absolute h-[764px] left-0 overflow-x-clip overflow-y-auto top-0 w-[375px]" data-node-id="409:953" data-name="Scrollable content">
+        <div className="absolute content-stretch flex flex-col items-start left-0 overflow-clip top-0 w-[375px]" data-node-id="409:954" data-name="Admin mobile content">
+          <div className="bg-[var(--cq-brand-navy,#09386b)] content-stretch flex flex-col gap-[var(--cq-space-lg,16px)] items-start mb-[-24px] overflow-clip pb-[48px] pt-[var(--cq-space-xl,24px)] px-[var(--cq-space-xl,24px)] relative rounded-[var(--cq-radius-lg,24px)] shrink-0 w-[375px]" data-node-id="409:955" data-name="Admin header">
+            <div className="content-stretch flex gap-[var(--cq-space-md,12px)] items-center overflow-clip relative shrink-0 w-[327px]" data-node-id="409:956" data-name="Brand and notifications">
+              <div className="[word-break:break-word] content-stretch flex flex-col font-['Inter:Bold'] font-bold gap-[4px] items-start not-italic overflow-clip relative shrink-0 text-[color:var(--cq-surface-card,white)] w-[271px]" data-node-id="409:957" data-name="Admin identity">
+                <p className="leading-[26px] relative shrink-0 text-[18px] w-[271px]" data-node-id="409:958">
+                  Admin Portal
+                </p>
+                <p className="leading-[16px] opacity-78 relative shrink-0 text-[10px] w-[271px]" data-node-id="409:959">
+                  GAMPAHA DGH · OPERATIONS
+                </p>
+              </div>
+              <a className="bg-[var(--cq-brand-navy-dark,#052347)] content-stretch cursor-pointer flex flex-col items-center justify-center overflow-clip relative rounded-[var(--cq-radius-sm,12px)] shrink-0 size-[44px]" data-node-id="409:960" data-name="Notifications button">
+                <div className="relative shrink-0 size-[24px]" data-node-id="409:961" data-name="CareQueue / Icon / bell">
+                  <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgCareQueueIconBell1} />
+                </div>
+              </a>
+            </div>
+            <p className="[word-break:break-word] font-['Inter:Bold'] font-bold leading-[32px] not-italic relative shrink-0 text-[24px] text-[color:var(--cq-surface-card,white)] w-[327px]" data-node-id="409:963">
+              Admin tools
+            </p>
+            <p className="[word-break:break-word] font-['Inter:Regular'] font-normal leading-[18px] not-italic opacity-85 relative shrink-0 text-[12px] text-[color:var(--cq-surface-card,white)] w-[327px]" data-node-id="409:964">
+              Gampaha DGH · Administrator
+            </p>
+          </div>
+          <div className="content-stretch flex flex-col gap-[var(--cq-space-lg,16px)] items-start overflow-clip pb-[var(--cq-space-xl,24px)] px-[var(--cq-space-xl,24px)] relative shrink-0 w-[375px]" data-node-id="409:965" data-name="Screen body">
+            <div className="[word-break:break-word] bg-[var(--cq-surface-card,white)] border border-[var(--cq-border-default,#d3e1eb)] border-solid content-stretch drop-shadow-[0px_2px_3px_rgba(5,33,71,0.06)] flex flex-col gap-[var(--cq-space-sm,8px)] items-start not-italic p-[var(--cq-space-xl,24px)] relative rounded-[var(--cq-radius-lg,24px)] shrink-0 w-[327px]" data-node-id="409:966" data-name="Card / Your admin workspace">
+              <p className="font-['Inter:Bold'] font-bold leading-[16px] relative shrink-0 text-[10px] text-[color:var(--cq-text-muted,#52697a)] tracking-[1px] w-full" data-node-id="I409:966;114:5">
+                OPD OPERATIONS
+              </p>
+              <p className="font-['Inter:Bold'] font-bold leading-[26px] relative shrink-0 text-[20px] text-[color:var(--cq-text-primary,#141f2b)] w-full" data-node-id="I409:966;114:6">
+                Your admin workspace
+              </p>
+              <p className="font-['Inter:Regular'] font-normal leading-[21px] relative shrink-0 text-[14px] text-[color:var(--cq-text-muted,#52697a)] w-full" data-node-id="I409:966;114:7">
+                Monitor services, communicate verified updates and review operational records.
+              </p>
+            </div>
+            <a className="bg-[var(--cq-surface-card,white)] border border-[var(--cq-border-default,#d3e1eb)] border-solid content-stretch cursor-pointer flex gap-[var(--cq-space-md,12px)] items-center p-[var(--cq-space-md,12px)] relative rounded-[var(--cq-radius-md,16px)] shrink-0 w-[327px]" data-node-id="409:970" data-name="Row / Bottleneck analytics">
+              <div className="bg-[var(--cq-surface-blue,#f0f7ff)] content-stretch flex flex-col gap-[var(--cq-space-sm,8px)] items-center justify-center overflow-clip relative rounded-[var(--cq-radius-sm,12px)] shrink-0 size-[40px]" data-node-id="I409:970;117:32" data-name="Leading badge">
+                <p className="[word-break:break-word] font-['Inter:Semi_Bold'] font-semibold leading-[20px] not-italic relative shrink-0 text-[14px] text-[color:var(--cq-brand-navy,#09386b)] text-center w-full" data-node-id="I409:970;117:33">
+                  01
+                </p>
+              </div>
+              <div className="[word-break:break-word] content-stretch flex flex-[1_0_0] flex-col gap-[var(--cq-space-xs,4px)] items-start min-w-px not-italic overflow-clip relative text-left" data-node-id="I409:970;117:34" data-name="Text">
+                <p className="font-['Inter:Semi_Bold'] font-semibold leading-[20px] relative shrink-0 text-[14px] text-[color:var(--cq-text-primary,#141f2b)] w-full" data-node-id="I409:970;117:35">
+                  Bottleneck analytics
+                </p>
+                <p className="font-['Inter:Regular'] font-normal leading-[18px] relative shrink-0 text-[12px] text-[color:var(--cq-text-muted,#52697a)] w-full" data-node-id="I409:970;117:36">
+                  Waiting times and arrival trends
+                </p>
+              </div>
+            </a>
+            <button className="bg-[var(--cq-surface-card,white)] border border-[var(--cq-border-default,#d3e1eb)] border-solid content-stretch cursor-pointer flex gap-[var(--cq-space-md,12px)] items-center p-[var(--cq-space-md,12px)] relative rounded-[var(--cq-radius-md,16px)] shrink-0 w-[327px]" data-node-id="409:976" data-name="Row / Broadcast centre">
+              <div className="bg-[var(--cq-surface-blue,#f0f7ff)] content-stretch flex flex-col gap-[var(--cq-space-sm,8px)] items-center justify-center overflow-clip relative rounded-[var(--cq-radius-sm,12px)] shrink-0 size-[40px]" data-node-id="I409:976;117:32" data-name="Leading badge">
+                <p className="[word-break:break-word] font-['Inter:Semi_Bold'] font-semibold leading-[20px] not-italic relative shrink-0 text-[14px] text-[color:var(--cq-brand-navy,#09386b)] text-center w-full" data-node-id="I409:976;117:33">
+                  02
+                </p>
+              </div>
+              <div className="[word-break:break-word] content-stretch flex flex-[1_0_0] flex-col gap-[var(--cq-space-xs,4px)] items-start min-w-px not-italic overflow-clip relative text-left" data-node-id="I409:976;117:34" data-name="Text">
+                <p className="font-['Inter:Semi_Bold'] font-semibold leading-[20px] relative shrink-0 text-[14px] text-[color:var(--cq-text-primary,#141f2b)] w-full" data-node-id="I409:976;117:35">
+                  Broadcast centre
+                </p>
+                <p className="font-['Inter:Regular'] font-normal leading-[18px] relative shrink-0 text-[12px] text-[color:var(--cq-text-muted,#52697a)] w-full" data-node-id="I409:976;117:36">
+                  Verified patient and staff updates
+                </p>
+              </div>
+            </button>
+            <a className="bg-[var(--cq-surface-card,white)] border border-[var(--cq-border-default,#d3e1eb)] border-solid content-stretch cursor-pointer flex gap-[var(--cq-space-md,12px)] items-center p-[var(--cq-space-md,12px)] relative rounded-[var(--cq-radius-md,16px)] shrink-0 w-[327px]" data-node-id="409:982" data-name="Row / Reports">
+              <div className="bg-[var(--cq-surface-blue,#f0f7ff)] content-stretch flex flex-col gap-[var(--cq-space-sm,8px)] items-center justify-center overflow-clip relative rounded-[var(--cq-radius-sm,12px)] shrink-0 size-[40px]" data-node-id="I409:982;117:32" data-name="Leading badge">
+                <p className="[word-break:break-word] font-['Inter:Semi_Bold'] font-semibold leading-[20px] not-italic relative shrink-0 text-[14px] text-[color:var(--cq-brand-navy,#09386b)] text-center w-full" data-node-id="I409:982;117:33">
+                  03
+                </p>
+              </div>
+              <div className="[word-break:break-word] content-stretch flex flex-[1_0_0] flex-col gap-[var(--cq-space-xs,4px)] items-start min-w-px not-italic overflow-clip relative text-left" data-node-id="I409:982;117:34" data-name="Text">
+                <p className="font-['Inter:Semi_Bold'] font-semibold leading-[20px] relative shrink-0 text-[14px] text-[color:var(--cq-text-primary,#141f2b)] w-full" data-node-id="I409:982;117:35">
+                  Reports
+                </p>
+                <p className="font-['Inter:Regular'] font-normal leading-[18px] relative shrink-0 text-[12px] text-[color:var(--cq-text-muted,#52697a)] w-full" data-node-id="I409:982;117:36">
+                  Daily service summary and preview
+                </p>
+              </div>
+            </a>
+            <a className="bg-[var(--cq-surface-card,white)] border border-[var(--cq-border-default,#d3e1eb)] border-solid content-stretch cursor-pointer flex gap-[var(--cq-space-md,12px)] items-center p-[var(--cq-space-md,12px)] relative rounded-[var(--cq-radius-md,16px)] shrink-0 w-[327px]" data-node-id="409:988" data-name="Row / System health">
+              <div className="bg-[var(--cq-surface-blue,#f0f7ff)] content-stretch flex flex-col gap-[var(--cq-space-sm,8px)] items-center justify-center overflow-clip relative rounded-[var(--cq-radius-sm,12px)] shrink-0 size-[40px]" data-node-id="I409:988;117:32" data-name="Leading badge">
+                <p className="[word-break:break-word] font-['Inter:Semi_Bold'] font-semibold leading-[20px] not-italic relative shrink-0 text-[14px] text-[color:var(--cq-brand-navy,#09386b)] text-center w-full" data-node-id="I409:988;117:33">
+                  04
+                </p>
+              </div>
+              <div className="[word-break:break-word] content-stretch flex flex-[1_0_0] flex-col gap-[var(--cq-space-xs,4px)] items-start min-w-px not-italic overflow-clip relative text-left" data-node-id="I409:988;117:34" data-name="Text">
+                <p className="font-['Inter:Semi_Bold'] font-semibold leading-[20px] relative shrink-0 text-[14px] text-[color:var(--cq-text-primary,#141f2b)] w-full" data-node-id="I409:988;117:35">
+                  System health
+                </p>
+                <p className="font-['Inter:Regular'] font-normal leading-[18px] relative shrink-0 text-[12px] text-[color:var(--cq-text-muted,#52697a)] w-full" data-node-id="I409:988;117:36">
+                  Availability, delivery and fallback
+                </p>
+              </div>
+            </a>
+            <button className="bg-[var(--cq-surface-card,white)] border border-[var(--cq-border-default,#d3e1eb)] border-solid content-stretch cursor-pointer flex gap-[var(--cq-space-md,12px)] items-center p-[var(--cq-space-md,12px)] relative rounded-[var(--cq-radius-md,16px)] shrink-0 w-[327px]" data-node-id="409:994" data-name="Row / Audit log">
+              <div className="bg-[var(--cq-surface-blue,#f0f7ff)] content-stretch flex flex-col gap-[var(--cq-space-sm,8px)] items-center justify-center overflow-clip relative rounded-[var(--cq-radius-sm,12px)] shrink-0 size-[40px]" data-node-id="I409:994;117:32" data-name="Leading badge">
+                <p className="[word-break:break-word] font-['Inter:Semi_Bold'] font-semibold leading-[20px] not-italic relative shrink-0 text-[14px] text-[color:var(--cq-brand-navy,#09386b)] text-center w-full" data-node-id="I409:994;117:33">
+                  05
+                </p>
+              </div>
+              <div className="[word-break:break-word] content-stretch flex flex-[1_0_0] flex-col gap-[var(--cq-space-xs,4px)] items-start min-w-px not-italic overflow-clip relative text-left" data-node-id="I409:994;117:34" data-name="Text">
+                <p className="font-['Inter:Semi_Bold'] font-semibold leading-[20px] relative shrink-0 text-[14px] text-[color:var(--cq-text-primary,#141f2b)] w-full" data-node-id="I409:994;117:35">
+                  Audit log
+                </p>
+                <p className="font-['Inter:Regular'] font-normal leading-[18px] relative shrink-0 text-[12px] text-[color:var(--cq-text-muted,#52697a)] w-full" data-node-id="I409:994;117:36">
+                  Read-only operational history
+                </p>
+              </div>
+            </button>
+            <a className="bg-[var(--cq-surface-card,white)] border border-[var(--cq-border-default,#d3e1eb)] border-solid content-stretch cursor-pointer flex gap-[var(--cq-space-md,12px)] items-center p-[var(--cq-space-md,12px)] relative rounded-[var(--cq-radius-md,16px)] shrink-0 w-[327px]" data-node-id="409:1000" data-name="Row / Notifications">
+              <div className="bg-[var(--cq-surface-blue,#f0f7ff)] content-stretch flex flex-col gap-[var(--cq-space-sm,8px)] items-center justify-center overflow-clip relative rounded-[var(--cq-radius-sm,12px)] shrink-0 size-[40px]" data-node-id="I409:1000;117:32" data-name="Leading badge">
+                <p className="[word-break:break-word] font-['Inter:Semi_Bold'] font-semibold leading-[20px] not-italic relative shrink-0 text-[14px] text-[color:var(--cq-brand-navy,#09386b)] text-center w-full" data-node-id="I409:1000;117:33">
+                  06
+                </p>
+              </div>
+              <div className="[word-break:break-word] content-stretch flex flex-[1_0_0] flex-col gap-[var(--cq-space-xs,4px)] items-start min-w-px not-italic overflow-clip relative text-left" data-node-id="I409:1000;117:34" data-name="Text">
+                <p className="font-['Inter:Semi_Bold'] font-semibold leading-[20px] relative shrink-0 text-[14px] text-[color:var(--cq-text-primary,#141f2b)] w-full" data-node-id="I409:1000;117:35">
+                  Notifications
+                </p>
+                <p className="font-['Inter:Regular'] font-normal leading-[18px] relative shrink-0 text-[12px] text-[color:var(--cq-text-muted,#52697a)] w-full" data-node-id="I409:1000;117:36">
+                  Updates requiring your attention
+                </p>
+              </div>
+            </a>
+            <div className="[word-break:break-word] bg-[var(--cq-surface-success,#e9f7ef)] border border-[var(--cq-surface-success,#e9f7ef)] border-solid content-stretch drop-shadow-[0px_2px_3px_rgba(5,33,71,0.06)] flex flex-col gap-[var(--cq-space-sm,8px)] items-start not-italic p-[var(--cq-space-xl,24px)] relative rounded-[var(--cq-radius-lg,24px)] shrink-0 w-[327px]" data-node-id="409:1006" data-name="Card / Gampaha DGH Admin">
+              <p className="font-['Inter:Bold'] font-bold leading-[16px] relative shrink-0 text-[10px] text-[color:var(--cq-status-success,#16854a)] tracking-[1px] w-full" data-node-id="I409:1006;116:7">
+                ACCOUNT
+              </p>
+              <p className="font-['Inter:Bold'] font-bold leading-[26px] relative shrink-0 text-[20px] text-[color:var(--cq-text-primary,#141f2b)] w-full" data-node-id="I409:1006;116:8">
+                Gampaha DGH Admin
+              </p>
+              <p className="font-['Inter:Regular'] font-normal leading-[21px] relative shrink-0 text-[14px] text-[color:var(--cq-text-muted,#52697a)] w-full" data-node-id="I409:1006;116:9">
+                Operational · District General Hospital
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="absolute bg-[var(--cq-surface-card,white)] border border-[var(--cq-border-default,#d3e1eb)] border-solid content-stretch flex gap-[var(--cq-space-xs,4px)] h-[80px] items-start left-0 overflow-clip p-[var(--cq-space-sm,8px)] top-[764px] w-[375px]" data-node-id="409:1010" data-name="Admin bottom navigation">
+        <a className="content-stretch cursor-pointer flex flex-col gap-[var(--cq-space-xs,4px)] h-[64px] items-center justify-center p-[var(--cq-space-sm,8px)] relative rounded-[var(--cq-radius-sm,12px)] shrink-0 w-[86.75px]" data-node-id="409:1011" data-name="Navigate / Home">
+          <CareQueueIconHome className="relative shrink-0 size-[24px]" />
+          <p className="[word-break:break-word] font-['Inter:Regular'] font-normal leading-[18px] min-w-full not-italic relative shrink-0 text-[10px] text-[color:var(--cq-text-muted,#52697a)] text-center w-[min-content]" data-node-id="I409:1011;119:15">
+            Home
+          </p>
+        </a>
+        <a className="content-stretch cursor-pointer flex flex-col gap-[var(--cq-space-xs,4px)] h-[64px] items-center justify-center p-[var(--cq-space-sm,8px)] relative rounded-[var(--cq-radius-sm,12px)] shrink-0 w-[86.75px]" data-node-id="409:1016" data-name="Navigate / Queue">
+          <CareQueueIconQueue className="relative shrink-0 size-[24px]" />
+          <p className="[word-break:break-word] font-['Inter:Regular'] font-normal leading-[18px] min-w-full not-italic relative shrink-0 text-[10px] text-[color:var(--cq-text-muted,#52697a)] text-center w-[min-content]" data-node-id="I409:1016;119:15">
+            Queue
+          </p>
+        </a>
+        <button className="content-stretch cursor-pointer flex flex-col gap-[var(--cq-space-xs,4px)] h-[64px] items-center justify-center p-[var(--cq-space-sm,8px)] relative rounded-[var(--cq-radius-sm,12px)] shrink-0 w-[86.75px]" data-node-id="409:1021" data-name="Navigate / Incidents">
+          <CareQueueIconBell className="relative shrink-0 size-[24px]" />
+          <p className="[word-break:break-word] font-['Inter:Regular'] font-normal leading-[18px] min-w-full not-italic relative shrink-0 text-[10px] text-[color:var(--cq-text-muted,#52697a)] text-center w-[min-content]" data-node-id="I409:1021;119:15">
+            Incidents
+          </p>
+        </button>
+        <div className="bg-[var(--cq-surface-blue,#f0f7ff)] content-stretch flex flex-col gap-[var(--cq-space-xs,4px)] h-[64px] items-center justify-center p-[var(--cq-space-sm,8px)] relative rounded-[var(--cq-radius-sm,12px)] shrink-0 w-[86.75px]" data-node-id="409:1026" data-name="Current / More">
+          <CareQueueIconSettings className="relative shrink-0 size-[24px]" />
+          <p className="[word-break:break-word] font-['Inter:Bold'] font-bold leading-[18px] min-w-full not-italic relative shrink-0 text-[10px] text-[color:var(--cq-brand-navy,#09386b)] text-center w-[min-content]" data-node-id="I409:1026;119:18">
+            More
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+SUPER CRITICAL: The generated React+Tailwind code MUST be converted to match the target project's technology stack and styling system.
+1. Analyze the target codebase to identify: technology stack, styling approach, component patterns, and design tokens
+2. Convert React syntax to the target framework/library
+3. Transform all Tailwind classes to the target styling system while preserving exact visual design
+4. Follow the project's existing patterns and conventions
+DO NOT install any Tailwind as a dependency unless the user instructs you to do so.
+
+Node ids have been added to the code as data attributes, e.g. `data-node-id="1:2"`.
+These styles are contained in the design: CareQueue / Mobile / Section: Font(family: "Inter", style: Bold, size: 18, weight: 700, lineHeight: 26, letterSpacing: 0), CareQueue / Mobile / Overline: Font(family: "Inter", style: Bold, size: 10, weight: 700, lineHeight: 16, letterSpacing: 0), CareQueue / Mobile / Title: Font(family: "Inter", style: Bold, size: 24, weight: 700, lineHeight: 32, letterSpacing: 0), CareQueue / Mobile / Caption: Font(family: "Inter", style: Regular, size: 12, weight: 400, lineHeight: 18, letterSpacing: 0), CareQueue / Mobile / Body: Font(family: "Inter", style: Regular, size: 14, weight: 400, lineHeight: 21, letterSpacing: 0), CareQueue / Card: Effect(type: DROP_SHADOW, color: #0521470F, offset: (0, 2), radius: 6, spread: 0), CareQueue / Mobile / Label: Font(family: "Inter", style: Semi Bold, size: 14, weight: 600, lineHeight: 20, letterSpacing: 0).
+Component descriptions: The following components have usage descriptions or documentation links defined in Figma. These descriptions provide important context about the intended usage, best practices, and any constraints for each component. Follow these guidelines when implementing or using these components.
+
+## CareQueue / Icon / bell
+**Node ID:** 118:14
+
+24 px navigation icon.
+
+## CareQueue / Card / Neutral
+**Node ID:** 114:4
+
+Information card. Eyebrow identifies context; title gives the important result; body supplies the next step.
+
+## CareQueue / Row
+**Node ID:** 117:31
+
+A touch-friendly list row with a leading token, checkmark or step number. Used for checklists, queue lists and support options.
+
+## CareQueue / Card / Success
+**Node ID:** 116:6
+
+Information card. Eyebrow identifies context; title gives the important result; body supplies the next step.
+
+## CareQueue / Icon / home
+**Node ID:** 118:4
+
+24 px navigation icon.
+
+## CareQueue / Icon / queue
+**Node ID:** 118:7
+
+24 px navigation icon.
+Images and SVGs will be stored as constants, e.g. const image = 'https://www.figma.com/api/mcp/asset/550e8400-e29b-41d4-a716-446655440000.png'. These constants will be used in the code as the source for the image, ex: <img src={image} />. Image assets are stored on a remote server for 7 days and can be fetched using the provided URLs until they expire.
