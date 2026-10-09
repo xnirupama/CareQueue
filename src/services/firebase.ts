@@ -3,6 +3,7 @@ import * as FirebaseAuth from 'firebase/auth';
 import {getAuth,initializeAuth,signOut,onAuthStateChanged,type User,type Persistence} from 'firebase/auth';
 import {resetAccountPassword,changeAccountPassword,type RegistrationFields} from './authentication';
 import {registerWithProfile,signInWithProfile,ensureUserProfile,saveUserProfileName} from './user-profile';
+import {resolveAccountRole,type LoginPortal} from './account-access';
 import {getFirestore,doc,onSnapshot,runTransaction,setDoc,serverTimestamp,collection,query,where} from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Platform} from 'react-native';
@@ -22,14 +23,14 @@ export const db=app?getFirestore(app):null;
 export function watchAuth(callback:(user:User|null)=>void){if(auth)return onAuthStateChanged(auth,callback);callback(null);return ()=>{};}
 function requireAccountAuth(){if(!auth)throw Error('Firebase configuration is missing.');return auth;}
 function requireDatabase(){if(!db)throw Error('Database unavailable.');return db;}
-export const login=(email:string,password:string)=>signInWithProfile(requireAccountAuth(),requireDatabase(),email,password);
+export const login=(email:string,password:string,portal:LoginPortal='standard')=>signInWithProfile(requireAccountAuth(),requireDatabase(),email,password,portal);
 export const register=(fields:RegistrationFields)=>registerWithProfile(requireAccountAuth(),requireDatabase(),fields);
 export const loadUserProfile=(user:User)=>ensureUserProfile(requireDatabase(),user);
 export const renameAccount=(user:User,name:string)=>saveUserProfileName(requireDatabase(),user,name);
 export const resetPassword=(email:string)=>resetAccountPassword(requireAccountAuth(),email);
 export const changePassword=(user:User,current:string,password:string,confirm:string)=>changeAccountPassword(requireAccountAuth(),user,current,password,confirm);
 export async function logout(){if(auth)await signOut(auth);}
-export async function accountRole(user:User):Promise<Role>{const {claims}=await user.getIdTokenResult();return claims.role==='admin'?'admin':claims.role==='staff'?'staff':'patient';}
+export async function accountRole(user:User):Promise<Role>{return resolveAccountRole(requireDatabase(),user);}
 export function subscribeLive(user:User,role:Role,callback:(data:Partial<AppState>)=>void,error:(message:string)=>void){
  if(!db)return ()=>{};const unsubs:(()=>void)[]=[];
  unsubs.push(onSnapshot(doc(db,'services','general-opd'),s=>{if(s.exists())callback(s.data() as Partial<AppState>);},e=>error(e.message)));

@@ -9,15 +9,32 @@ const patient=environment.authenticatedContext('patient-one',{email:'patient-one
 await environment.withSecurityRulesDisabled(async c=>{await setDoc(doc(c.firestore(),'operations','current'),{queue:[],audit:[],broadcasts:[],offlineActions:[],incidentVerified:false,nowServing:'—',serviceStatus:'open',updatedAt:'2026-10-05'});await setDoc(doc(c.firestore(),'tickets','patient-one'),{token:'A125',recovery:'none',status:'waiting',patientsAhead:6});});
 const caregiver=environment.authenticatedContext('caregiver-one').firestore();
 try{
+ await test('staff selection alone grants no queue access; administrator approval grants and revocation removes access',async()=>{
+  const profile=doc(patient,'users','patient-one'),access=doc(patient,'staffAccess','patient-one');
+  await assertSucceeds(setDoc(profile,{uid:'patient-one',fullName:'Staff Applicant',email:'patient-one@example.com',accountType:'staff',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+  await assertFails(getDoc(doc(patient,'operations','current')));
+  await assertFails(setDoc(access,{uid:'patient-one',approved:true,approvedBy:'patient-one',updatedAt:serverTimestamp()}));
+  await assertFails(setDoc(doc(staff,'staffAccess','patient-one'),{uid:'patient-one',approved:true,approvedBy:'staff',updatedAt:serverTimestamp()}));
+  await assertSucceeds(getDoc(doc(admin,'users','patient-one')));
+  await assertSucceeds(setDoc(doc(admin,'staffAccess','patient-one'),{uid:'patient-one',approved:true,approvedBy:'admin',updatedAt:serverTimestamp()}));
+  await assertSucceeds(getDoc(doc(patient,'operations','current')));
+  await assertFails(updateDoc(doc(patient,'operations','current'),{incidentVerified:true}));
+  await assertSucceeds(deleteDoc(doc(admin,'staffAccess','patient-one')));
+  await assertFails(getDoc(doc(patient,'operations','current')));
+  await assertSucceeds(deleteDoc(profile));
+ });
  await test('registered user profile is private, validates identity and contains no password or client-assigned role',async()=>{
   const ref=doc(patient,'users','patient-one'),data={uid:'patient-one',fullName:'Test Patient',email:'patient-one@example.com',createdAt:serverTimestamp(),updatedAt:serverTimestamp()};
   await assertFails(setDoc(ref,{...data,password:'Should never be stored'}));
   await assertFails(setDoc(ref,{...data,role:'admin'}));
+  await assertFails(setDoc(ref,{...data,accountType:'admin'}));
   await assertFails(setDoc(ref,{...data,uid:'patient-two'}));
   await assertFails(setDoc(ref,{...data,email:'another@example.com'}));
   await assertFails(setDoc(ref,{...data,fullName:''}));
   await assertFails(setDoc(ref,{...data,createdAt:new Date('2020-01-01')}));
   await assertSucceeds(setDoc(ref,data));
+  await assertSucceeds(updateDoc(ref,{accountType:'patient',updatedAt:serverTimestamp()}));
+  await assertFails(updateDoc(ref,{accountType:'staff',updatedAt:serverTimestamp()}));
   await assertSucceeds(getDoc(ref));
   await assertFails(getDoc(doc(other,'users','patient-one')));
   await assertFails(getDoc(doc(staff,'users','patient-one')));

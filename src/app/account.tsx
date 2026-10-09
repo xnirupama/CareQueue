@@ -15,10 +15,11 @@ export default function Account(){
  async function run(action:()=>Promise<unknown>,message:string){if(busy)return;setBusy(true);setFeedback('');setSuccess(false);setError('');try{await action();setFeedback(message);setSuccess(true);}catch(e){setFeedback(accountError(e));}finally{setBusy(false);}}
  return <AccountShell title={isLive?'Your account.':'Explore CareQueue.'} subtitle={isLive?'Manage your details and stay connected to your visit.':'Try the patient, staff and administrator experiences with sample visits.'} eyebrow={isLive?'A space that’s yours.':'Sample data · saved on this device.'}>
   <Notice message={feedback} success={success}/><Notice message={error}/>
-  <ActionButton label={state.role==='patient'?'My visit and settings':'Queue operations'} disabled={busy} onPress={()=>router.push('/manage')}/>
-  <TextLink label="Return to queue" disabled={busy} onPress={()=>router.replace('/')}/>
+  <ActionButton label={isLive&&accountProfile?.accountType==='staff'&&state.role==='patient'?'Staff approval status':state.role==='patient'?'My visit and settings':'Queue operations'} disabled={busy} onPress={()=>router.push(isLive&&accountProfile?.accountType==='staff'&&state.role==='patient'?'/staff-pending':'/manage')}/>
+  {isLive&&state.role==='admin'?<ActionButton label="Review staff registrations" secondary disabled={busy} onPress={()=>router.push('/staff-approvals')}/>:null}
+  <TextLink label={isLive&&accountProfile?.accountType==='staff'&&state.role==='patient'?'Return to staff approval':'Return to queue'} disabled={busy} onPress={()=>router.replace('/')}/>
   {isLive&&user?<>
-   <View style={styles.divider}/><View style={styles.row}><Text style={styles.label}>Account access</Text><Text style={[styles.label,{color:'#397460',textTransform:'capitalize'}]}>{state.role}</Text></View>
+   <View style={styles.divider}/><View style={styles.row}><Text style={styles.label}>Account access</Text><Text style={[styles.label,{color:'#397460',textTransform:'capitalize'}]}>{accountProfile?.accountType==='staff'&&state.role==='patient'?'Staff · awaiting approval':state.role}</Text></View>
    <Text selectable style={styles.subtitle}>{user.email}</Text><Text style={styles.label}>Account ID</Text><Text selectable style={[styles.helper,{color:colors.navy}]}>{user.uid}</Text><Text style={styles.helper}>Copy this ID to link your issued token or share a visit with a caregiver.</Text>
    <AccountField label="Full name" value={name} onChangeText={setName} placeholder="Your full name" autoComplete="name" textContentType="name" maxLength={80} editable={!busy}/>
    <ActionButton label="Save name" secondary disabled={busy} onPress={()=>run(async()=>{await renameAccount(user,name);await refreshAccount();},'Your account name was saved.')}/>
@@ -41,7 +42,7 @@ export default function Account(){
    <View style={styles.divider}/><ActionButton label="Sign out" secondary disabled={busy} onPress={()=>run(()=>logout(),'Signed out.')}/>
    <TextLink label="Explore with sample data" disabled={busy} onPress={()=>{setDataMode(false);router.replace('/account');}}/>
   </>:<>
-   {(['patient','staff','admin'] as const).map(role=><ActionButton key={role} label={`Open ${role} demo`} secondary disabled={busy} onPress={()=>{setRole(role);router.replace('/');}}/>)}
+   {(['patient','staff'] as const).map(role=><ActionButton key={role} label={`Open ${role} demo`} secondary disabled={busy} onPress={()=>{setRole(role);router.replace('/');}}/>)}
    <ActionButton label="Sign in to my account" disabled={busy} onPress={()=>{setDataMode(true);router.replace('/login');}}/>
    <TextLink label="Reset sample visits" disabled={busy} onPress={()=>run(()=>reset(),'Sample visits were reset.')}/>
   </>}

@@ -6,16 +6,16 @@
       "account": "nirupama.minipa@gmail.com",
       "execution_date": "2026-10-09",
       "rules": "firebase/firestore.rules",
-      "evidence": "Firebase CLI compiled, uploaded and released rules including users/{uid}; exit code 0"
+      "evidence": "Firebase CLI compiled, uploaded and released rules including Patient/Staff account types and administrator-only staffAccess approvals; exit code 0"
     },
     "typecheck": "pass",
     "lint": "pass",
     "domain_source_tests": {
-      "pass": 23,
+      "pass": 25,
       "fail": 0
     },
     "firestore_rules_tests": {
-      "pass": 5,
+      "pass": 6,
       "fail": 0
     },
     "platform_export": [
@@ -26,9 +26,9 @@
     "auth_emulator": {
       "outcome": "pass",
       "execution_date": "2026-10-09",
-      "flow_groups": 7,
+      "flow_groups": 8,
       "source": "tests/auth-smoke.mjs",
-      "includes": "database registration, matching-credential login, name synchronization, missing-profile migration and failed-write recovery"
+      "includes": "database registration, Patient/Staff selection, matching-credential login, authorized admin portal, staff approval/revocation, name synchronization, missing-profile migration and failed-write recovery"
     },
     "live_account_services": {
       "outcome": "pass",
@@ -38,15 +38,24 @@
       "matching_credentials_login": true,
       "temporary_account_profile_removed": true,
       "real_email_sent": false,
-      "source": "tests/live-smoke.mjs"
+      "source": "tests/live-smoke.mjs",
+      "staff_account_type_persisted": true,
+      "pending_staff_queue_access_denied": true,
+      "self_approval_denied": true,
+      "unauthorized_admin_login_denied": true,
+      "temporary_staff_account_profile_removed": true,
+      "production_admin_created": false
     },
     "android_account_build": {
       "outcome": "pass",
       "execution_date": "2026-10-09",
-      "sha256": "4f1df4237a003c75a4bd8af46b524860d1aa6261bcde8f52409ce92588570a1f",
+      "sha256": "0426caaf9ce81a51f426caf86ba10db19edebc62a8787f4677401ea3293b2fa5",
       "signature_verified": true,
       "mobile_account_profile_bundle_verified": true,
-      "device_installation": "not verified"
+      "device_installation": "not verified",
+      "patient_staff_admin_bundle_verified": true,
+      "staff_approval_bundle_verified": true,
+      "archive_integrity_verified": true
     }
   },
   "test_cases": [
@@ -210,6 +219,20 @@
       "outcome": "pass",
       "execution_date": "2026-10-08",
       "kind": "account validation automated check"
+    },
+    {
+      "case": "registration requires Patient or Staff and cannot request administrator access",
+      "source": "tests/authentication.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-09",
+      "kind": "account validation automated check"
+    },
+    {
+      "case": "administrator portal rejects ordinary roles and standard portal directs administrators to their own login",
+      "source": "tests/authentication.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-09",
+      "kind": "account validation automated check"
     }
   ],
   "limitations": [
@@ -225,23 +248,30 @@
   },
   "source_hashes": {
     "src/services/domain.ts": "d2b9c3f2d53d118005d0a492074a807e9a19c92dedec1584875ff98449268616",
-    "src/services/firebase.ts": "0d59b546823637bec9d601a6e92794dbe96522e49e49f5bed5574740b96158f7",
-    "firebase/firestore.rules": "2174e2f4784348047cec9572bb0861f3655fdf8731febfaf9ae8e7031ca1b604",
+    "src/services/firebase.ts": "9521a8c1068703957987a264b1c0a68c0e48a5ccd94170d193470951f9380bb6",
+    "firebase/firestore.rules": "a9809f567abc4b1f98905d1e86f7c1845538c658a183005edac4586773ee4e12",
     "tests/completion.test.mjs": "0a3f295c5600b0f8f95907de5bdb18866c0f2f7c847c3faadfeba14c6971fe63",
-    "tests/rules-smoke.mjs": "19956f6d193117a454ce40d33763d23c65dc7b20b37d63ff3b79b00fccde7cef",
-    "src/services/authentication.ts": "1716882510c360d837183500459ef72dc991f70bc25e242992f3580bec8693c4",
-    "src/services/store.tsx": "fa15c1e309a21e50c54cb2fe55a1b68511a9ffb3886a1b284479efb8b3db227b",
-    "src/app/_layout.tsx": "a11fdb83ed39e04ff89e8e71a12061046b634ca08b86b85922e6a53e18c58d36",
-    "src/app/account.tsx": "8b69ce56474ad3307b8cf4a29a8a65bfad9d86e7865c2c39f25e2174ddfccd90",
-    "src/app/login.tsx": "e5dcdb3d6f3cdd0f170747f1d14b3de31465a7e01db05a680a3b5ba1889ff9f0",
-    "src/app/register.tsx": "38d2e45667d9a87b3600443f4b3278712014a571953bb3470578a2f528083198",
+    "tests/rules-smoke.mjs": "ce2d489f41299ad28a2342672445eee39287b3ceac0eed4a797cc023290575f1",
+    "src/services/authentication.ts": "0fc5e7ba6da9c35bca76cb215fed4cd0fdd2d2b86da0f19dd002964a8a06766a",
+    "src/services/store.tsx": "541b58f9bb7c72b465903ad0736cc10bc1c79d82a76ea005fcfccc17954e457b",
+    "src/app/_layout.tsx": "c1b855f219ea66f05a58e9062ab7e121927b81400650155c49a3ad78762a514d",
+    "src/app/account.tsx": "de109d4e3756a412055a1575f9648e5b0250c9e8875779f9188143f2fec8616c",
+    "src/app/login.tsx": "a3bcce0c03cb009fd016a53e85737447e958dfe7e7062d656c13278df0424a64",
+    "src/app/register.tsx": "36eabb9d7eacbad2d041d3d0bcf8f764cc259c5a94d038ebf2d0e21e5e703d53",
     "src/app/forgot-password.tsx": "3260601f84aaf9f29b9853a6326ba0d1699379e57417dea938ad980676810b36",
     "src/app/onboarding.tsx": "cb5242e4a3c7b4e3bcbfa93e79503555d07765eb8bd7946db6dc81b0629ac289",
     "src/components/AccountUI.tsx": "22eb8b25f750c64e4829b35f5b7bbd5962c7deddd925c69978f36425a9ca95cd",
     "src/components/WelcomeArt.tsx": "40f78b8b3bf4c007126681136cd1adab675f08217de686d78f8f1ad0f2d51eae",
-    "tests/authentication.test.mjs": "28ee8d3a90a99315f02b127fd0563dc0033e4424cef23beacc88ba674c8391a7",
-    "tests/auth-smoke.mjs": "ceca73a4660e9f3842190b892c6c8674f4952bf9c41fe1d1225a6ef0ea8aa52e",
-    "tests/live-smoke.mjs": "b1cd8ae5fc6d277dcd84546c00d6b7f94446cb050f06e65e453d7d217eeb90b0",
-    "src/services/user-profile.ts": "cba3044f88c76a7953af751b8b5a2bcc496eb387ff55f33003e6d72d8c70826c"
+    "tests/authentication.test.mjs": "831e1aad115693bcf9dd6e4627d2941b3eb80ab96129f51e5e5368f9fc8a93dd",
+    "tests/auth-smoke.mjs": "75b20e5dfd9c77ca167807a4972ee30fa2b2a259882d4d3737d99e39fd698954",
+    "tests/live-smoke.mjs": "420d840e06f46e65fe38e024879b9b330f3dccca2068585e86f4b0bc8c4ece44",
+    "src/services/user-profile.ts": "e7d0f0f73723451a9bfb07a4e5ab0f6bae0cf941d10c44e972e5d9f351b8fb6e",
+    "src/services/account-access.ts": "81e220c3fd65c44a363a3405c8baa973cc145bb746f59d37c270bcbf19ad5e54",
+    "src/app/admin-login.tsx": "2004b2ca5b4e424bd2bc4801fa29cadf009157e49bef30dc36e5c7a405da5755",
+    "src/app/staff-pending.tsx": "0c3efdeb7819a72ae19d6ab18d20ee055c81d647457ee3c12c3024f57e5ac9f4",
+    "src/app/staff-approvals.tsx": "bddd3cd49698fea6fa4836aca70b8fe995323a66a52607bbf558e6c5e6e69858",
+    "src/app/index.tsx": "daca14c2b02201df08015d6638c1579acd5d2afae5e66527c0d84a0ca92c0a3b",
+    "src/app/screen/[id].tsx": "d79e239b7f3623ac51ff69f2228a4a13bf83a1a0aeae1f41c7d742708b475fb8",
+    "scripts/admin.mjs": "9c589fd92846017907abb956365218c102384726556ec9175e9eb7ac78306080"
   }
 }

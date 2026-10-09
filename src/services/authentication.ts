@@ -5,11 +5,13 @@ import {
   type Auth, type User,
 } from 'firebase/auth';
 
-export interface RegistrationFields {name: string; email: string; password: string; confirmPassword: string;}
+export type RegistrationAccountType='patient'|'staff';
+export interface RegistrationFields {name: string; email: string; password: string; confirmPassword: string; accountType:RegistrationAccountType|'';}
 export type AccountErrors = Partial<Record<keyof RegistrationFields | 'currentPassword', string>>;
 export const normalizeEmail = (email: string) => email.trim();
 export function validateAccount(fields: RegistrationFields, registration = true): AccountErrors {
   const errors: AccountErrors = {};
+  if(registration&&!['patient','staff'].includes(fields.accountType))errors.accountType='Choose Patient or Staff.';
   if (registration && !fields.name.trim()) errors.name = 'Enter your full name.';
   else if (registration && fields.name.trim().length > 80) errors.name = 'Use 80 characters or fewer.';
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizeEmail(fields.email))) errors.email = 'Enter a valid email address.';
@@ -53,7 +55,7 @@ async function checkPassword(auth: Auth, password: string) {
   throw Error(`Use ${requirements.length ? requirements.join(', ') : 'a stronger password'}.`);
 }
 export async function signInAccount(auth: Auth, email: string, password: string) {
-  const errors = validateAccount({name: '', email, password, confirmPassword: ''}, false);
+  const errors = validateAccount({name: '', email, password, confirmPassword: '',accountType:''}, false);
   if (Object.keys(errors).length) throw Error(Object.values(errors)[0]);
   return signInWithEmailAndPassword(auth, normalizeEmail(email), password);
 }
@@ -68,7 +70,7 @@ export async function registerAccount(auth: Auth, fields: RegistrationFields) {
   return {...credential, profileSaved: true};
 }
 export async function resetAccountPassword(auth: Auth, email: string) {
-  if (validateAccount({name: '', email, password: 'unused', confirmPassword: ''}, false).email) throw Error('Enter a valid email address.');
+  if (validateAccount({name: '', email, password: 'unused', confirmPassword: '',accountType:''}, false).email) throw Error('Enter a valid email address.');
   try {await sendPasswordResetEmail(auth, normalizeEmail(email));}
   catch (error) {if ((error as {code?: string}).code !== 'auth/user-not-found') throw error;}
 }

@@ -2,22 +2,35 @@ rules_version = '2';
 service cloud.firestore {
  match /databases/{database}/documents {
   function signedIn(){return request.auth != null;}
-  function staff(){return signedIn() && request.auth.token.role in ['staff','admin'];}
-  function admin(){return signedIn() && request.auth.token.role == 'admin';}
+  function staff(){return signedIn() && (request.auth.token.get('role','patient') in ['staff','admin'] || (exists(/databases/$(database)/documents/staffAccess/$(request.auth.uid)) && get(/databases/$(database)/documents/staffAccess/$(request.auth.uid)).data.approved == true));}
+  function admin(){return signedIn() && request.auth.token.get('role','patient') == 'admin';}
   function owner(uid){return signedIn() && request.auth.uid == uid;}
   match /users/{uid}{
-   allow read,delete: if owner(uid);
+   allow read: if owner(uid) || (admin() && resource.data.accountType == 'staff');
+   allow delete: if owner(uid);
    allow create: if owner(uid)
     && request.resource.data.keys().hasAll(['uid','fullName','email','createdAt','updatedAt'])
-    && request.resource.data.keys().hasOnly(['uid','fullName','email','createdAt','updatedAt'])
+    && request.resource.data.keys().hasOnly(['uid','fullName','email','accountType','createdAt','updatedAt'])
+    && (!('accountType' in request.resource.data) || request.resource.data.accountType in ['patient','staff'])
     && request.resource.data.uid == uid
     && request.resource.data.email == request.auth.token.email
     && request.resource.data.fullName is string && request.resource.data.fullName.size() > 0 && request.resource.data.fullName.size() <= 80
     && request.resource.data.createdAt == request.time && request.resource.data.updatedAt == request.time;
    allow update: if owner(uid)
-    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['fullName','updatedAt'])
+    && (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['fullName','updatedAt'])
+     || (!('accountType' in resource.data) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['fullName','updatedAt','accountType']) && request.resource.data.accountType in ['patient','staff']))
     && request.resource.data.fullName is string && request.resource.data.fullName.size() > 0 && request.resource.data.fullName.size() <= 80
     && request.resource.data.updatedAt == request.time;
+  }
+  match /staffAccess/{uid}{
+   allow read: if owner(uid) || admin();
+   allow create,update: if admin()
+    && request.resource.data.keys().hasAll(['uid','approved','approvedBy','updatedAt'])
+    && request.resource.data.keys().hasOnly(['uid','approved','approvedBy','updatedAt'])
+    && request.resource.data.uid == uid && request.resource.data.approved is bool
+    && request.resource.data.approvedBy == request.auth.uid && request.resource.data.updatedAt == request.time
+    && get(/databases/$(database)/documents/users/$(uid)).data.accountType == 'staff';
+   allow delete: if admin();
   }
   match /services/{id}{allow read: if signedIn(); allow write: if staff() && request.resource.data.keys().hasOnly(['nowServing','serviceStatus','updatedAt','broadcasts']);}
   match /operations/{id}{allow read: if staff();allow update: if staff() && (admin() || request.resource.data.incidentVerified == resource.data.incidentVerified);allow create: if admin();allow delete: if false;}

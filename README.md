@@ -14,7 +14,7 @@ npm start
 
 Open with a matching Expo Go installation, or create a development build when native capabilities require it. `npm run web` opens the browser preview. `npm run android` and `npm run ios` generate and run native projects using installed platform tooling.
 
-Demo mode uses sample data saved only on the current device. The browser has patient/staff/admin buttons beside the phone preview. On a phone, tap the upper left header (or long-press it) to open **Account and demo roles**. Reset sample data from that page to repeat the complete flow.
+Demo mode uses sample data saved only on the current device. The browser has patient/staff buttons beside the phone preview. On a phone, tap the upper left header (or long-press it) to open **Account and demo roles**. Reset sample data from that page to repeat the complete flow. Administrator screens require an authorized live administrator account.
 
 ## Firebase
 
@@ -22,17 +22,20 @@ The connected project is **CareQueue**, project ID **carequeue-db90e**. Firestor
 
 The public client settings are in `.env.example`. They are not administrator credentials. `.env` and credential files are ignored by Git. First launch shows three welcome screens, then **Sign in** or **Create an account**. From demo mode, choose **Sign in to my account** on the account page. Live mode starts with empty data and never seeds fictitious patients into Firestore.
 
-Live staff and admin roles need an owner-controlled assignment after those users create accounts. See [Firebase setup](docs/firebase-setup.md). Patient registration, token linking, queue calls, priority changes, recovery approvals, service updates and audit writes use authenticated Firestore transactions and listeners.
+Registration requires choosing **Patient** or **Staff**. Patients can sign in immediately; staff requests wait for an administrator to approve access. The first administrator needs an owner-controlled custom-claim assignment, then uses **Administrator sign in**. See [Firebase setup](docs/firebase-setup.md). Patient registration, token linking, queue calls, priority changes, recovery approvals, service updates and audit writes use authenticated Firestore transactions and listeners.
 
 ## Accounts and welcome screens
 
 - `/login`: mobile layout matching the app header, navy buttons and rounded fields; Firebase email/password sign-in, field validation, password visibility and demo access.
-- `/register`: matching mobile layout with full name, email, password and confirmation. Registration creates the Firebase Authentication account and a private Firestore `users/{uid}` profile, then returns to Sign in with the email prefilled. Accounts start as patients.
+- `/register`: matching mobile layout with Patient/Staff selection, full name, email, password and confirmation. Registration creates the Firebase Authentication account and a Firestore `users/{uid}` profile including the selected `accountType`, then returns to Sign in with the email prefilled.
+- `/staff-pending`: signed-in staff applicants see their saved request, account ID and **Check approval status**. Queue operations remain unavailable until approved.
+- `/admin-login`: separate administrator sign-in; Firebase must verify an administrator custom claim. Patient/staff credentials cannot open the admin view, and admins use this portal rather than ordinary sign-in.
+- `/staff-approvals`: from administrator Account, choose **Review staff registrations**, verify an applicant's hospital identity, and approve staff access. Approval is protected by Firestore rules; selecting Staff at registration does not grant permission.
 - `/forgot-password`: request a reset email without disclosing whether an account exists.
 - `/account`: view/copy the account ID, save a name, send/check email verification, change password after confirming current credentials, and sign out. Authorized staff/admin retain token linking and service initialization.
 - `/onboarding`: three illustrated screens with Skip, Back, Next, page indicators and reduced-motion support. Completed welcome screens and selected live/demo mode persist on this device; replay from Account. Firebase handles the signed-in session without storing passwords in app state or preferences.
 
-Protected routes require a signed-in account with a loaded database profile in live mode. Sign-out removes them from navigation history. Firestore stores `uid`, `fullName`, `email`, `createdAt` and `updatedAt` in `users/{uid}`. Firebase Authentication manages credentials; passwords and client-assigned roles are rejected by the profile rules. Account name edits update Firestore and mirror the name to Authentication without altering a hospital registration record. Existing Authentication accounts get a missing database profile when they next sign in. See [account verification notes](docs/testing/accounts.md) for tested flows and remaining device checks.
+Protected routes require a signed-in account with a loaded database profile in live mode. Sign-out removes them from navigation history. Firestore stores `uid`, `fullName`, `email`, `accountType`, `createdAt` and `updatedAt` in `users/{uid}`. Firebase Authentication manages credentials; passwords and client-assigned roles are rejected by the profile rules. The registration choice is immutable after it is saved. Administrator-approved `staffAccess/{uid}` documents grant staff access; trusted legacy staff claims also remain supported. Account name edits update Firestore and mirror the name to Authentication without altering a hospital registration record. Existing Authentication accounts receive a missing profile/account type at sign-in. See [account verification notes](docs/testing/accounts.md) for tested flows and remaining device checks.
 
 ## Workflows
 
@@ -53,7 +56,7 @@ npm run test:accounts
 npm run test:firebase
 ```
 
-The rules and account tests run local emulators under the isolated `demo-carequeue` project. The Auth emulator tests verification and reset links without sending real email. The live smoke test creates a temporary verification account, checks account/profile/password flows, patient isolation and invalid writes, and removes only its own account/profile. It never prints real credentials or sends real email.
+The rules and account tests run local emulators under the isolated `demo-carequeue` project. They verify patient/staff registration, restricted admin sign-in, administrator staff approval, revocation, profiles and password flows. The Auth emulator tests verification and reset links without sending real email. The live smoke test creates temporary patient and staff accounts, checks persistence and access restrictions, then removes its own accounts/documents. It never prints real credentials or sends real email.
 
 See [design provenance](docs/design-source.md) and [verification and remaining setup](docs/verification.md).
 
@@ -61,7 +64,7 @@ See [design provenance](docs/design-source.md) and [verification and remaining s
 
 `eas.json` includes development, preview and production profiles. EAS builds require your Expo account; App Store distribution also requires Apple signing credentials. Generated native projects and signing files are excluded from the repository.
 
-The current [CareQueue-preview.apk](artifacts/CareQueue-preview.apk) was rebuilt on 9 October with matching mobile account forms, Firestore registration profiles and the three welcome screens. Its package, signature, ARM64 runtime and updated bundled flow labels were verified; [build-info.json](artifacts/build-info.json) records the hash. Phone installation and visual testing are still pending. No signed iOS binary is claimed.
+The current [CareQueue-preview.apk](artifacts/CareQueue-preview.apk) was rebuilt on 9 October with Patient/Staff registration, administrator sign-in, protected staff approvals, mobile account forms and the three welcome screens. [build-info.json](artifacts/build-info.json) records the verified build contents, package and hash. Phone installation and visual testing are still pending. No signed iOS binary is claimed.
 
 ## Service boundaries
 
@@ -129,9 +132,9 @@ powershell -ExecutionPolicy Bypass -File scripts/build-android.ps1
 The helper leaves SDK executables in place. A dry run with the newer tool resolved the local manifest loop; native packaging must still succeed before claiming an APK.
 
 
-### Verified local preview artifact - 7 October 2026
+### Verified local preview artifact
 
-`artifacts/CareQueue-preview.apk` assembled successfully and passed APK signature verification. It targets ARM64 Android devices with minimum API 24. Copy it to a compatible phone, open it from the Files app, and allow installation from that file source when Android asks. The app starts in demo mode and includes its JavaScript bundle, so this APK does not need Metro running. Tap the upper-left header to open account/demo roles and the operational pages. Verify camera, printing/sharing, layouts, offline restart and connected-account flows before recording test results.
+`artifacts/CareQueue-preview.apk` assembled successfully and passed APK signature verification. It targets ARM64 Android devices with minimum API 24. Copy it to a compatible phone, open it from the Files app, and allow installation from that file source when Android asks. A fresh installation starts with the welcome screens and sign-in; demo access is available there. The APK includes its JavaScript bundle, so it does not need Metro running. Tap the upper-left header to open Account and the operational pages. Verify camera, printing/sharing, layouts, offline restart and connected-account flows before recording test results.
 
 The APK is signed with the generated Android Debug certificate for local preview. `artifacts/build-info.json` records its SHA-256 and package details. Native builds and APK files remain excluded from Git; distribute the APK separately or as a repository release artifact after review.
 
