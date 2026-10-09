@@ -22,3 +22,7 @@ artifacts/*.apk
 service-account*.json
 *serviceAccount*.json
 .firebase/
+
+tmp/
+
+output/*.zip

@@ -1,0 +1,373 @@
+# IT3060 Human Computer Interaction
+## Milestones 01-03 (Final Report)
+CareQueue - Group WE_79
+REVIEW DRAFT - evidence and member confirmation pending
+
+## Executive summary
+
+CareQueue addresses uncertainty around a government-hospital OPD visit: knowing the correct registration point, understanding queue progress, responding to changes and obtaining staff assistance. The design combines patient information with staff control and administrator monitoring. It excludes diagnosis, treatment advice and a complete electronic health record.
+
+The implementation uses React Native, Expo, TypeScript, Firebase Authentication and Firestore. The repository contains 74 current design screens, local demo state, authenticated queue workflows and original design assets. Supplemental management and token-display pages provide record editing, explicit operational decisions, session reporting and assisted access.
+
+This is a review draft. Automated source/domain checks are evidence of implemented logic, not a substitute for installed-device or participant testing. Actual member contributions, five working-app usability sessions, native installation evidence, live account setup and repository/build links must be finalized before submission.
+
+Submission brief: 9 October 2026; maximum 35 main pages including the cover. References and appendices are excluded. The group must demonstrate its own implemented interfaces and explain its decisions.
+
+## Milestone 01: problem, scope and stakeholders
+
+The original report describes patients missing announcements, uncertainty about progress, incorrect registration queues, long standing and repeated questions interrupting staff. It proposes shared queue status, estimates labelled approximate, clear directions, authorized clinical priority and continuity during failures.
+
+Primary stakeholders are patients and caregivers, including people with limited digital access. Frontline registration staff, nurses and doctors coordinate registration and clinical flow. Administrators and hospital IT staff monitor disruptions and continuity.
+
+The three personas are Kamala Perera (older patient supported by a daughter), Dilani Fernando (frontline coordinator) and Nuwan Jayasinghe (administrator). They guide priorities; they are design artefacts derived from the supplied records rather than measured app users.
+
+| Persona | Key need | Implementation response |
+| --- | --- | --- |
+| Kamala | Readable token; approaching-turn guidance; caregiver help | Queue/status screens; large text; shared visit consent; assisted token display |
+| Dilani | Low-burden registration and safe queue control | Registration review; selected-record edit; call/recovery/priority confirmations |
+| Nuwan | Consistent status and measurable operational context | Shared service state; verified publication; session reports; immutable audit |
+
+## Milestone 01: research evidence and limits
+
+The Milestone 01 report describes ten supplied structured proxy-response records: five primary, three secondary and two tertiary. Its own limitations say participant authenticity and consent need verification. The following values are reported discovery data, not newly verified observations or population estimates.
+
+Qualitative themes include unclear progress, fragile announcements, physical waiting burden, navigation friction, staff interruption, changing clinical priority and digital exclusion. These themes justify the feature selection without establishing reduced hospital waiting time.
+
+The original appendix includes inconsistent identifiers such as US21 and NFR08-NFR10, while Section 9 defines FR01-FR12 and NFR01-NFR07. This report uses the canonical Section 9 IDs and does not silently expand the requirements.
+
+| Reported discovery indicator | Value | Interpretation limit |
+| --- | --- | --- |
+| Primary records waiting at least one hour | 4/5 | Self-reported small proxy dataset |
+| Approaching-turn clarity mean | 2.4/5 | Discovery rating, not app usability score |
+| Queue uncertainty | 7/10 | Record-level theme count |
+| Communication problems | 8/10 | Record-level theme count |
+| Frequent staff queue questions | 5/5 staff/management | Requires original evidence/consent verification |
+
+## Milestone 02: design development and fidelity
+
+Milestone 02 compares queue-first and task-first patient layouts. The selected home prioritizes active queue information, with preparation and help nearby. Wireframes group token, status, estimate, room and freshness. Review steps precede consequential changes.
+
+The submitted Milestone 02 report contains earlier staff desktop wireframes and loose mobile artwork. The current Figma file uses actual linked frames, mobile staff and mobile administrator screens, with confirmation and result states. Existing runtime assets and screen data were retained rather than replacing screens with flat screenshots.
+
+The current repository inventory is 32 patient, 23 staff and 19 administrator screens. There are 474 prototype connections verified against rendered controls. These counts describe available designs/navigation, not 74 separate CRUD implementations.
+
+The supplied Figma URL points to a broad board. Queue Status node 16:95 was read directly during this review with its reference screenshot. Previous intermediate-stage gaps remain documented; reconstructed sketches must not be described as earlier participant validation.
+
+## Technology stack and justification
+
+React Native allows a mobile UI and navigation on Android and iOS from a shared TypeScript codebase. Expo supplies compatible camera, font, notification-permission, print/share and build tooling; it reduces initial native integration work for a student project. Native permission and layout behavior still require physical-device tests.
+
+Firebase Authentication identifies users. Trusted owner-assigned custom claims distinguish patient, staff and administrator privileges. Firestore provides shared documents, realtime listeners and transactions for queue mutations. Security rules protect database access rather than relying only on hidden UI buttons. Firebase documentation supports the authentication/rules model and transaction semantics [R4-R5].
+
+AsyncStorage preserves demo state and device-local manual notes. It is not used as an authoritative shared queue. TypeScript, ESLint and Node tests check types, code quality and operational invariants. EAS preview configuration requests an APK for internal distribution [R3].
+
+| Choice | Requirement fit | Trade-off |
+| --- | --- | --- |
+| React Native / Expo | Runnable mobile app; camera/printing; shared role flows | Native SDK compatibility and device QA |
+| TypeScript | Safer state/command contracts | Types do not validate untrusted remote data automatically |
+| Firebase Auth + claims | NFR07 authenticated roles | Owner must provision privileged accounts |
+| Firestore listeners/transactions | FR01/FR07 shared queue consistency | Transactions fail offline; current single operation document limits scale |
+| AsyncStorage | FR12 continuity and repeatable demos | Notes require human reconciliation; no automatic clinical decisions |
+
+## Architecture and information boundaries
+
+The patient, staff and administrator screens render the imported design graph. Interaction handlers invoke domain commands through StoreProvider. Demo mode persists a local scenario; Firebase mode subscribes to authenticated service/ticket/operation documents and applies transactions.
+
+Public service state contains current serving token, status and update time. Staff operations contain identifiable registration records; patient profiles contain their own settings and consent. Audit events preserve operational history. Caregiver shares expose only token, visit status and people ahead to an explicitly named account.
+
+Owner role assignment uses the Admin SDK on a trusted machine. Administrator credentials are excluded from the mobile app. The token display renders no patient names, phone numbers or clinical reasons. Current-session report exports also omit these fields.
+
+## Implementation: patient and caregiver journeys
+
+Patient screens provide language selection, visit preparation, token retrieval/QR route, queue and timeline information, preferences, approaching/called states, service changes, recovery, directions and help. A normal queue return respects a called or missed visit and pending recovery.
+
+The number ahead now follows actual call order: currently called first, then clinician-prioritized waiting records, then other waiting records. Completed, missed and cancelled visits are excluded. Live estimates use an explicit 3-5 minute heuristic per person ahead; they are not calibrated clinical predictions.
+
+Patients can save, read and revoke caregiver consent. An optional caregiver account ID grants limited shared-visit access. A caregiver signs into a normal account and reads Visits shared with me in the supplemental page. Revocation removes the share. This source path requires new-rule deployment and multi-account verification. Account linking clears an old share when a new visit is linked, so the patient must confirm sharing for that visit.
+
+SMS and background push delivery are not connected. Foreground in-app status is implemented; permission prompts and saved preferences alone are not evidence of external alert delivery. Full Sinhala/Tamil translations remain incomplete.
+
+## Implementation: staff operations and continuity
+
+Registration validates a fictional patient name, optional Sri Lankan phone and General OPD service. The first empty live queue now starts at A001; subsequent registrations choose the next number from all retained records. Cancelled visits retain their token/history, avoiding immediate reuse.
+
+Queue operations support selected-record editing, priority with a clinician-reviewed reason, next call/recall, mark-missed, completion and cancellation. Review cards display consequential actions before confirmation. Calls are blocked while the service is delayed or unavailable.
+
+Recovery decisions are explicit approved or rejected outcomes. The transaction re-reads a pending request before deciding, avoiding a stale client-only approval. Account linking prevents assigning an already-linked token to another account or giving one account a second active queue visit.
+
+Manual notes survive locally under the signed-in account ID. Reconciliation requires reviewing notes against current records; it archives them in protected audit before clearing the pending device list. It does not automatically convert an unverified paper note into a clinical action.
+
+## Implementation: administration and reporting
+
+Administrators can verify an incident, publish a reviewed service message, change availability and withdraw a message while preserving audit history. The supplemental session report derives registration, waiting, completed, missed, cancelled and measured registration-to-call waiting time from retained queue records.
+
+Measured wait uses actual createdAt and calledAt timestamps and reports the sample count. Missing timing data yields No measured calls instead of an invented average. Delay-update counts are limited to the retained audit snapshot. Historical chart series and other clinic measures are not claimed as live data.
+
+Token slips can be sent to the platform print UI. Reports use native PDF generation/sharing and browser print support. A privacy-preserving display shows current token, service state, freshness and assistance guidance. Real printer, sharing, camera and permission behavior remain device-test items.
+
+## Documented prototype deviations and reasons
+
+The original structure and assets remain the visual reference. The extensions below supply operational behavior that the fixed scenario alone could not demonstrate. Validate the extensions with participants and record any later layout changes.
+
+| Change | Reason | Verification / limit |
+| --- | --- | --- |
+| Supplemental My visit / Queue operations pages | Provide live record editing, explicit missed/cancelled/rejected states, sharing and session measures | Domain/rule tests pass; phone interaction testing pending |
+| Header tap opens account as well as long-press | Make account and role access discoverable on a phone | Usability/device evidence pending |
+| Admin is mobile in the current file rather than older report desktop concept | Follow current high-fidelity frame inventory | Design/source mapping; current device fidelity pending |
+| Dynamic queue order and estimated range replace fixed scenario values | Clinical priority and empty queues require truthful computed values | FT01-FT02 pass; heuristic not hospital calibrated |
+| Caregiver account ID links a limited visit share | A phone/name consent alone cannot authorize another app account | Caregiver field/authorization/revocation rules pass |
+| Token-only display and printed slip extension | Support assisted access without exposing clinical/identity details | Source excludes names/phone/reasons; native printing test pending |
+| Immutable audit and retained cancelled visits | Preserve operational history and prevent token reuse | FT01/FT04/FT06 pass; read-only audit is an explicit CRUD coverage limitation |
+| Unconnected delivery/translation/history features remain stated gaps | Avoid treating saved settings or static chart artwork as completed services | Scope resolution and actual implementation/evidence still needed |
+| One raster filename corrected from .png to .jpg | The original file contains JPEG bytes; Android rejects its former extension | Original image bytes and design slots preserved; asset alias prevents re-import regression |
+
+## Implementation screenshots: archived runtime evidence
+
+The following screenshot was captured during the repository verification of 5 October 2026. It is an implementation image from the browser demo, not a Figma screenshot and not evidence of the new supplemental features or phone installation. Replace/add current-device evidence after manual testing.
+
+![Archived runtime evidence](../../docs/evidence/patient-home.jpg)
+
+## Implementation screenshots: archived staff evidence
+
+This is archived browser-demo staff evidence from 5 October 2026. The runtime register, connected token issuance and audit publication were previously exercised. No physical-device result is inferred from this image.
+
+![Archived runtime evidence](../../docs/evidence/registration-issued.jpg)
+
+## Traceability: patient requirements
+
+Canonical IDs are from Milestone 01 Section 9. Prototype families refer to Milestone 02/current Figma. Detailed node/source links and all 74 state frames are in traceability.json. Pending evidence is intentionally kept visible.
+
+| ID / requirement | Prototype | Implementation / test evidence | Status |
+| --- | --- | --- | --- |
+| FR01 Queue progress and update time | P02/P05/P06; S01/S03; A02 | firebase.ts listeners; domain.ts aheadOf; manage.tsx; FT02; W05; MT01 | Implemented; connected-device timing pending |
+| FR02 Approximate waiting range | P05/P06/P09/P11 | domain.ts waitEstimate; DesignRenderer.tsx; FT02; MT02 | Heuristic 3-5 min per person; not hospital calibrated |
+| FR03 Approaching-turn alerts | P07/P09/P10 | manage.tsx foreground states; saved preferences; W05; MT03 | Foreground in-app states; SMS/background channels pending |
+| FR04 Delay, cancellation, unavailable notices | P11/P12; A04/A05 | serviceStatus/cancel commands; shared service listener; FT04; FT06; MT03 | App states implemented; external delivery pending |
+| FR05 Registration guidance and directions | P03/P15/P16 | DesignRenderer.tsx; display.tsx; token printing; W06; MT04 | Scenario directions need hospital confirmation |
+| FR06 Limited authorized caregiver updates | P07/P08; shared visit extension | caregiverShares grant/read/revoke; manage.tsx; W05; caregiver rules case; MT05 | Implemented in source; rule rollout and multi-account test pending |
+
+## Traceability: operational requirements
+
+Canonical IDs are from Milestone 01 Section 9. Prototype families refer to Milestone 02/current Figma. Detailed node/source links and all 74 state frames are in traceability.json. Pending evidence is intentionally kept visible.
+
+| ID / requirement | Prototype | Implementation / test evidence | Status |
+| --- | --- | --- | --- |
+| FR07 Walk-in registration and queue control | S01/S02/S03 | register/editPatient/callNext/cancel; manage.tsx; FT01; FT03; FT04; W02; MT06 | Implemented; concurrent live-device test pending |
+| FR08 Clinician-reviewed priority and reason | S04; A08 | priority command; authenticated staff claims; audit; FT02; FT07; W03; MT02 | Staff role must represent clinician-reviewed authority |
+| FR09 Missed-turn recovery and decision | P13/P14; S05 | requestRecovery; approve/reject transaction; FT05; W01; recovery rules case; MT07 | Implemented; real multi-account flow pending |
+| FR10 Flow/wait/delay/missed reports | A01/A02/A03/A06 | operationalMetrics; report.ts; manage.tsx; FT08; MT08 | Current-session metrics; historical chart pipeline pending |
+| FR11 One verified shared service update | S06; A04/A05; token display | broadcast/withdraw; services/general-opd; display.tsx; FT06; W04; MT08 | App/display status share source; external channels pending |
+| FR12 Manual fallback and reconciliation | S07/S08; A07/A08 | device notes; explicit reconciliation; audit; FT09; MT09 | Notes archived after review; queue corrections remain explicit |
+
+## Traceability: quality requirements
+
+Canonical IDs are from Milestone 01 Section 9. Prototype families refer to Milestone 02/current Figma. Detailed node/source links and all 74 state frames are in traceability.json. Pending evidence is intentionally kept visible.
+
+| ID / requirement | Prototype | Implementation / test evidence | Status |
+| --- | --- | --- | --- |
+| NFR01 Simple task wording | All | Existing labels plus supplemental operations; W08; MT10; T01-T12 | Usability evidence pending |
+| NFR02 Accessible/assisted alternatives | P16; display; settings | large text; 52px management controls; token display/slip; MT04; MT10; T12 | Screen-reader/device text expansion pending; translations partial |
+| NFR03 Confirmed update visible within 5s | Connected queue views | Firestore realtime listeners; MT01 | Not measured on physical devices |
+| NFR04 Freshness and stale indication | Queue/service/health | last-update text; NetInfo disconnected banner; MT09; MT10 | Disconnected state implemented; connected stale-age threshold pending |
+| NFR05 Documented manual continuity | S07/S08; A07 | manage.tsx guidance and durable notes; FT09; MT09 | Physical restart/retry evidence pending |
+| NFR06 Public information boundaries | Token display/slip/report | token-only display; sanitized reporting; caregiver share fields; caregiver rules case; MT04; MT05 | Public view renders no record names/phone/reasons |
+| NFR07 Authenticated role restrictions | All protected operations | Custom claims; Firestore rules; route gates; FT07; rules tests; MT10 | Owner role assignment; new rule deployment pending |
+
+## CRUD coverage and individual contributions
+
+The brief requires at least two working CRUD operations per assigned interface. At flow level, registration offers create/read/update, queue control read/update, preferences read/update, caregiver consent create/read/update/delete, recovery create/read/update, broadcasts create/read/delete and manual notes create/read/update.
+
+An outcome screen, navigation transition, exported PDF, immutable audit view or static direction page must not be counted as a second CRUD operation by itself. The full register flags each screen as not individually certified; confirm how the assigned interfaces are grouped before claiming rubric completion.
+
+Milestone 01 provides research responsibilities; Milestone 02 proposes implementation responsibilities. The table below reproduces proposed workload, not verified source authorship. Each member must confirm actual work and demonstrate it independently.
+
+| Student ID / name | Milestone 02 proposed workload | Actual implementation contribution |
+| --- | --- | --- |
+| IT23681156 / Korala N M | Patient queue, alerts, caregiver, directions | Await member confirmation |
+| IT23685048 / Aluthge D D | Staff registration, queue and clinical priority | Await member confirmation |
+| IT23677296 / Withanage A G | Administrator interfaces and report integration | Await member confirmation |
+| IT23682764 / J.A.I.T. Kalugalla | Accessibility and testing instruments | Await member confirmation |
+
+## Functional testing: evidence and remaining execution
+
+Twenty-one domain/source tests passed on 7 October 2026: thirteen new completion cases and eight existing workflow/design cases. They cover empty registration, priority order, selected edit, visit state transitions, recovery decisions, role denial, service restrictions, session metrics, notes/retries, local assets, all 474 connections and visible button labels. Additional checks cover private-update freshness, exact preference payload fields, raster resource signatures and called/ended estimate labels.
+
+The full npm run check completed successfully: TypeScript, ESLint and all 21 domain/source tests. The current Firestore emulator suite also passed all four cases, including caregiver privacy/revocation and repeated recovery only after a staff-marked missed visit. Web, Android and iOS bundles exported successfully. These checks do not establish phone installation, actual external delivery or participant usability.
+
+Functional-tests.md defines MT01-MT10 for connected-device propagation, simultaneous registrations, channel behavior, caregiver authorization/revocation, native exports/scanning, offline restart and accessibility. Their actual-result fields remain NOT EXECUTED. New rules are tested locally but not yet deployed; The final ARM64 APK assembled successfully and its package/signature were verified. Package lk.carequeue.mobile, version 1.0.0, minimum SDK 24, target SDK 36. SHA-256: edb75e8443d002f7786e61708acc90a77c4764530e45b89de93fd506c7a01dfd. The preview uses an Android Debug signing certificate. Installation and physical-device results must still be supplied.
+
+| Check | Current evidence | Practical limit |
+| --- | --- | --- |
+| Domain/source suite | 21 passed | No phone/network/participant evidence |
+| TypeScript | TypeScript and lint passed | No runtime correctness guarantee |
+| Firestore rules | 4/4 passed, isolated demo-carequeue emulator | Includes new caregiver privacy/revocation case |
+| APK / native install | ARM64 APK assembled; package/signature verified; phone install unverified | Export is not an installed application |
+| Five-second propagation | MT01 prepared, not measured | Requires two connected clients and timestamps |
+
+## Usability: plan, execution and analysis
+
+At least five consenting real or role-informed proxy participants must test the working application. The proposed mix is two patients, one caregiver, one frontline representative and one administrator. A pilot should verify task feasibility on the exact installed version.
+
+Tasks T01-T12 are carried forward from Milestone 02 and adapted to the implementation. The moderator gives goals without naming controls. Record independent/helped/unsuccessful/blocked outcome, seconds, errors/help, ease 1-5, observation and recording timestamp where available. An unavailable implementation path is blocked, not a participant mistake.
+
+No working-app participant results were provided at preparation time. There are five blank session forms and an empty observations JSON. The analysis tool reports zero tested participants and will not manufacture success/time/ease measures.
+
+The M02 body says testing is pending, while Appendix B lists recording links for Patient1, Patient2, Doctor, Nurse and Admin. Resolve this inconsistency by inspecting consent, dates, tasks and the tested artefact. Earlier Figma sessions must not be relabelled as M03 working-app sessions.
+
+| Measure | Calculation | Current result |
+| --- | --- | --- |
+| Independent completion | Independent / eligible initial attempts; show blocked separately | Not measured |
+| Time | Median completed attempts, with included sample count | Not measured |
+| Task ease | Median/range of actual 1-5 responses | Not measured |
+| Issue occurrence | Affected / exposed participants per task | Not recorded |
+| Participant minimum | Distinct actual participants with initial attempts | 0 provided; minimum 5 required |
+
+## Issues, changes and retest evidence
+
+| Issue | Action | Evidence / remaining check |
+| --- | --- | --- |
+| Empty live queue can issue invalid token | Use max of valid retained tokens starting at zero | FT01 pass |
+| People ahead ignores clinical priority | Use actual ordered active queue | FT02 pass |
+| Staff cannot edit selected record or distinguish missed/cancelled outcomes | Supplemental management with explicit review | FT03-FT05 pass; device test pending |
+| Old-user asynchronous initialization can affect a new account | Version-guard auth initialization; subscribe after role resolves | TypeScript pass; MT10 pending |
+| Consent does not grant caregiver access | Add limited account-specific share and revocation | New rule test; MT05 pending |
+| Dashboard averages lack measured calls | Derive current-session wait from timestamps/sample count | FT08 pass |
+| Hidden long-press account control | Make header area open account on tap as well | Device usability retest pending |
+| Temporary PDF tools get scanned by project checks | Limit TypeScript source include; ignore tmp/native outputs in lint | Current source typecheck pass |
+| Preference save sends extra app-state fields to protected profile | Project only sms/appAlerts/language/largeText at the write boundary | FT11 and exact-payload emulator test pass |
+| Personal changes misleadingly refresh queue time | Preserve last staff timestamp for private changes | FT10 pass |
+| Called/ended visits display an awaiting-call estimate | Use explicit called/completed/cancelled/missed labels | FT13 pass |
+| JPEG image had PNG filename, blocking Android resources | Rename to .jpg; preserve original bytes and add import alias | FT12 pass; SHA-256 unchanged; stale generated PNG removed |
+
+## Overall schedule and remaining work
+
+The original milestone reports use relative proposed weeks; they do not establish a complete dated activity log. The chart combines documented repository verification on 5 October with work performed on 7 October and planned completion before the 9 October deadline. Replace earlier milestone dates with actual group records; do not backdate activities.
+
+7 October: reconcile requirements, fix core invariants, prepare traceability and study materials, run source checks, attempt native packaging. 8 October (planned): owner role/rule setup, phone tests, five usability sessions, analyze issues and retest. 9 October (planned): member review, finalized report/links/build, individual viva rehearsal and submission.
+
+The deadline is stated as a date only in the supplied brief. Confirm the submission portal time. Recruitment, consent and individual contribution verification require group action.
+
+## Conclusion and lessons to verify with the group
+
+CareQueue demonstrates the translation of patient uncertainty and staff coordination needs into connected mobile workflows. The implementation preserves clinical decisions with authorized staff, clearly distinguishes approaching/pending/approved states and provides a review path for manual continuity.
+
+Design fidelity alone does not establish operational correctness. Empty data and clinical reordering exposed problems that a fixed prototype scenario would not reveal. Similarly, a saved channel preference does not demonstrate message delivery, and browser screenshots do not demonstrate phone installation.
+
+The group should add its own lessons from implementation and five observed sessions, with concrete examples tied to individual contributions. This draft does not establish measured waiting-time reduction, hospital readiness or complete rubric compliance. Outstanding evidence and scope decisions remain on the submission checklist.
+
+## Submission readiness: evidence gates
+
+Before changing this document from review draft to final report, confirm actual workload; verify every assigned interface meets the CRUD requirement; complete at least five working-app usability records; finish device/connected-account checks; verify the supplied APK on a phone and publish reviewed source/repository links; and resolve external-channel/scope limitations.
+
+Add current installed-app screenshots, app build/source hash, functional logs, participant observations/issues and retests to the appendix. Check assessor access to repository and recordings. Keep signed consent, private identities and credentials out of public submission folders.
+
+The brief permits AI tools but expects the group to adapt and own the submitted work. Members must review, verify and rewrite the report in their own voice and explain the implementation. No AI-detection percentage or authorship certification is claimed.
+
+## References
+
+[R1] CareQueue group. IT3060HCI2026_Milestone01_GroupWE_79.pdf. Supplied local report, 30 pages; Sections 1-10 and appendices.
+
+[R2] CareQueue group. IT3060HCI2026_Milestone02_GroupWE_79.pdf. Supplied local report, 32 pages; design requirements and planned study.
+
+[R3] Expo. Build APKs for Android devices. https://docs.expo.dev/build-reference/apk/ (accessed 7 October 2026).
+
+[R4] Firebase. Secure data in Cloud Firestore. https://firebase.google.com/docs/firestore/security/overview (accessed 7 October 2026).
+
+[R5] Firebase. Transactions and batched writes. https://firebase.google.com/docs/firestore/manage-data/transactions (accessed 7 October 2026).
+
+[R6] CareQueue Figma Design, file OFZrBvawq6lmk96sHEhO88. https://www.figma.com/design/OFZrBvawq6lmk96sHEhO88/ (current Queue Status inspected 7 October 2026).
+
+[R7] SLIIT IT3060. Assignment 3: Mobile App Implementation & Final Evaluation. Published 28 September 2026; deadline 9 October 2026. Supplied brief, 3 pages.
+
+[R8] CareQueue repository. https://github.com/xnirupama/CareQueue . Source, docs/verification.md, archived browser images and current local changes. The new changes must be reviewed and published to the repository before final submission; current remote assessor access is not verified.
+
+## Appendix: current screen and CRUD register
+
+This inventory maps all 74 imported state screens to their flow-level operations. It is a coverage audit, not certification of two operations on each state frame. See traceability.json and confirmed workload for final assessment.
+
+| Node / role | Screen | Flow operations |
+| --- | --- | --- |
+| 16:7 / patient | P01 — Language Selection | U: language selection (device state) |
+| 16:28 / patient | P02 — Patient Home | R: information/navigation only |
+| 16:60 / patient | P03 — Prepare My Visit | R: information/navigation only |
+| 16:95 / patient | P05 — Queue Status | R: information/navigation only |
+| 16:122 / patient | P07 — Notification Preferences | R/U: preferences saved |
+| 16:154 / patient | P08 — Caregiver Authorization | C/R/U/D: caregiver consent; sharing extension |
+| 16:189 / patient | P09 — Approaching Turn | R: information/navigation only |
+| 16:206 / patient | P11 — Delay Alert | R: information/navigation only |
+| 16:227 / patient | P13 — Missed Turn | C/R: recovery request |
+| 16:247 / patient | P15 — Directions | R: information/navigation only |
+| 16:276 / patient | P16 — Help & Accessibility | R: information/navigation only |
+| 18:576 / patient | P04 — Join / Retrieve Queue | R: information/navigation only |
+| 18:599 / patient | P06 — Queue Timeline | R: information/navigation only |
+| 18:636 / patient | P10 — Your Turn | R: information/navigation only |
+| 18:648 / patient | P14 — Recovery Confirmation | R: recovery outcome |
+| 135:656 / patient | P12 — Service unavailable | R: information/navigation only |
+| 151:769 / patient | P04SCAN — Scan your queue slip | R: information/navigation only |
+| 151:835 / patient | P07SAVED — Preferences saved | R/U: preferences saved |
+| 153:847 / patient | P08SAVED — Caregiver access | C/R/U/D: caregiver consent; sharing extension |
+| 153:919 / patient | P08REVOKED — Access withdrawn | C/R/U/D: caregiver consent; sharing extension |
+| 153:987 / patient | P09READY — You’re near Room 04 | R: information/navigation only |
+| 153:1049 / patient | P11SAVED — Updates remain active | R: information/navigation only |
+| 153:1117 / patient | P05DELAY — My queue | R: information/navigation only |
+| 153:1207 / patient | P15R — Find Counter 03 | R: information/navigation only |
+| 153:1292 / patient | P16SUPPORT — Talk to OPD staff | R: information/navigation only |
+| 158:1140 / patient | P01SI — Sinhala language selected | U: language selection (device state) |
+| 158:1207 / patient | P01TA — Tamil language selected | U: language selection (device state) |
+| 159:1248 / patient | P07OFF — Notification choices | R/U: preferences saved |
+| 159:1314 / patient | P07APPOFF — Notification choices | R/U: preferences saved |
+| 159:1380 / patient | P07BOTHOFF — Notification choices | R/U: preferences saved |
+| 159:1446 / patient | P07REVOKED — Notification choices | R/U: preferences saved |
+| 160:1464 / patient | P05PENDING — Recovery status | R: information/navigation only |
+| 138:4 / staff | S01 — Staff dashboard | R/U: queue call |
+| 139:223 / staff | S02 — Register a walk-in | C/R/U: registration and review; edit in /manage |
+| 139:297 / staff | S03 — Manage the queue | R/U: call/recall; cancel in /manage |
+| 139:376 / staff | S04 — Clinical priority | R/U: clinical priority |
+| 139:445 / staff | S05 — Missed-turn requests | R/U: recovery decision |
+| 140:243 / staff | S06 — Service broadcast | C/R: broadcast |
+| 140:1066 / staff | S07 — Offline mode | C/R: manual note extension |
+| 140:1131 / staff | S08 — Reconcile offline actions | R/U: reconciliation |
+| 140:1208 / staff | SMORE — Staff tools | R: information/navigation only |
+| 154:453 / staff | S02REVIEW — Review registration | C/R/U: registration and review; edit in /manage |
+| 154:528 / staff | S02DONE — Patient registered | C/R/U: registration and review; edit in /manage |
+| 154:605 / staff | S03REVIEW — Call next patient? | R/U: call/recall; cancel in /manage |
+| 154:675 / staff | S03CALLED — Patient called | R/U: call/recall; cancel in /manage |
+| 154:745 / staff | S03RECALL — Token recalled | R/U: call/recall; cancel in /manage |
+| 154:813 / staff | S04REVIEW — Confirm priority change | R/U: clinical priority |
+| 154:889 / staff | S04DONE — Priority applied | R/U: clinical priority |
+| 154:957 / staff | S05REVIEW — Confirm recovery | R/U: recovery decision |
+| 154:1025 / staff | S05DONE — Recovery recorded | R/U: recovery decision |
+| 154:1087 / staff | S06REVIEW — Confirm broadcast | C/R: broadcast |
+| 154:1166 / staff | S06DONE — Update published | C/R: broadcast |
+| 154:1237 / staff | S07ACTIVE — Manual fallback active | C/R: manual note extension |
+| 155:931 / staff | S08CONFLICT — Review possible duplicate | R/U: reconciliation |
+| 155:1008 / staff | S08DONE — Reconciliation complete | R/U: reconciliation |
+| 35:168 / admin | A01 — Operations overview · Mobile | R: information/navigation only |
+| 35:212 / admin | A02 — Live queue · Mobile | R: information/navigation only |
+| 35:281 / admin | A03 — Bottleneck analytics · Mobile | R: information/navigation only |
+| 35:332 / admin | A04 — Service incidents · Mobile | R/U: incident verification |
+| 35:374 / admin | A05 — Broadcast centre · Mobile | C/R/D: message publication/withdrawal extension |
+| 35:416 / admin | A06 — Reports · Mobile | R: report preview/export (export is not CRUD) |
+| 35:485 / admin | A07 — System health · Mobile | R: service health; admin status update in /manage |
+| 35:537 / admin | A08 — Audit log · Mobile | R: immutable audit |
+| 156:921 / admin | A04REVIEW — Review verification · Mobile | R/U: incident verification |
+| 156:3178 / admin | A04DONE — Incident verified · Mobile | R/U: incident verification |
+| 156:3305 / admin | A05REVIEW — Review broadcast · Mobile | C/R/D: message publication/withdrawal extension |
+| 156:3432 / admin | A05DONE — Broadcast published · Mobile | C/R/D: message publication/withdrawal extension |
+| 157:1337 / admin | A06READY — Report preview · Mobile | R: report preview/export (export is not CRUD) |
+| 157:3600 / admin | A07OUTAGE — Outage procedure · Mobile | R: service health; admin status update in /manage |
+| 208:1545 / admin | ANOTIFY — Notifications · Mobile | R: information/navigation only |
+| 405:2122 / admin | AMORE — Admin tools · Mobile | R: information/navigation only |
+| 405:2123 / admin | A02PAUSED — Paused service · Mobile | R: information/navigation only |
+| 405:2124 / admin | A05LOCKED — Broadcast centre · Mobile | C/R/D: message publication/withdrawal extension |
+| 405:2125 / admin | A08PUBLISHED — Audit log · Mobile | R: immutable audit |
+
+## Appendix: evidence pack and viva preparation
+
+Evidence pack: docs/testing/functional-tests.md; usability-protocol.md; U01-U05-session.md; usability-results.json and generated usability-summary.json; traceability.json; archived docs/evidence screenshots; current build and test logs when finalized.
+
+Each member should demonstrate their actual interface flow, identify its requirements and CRUD actions, explain the data path/authorization, show one valid and one invalid input, explain a functional defect and fix, and discuss a participant issue with a retest or planned improvement.
+
+Patient demonstration: retrieve a linked token, interpret progress/estimate, save/revoke consent, explain missed-turn review. Staff: register/edit/select/priority/call and reconcile a reviewed note. Administrator: verify/publish/change service/report, preserving audit. Accessibility/testing member: demonstrate text/display/help and explain the real participant evidence.
+
+Architecture trade-offs: explain why transactions do not run offline; why UI-only role checks are insufficient; why current-session averages are not historical analytics; and why an approaching turn is not a clinical call.

@@ -1,0 +1,49 @@
+import {useState, type ReactNode} from 'react';
+import {ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions, type TextInputProps} from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import {LinearGradient} from 'expo-linear-gradient';
+import WelcomeArt, {CareQueueMark} from './WelcomeArt';
+
+export const colors={navy:'#09386b',ink:'#141f2b',muted:'#52697a',mint:'#b8e5d5',paper:'#f8fafc',border:'#d3e1eb',red:'#a82e3b'};
+export function Brand(){return <View style={styles.brand}><CareQueueMark/><Text style={styles.brandText}>CareQueue<Text style={styles.brandDot}>.</Text></Text></View>;}
+export function ActionButton({label,onPress,busy=false,disabled=false,secondary=false}: {label:string;onPress:()=>void;busy?:boolean;disabled?:boolean;secondary?:boolean}) {
+ return <Pressable accessibilityRole="button" accessibilityState={{disabled:disabled||busy,busy}} disabled={disabled||busy} onPress={onPress} style={({pressed})=>[styles.button,secondary&&styles.secondary,(disabled||busy)&&styles.disabled,pressed&&styles.pressed]}>{busy?<ActivityIndicator color={secondary?colors.navy:'white'}/>:null}<Text style={[styles.buttonText,secondary&&{color:colors.navy}]}>{label}</Text></Pressable>;
+}
+export function TextLink({label,onPress,disabled=false}: {label:string;onPress:()=>void;disabled?:boolean}) {
+ return <Pressable accessibilityRole="button" accessibilityState={{disabled}} disabled={disabled} onPress={onPress} style={({pressed})=>[styles.linkTouch,pressed&&styles.pressed,disabled&&styles.disabled]}><Text style={styles.link}>{label}</Text></Pressable>;
+}
+export function AccountField({label,error,helper,password=false,...props}:TextInputProps&{label:string;error?:string;helper?:string;password?:boolean}) {
+ const [visible,setVisible]=useState(false);
+ return <View style={styles.field}><Text style={styles.label}>{label}</Text><View style={[styles.inputBox,error&&styles.invalid]}><TextInput {...props} accessibilityLabel={label} accessibilityHint={error||helper} secureTextEntry={password&&!visible} placeholderTextColor="#82958f" style={[styles.input,props.style]}/>{password?<Pressable accessibilityRole="button" accessibilityLabel={`${visible?'Hide':'Show'} ${label.toLowerCase()}`} accessibilityState={{selected:visible}} hitSlop={4} onPress={()=>setVisible(v=>!v)} style={styles.reveal}><Text style={styles.revealText}>{visible?'Hide':'Show'}</Text></Pressable>:null}</View>{error?<Text accessibilityRole="alert" style={styles.errorText}>{error}</Text>:helper?<Text style={styles.helper}>{helper}</Text>:null}</View>;
+}
+export function Notice({message,success=false}: {message:string;success?:boolean}) {
+ return message?<View style={[styles.notice,success&&styles.success]}><Text accessibilityRole="alert" style={[styles.errorText,success&&{color:'#255f49'}]}>{message}</Text></View>:null;
+}
+export function AccountShell({title,subtitle,eyebrow='A little less waiting.',children}: {title:string;subtitle:string;eyebrow?:string;children:ReactNode}) {
+ const wide=useWindowDimensions().width>=860;
+ return <SafeAreaView style={styles.page}><KeyboardAvoidingView style={styles.flex} behavior={Platform.OS==='ios'?'padding':undefined}><ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll}><View style={[styles.shell,wide&&styles.wideShell]}>
+  {wide?<LinearGradient colors={['#e9f5ed','#d5e9e0']} style={styles.story}><Brand/><View style={styles.storyArt}><WelcomeArt/></View><Text style={styles.storyHeading}>Your turn.{ '\n'}Your time.</Text><Text style={styles.storyText}>Stay close to the care you need, with your queue in your pocket.</Text><View style={styles.storyPill}><View style={styles.dot}/><Text style={styles.storyPillText}>Care that keeps you informed</Text></View></LinearGradient>:null}
+  <View style={[styles.form,wide&&styles.wideForm]}>{!wide?<Brand/>:null}<View style={styles.headingBlock}><Text style={styles.eyebrow}>{eyebrow}</Text><Text accessibilityRole="header" style={styles.heading}>{title}</Text><Text style={styles.subtitle}>{subtitle}</Text></View>{children}<Text style={styles.footer}>CareQueue · General OPD</Text></View>
+ </View></ScrollView></KeyboardAvoidingView></SafeAreaView>;
+}
+export function MobileAccountShell({title,subtitle,children,onBack,backDisabled=false}: {title:string;subtitle:string;children:ReactNode;onBack?:()=>void;backDisabled?:boolean}) {
+ const {width,height}=useWindowDimensions(),framed=Platform.OS==='web'&&width>=720;
+ return <View style={[styles.mobileOuter,framed&&styles.mobilePreview]}><SafeAreaView style={[styles.mobileDevice,framed&&{flex:undefined,width:375,height:Math.min(844,height-32),borderRadius:24,borderWidth:1,borderColor:'#ccdbe3'}]}>
+  <View style={styles.mobileHeader}>{onBack?<Pressable accessibilityRole="button" accessibilityLabel="Back to sign in" accessibilityState={{disabled:backDisabled}} disabled={backDisabled} onPress={onBack} style={[styles.mobileBack,backDisabled&&styles.disabled]}><Text style={styles.mobileBackText}>‹</Text></Pressable>:<CareQueueMark size={32}/>}
+   <View style={{flex:1,gap:3}}><Text style={styles.mobileBrand}>CareQueue</Text><Text style={styles.mobileCaption}>Your hospital queue companion</Text></View>
+  </View>
+  <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS==='ios'?'padding':undefined}><ScrollView keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" contentContainerStyle={styles.mobileScroll}>
+   <View style={styles.mobileIntro}><Text accessibilityRole="header" style={styles.mobileTitle}>{title}</Text><Text style={styles.subtitle}>{subtitle}</Text></View>
+   <View style={styles.mobileForm}>{children}</View><Text style={styles.footer}>CareQueue · General OPD</Text>
+  </ScrollView></KeyboardAvoidingView>
+ </SafeAreaView></View>;
+}
+export const styles=StyleSheet.create({
+ mobileOuter:{flex:1,backgroundColor:colors.paper,alignItems:'center'},mobilePreview:{backgroundColor:'#e9eff5',justifyContent:'center',padding:16},mobileDevice:{flex:1,width:'100%',maxWidth:600,backgroundColor:colors.paper,overflow:'hidden'},mobileHeader:{flexDirection:'row',alignItems:'center',gap:12,paddingHorizontal:24,paddingTop:16,paddingBottom:18,backgroundColor:'white',borderBottomWidth:1,borderBottomColor:'#e4ecf4'},mobileBrand:{fontFamily:'Inter_700Bold',fontSize:22,color:colors.navy},mobileCaption:{fontFamily:'Inter_400Regular',fontSize:11,color:colors.muted},mobileBack:{minHeight:44,minWidth:32,justifyContent:'center',alignItems:'center'},mobileBackText:{fontFamily:'Inter_500Medium',fontSize:34,color:colors.navy},mobileScroll:{flexGrow:1,padding:24,gap:24},mobileIntro:{gap:8},mobileTitle:{fontFamily:'Inter_700Bold',fontSize:26,lineHeight:34,color:colors.ink},mobileForm:{gap:18},
+ flex:{flex:1},page:{flex:1,backgroundColor:colors.paper},scroll:{flexGrow:1,justifyContent:'center',padding:24},shell:{width:'100%',maxWidth:480,alignSelf:'center'},wideShell:{maxWidth:1040,flexDirection:'row',backgroundColor:'white',borderRadius:32,borderWidth:1,borderColor:colors.border,overflow:'hidden'},
+ form:{gap:18,width:'100%'},wideForm:{flex:1,padding:44},brand:{flexDirection:'row',alignItems:'center',gap:10},brandText:{fontFamily:'Inter_800ExtraBold',fontSize:22,color:colors.navy,letterSpacing:-.7},brandDot:{color:'#52967d'},
+ headingBlock:{gap:12,marginTop:20,marginBottom:4},eyebrow:{fontFamily:'Inter_600SemiBold',fontSize:12,color:'#397460',letterSpacing:.7},heading:{fontFamily:'Inter_800ExtraBold',fontSize:34,lineHeight:41,color:colors.ink,letterSpacing:-1.2},subtitle:{fontFamily:'Inter_400Regular',fontSize:15,lineHeight:24,color:colors.muted},
+ field:{gap:8},label:{fontFamily:'Inter_400Regular',fontSize:12,color:colors.muted},inputBox:{flexDirection:'row',alignItems:'center',minHeight:52,borderWidth:1,borderColor:colors.border,borderRadius:16,backgroundColor:'white'},input:{flex:1,minWidth:0,paddingHorizontal:16,paddingVertical:16,fontFamily:'Inter_600SemiBold',fontSize:14,color:colors.ink},invalid:{borderColor:colors.red},reveal:{minHeight:48,paddingHorizontal:12,justifyContent:'center'},revealText:{fontFamily:'Inter_600SemiBold',fontSize:12,color:colors.navy},helper:{fontFamily:'Inter_400Regular',fontSize:12,lineHeight:19,color:colors.muted},errorText:{fontFamily:'Inter_500Medium',fontSize:13,lineHeight:21,color:colors.red},
+ button:{minHeight:52,backgroundColor:colors.navy,borderRadius:16,paddingHorizontal:20,paddingVertical:16,alignItems:'center',justifyContent:'center',flexDirection:'row',gap:10},secondary:{backgroundColor:'white',borderWidth:1,borderColor:colors.border},buttonText:{fontFamily:'Inter_700Bold',fontSize:14,color:'white',textAlign:'center'},disabled:{opacity:.5},pressed:{opacity:.75},linkTouch:{minHeight:44,justifyContent:'center',alignItems:'center',paddingHorizontal:4},link:{fontFamily:'Inter_600SemiBold',fontSize:13,lineHeight:20,color:colors.navy,textAlign:'center'},notice:{padding:14,backgroundColor:'#fff0f0',borderRadius:12},success:{backgroundColor:'#e5f3eb'},footer:{fontFamily:'Inter_400Regular',fontSize:12,textAlign:'center',color:colors.muted,marginTop:12,marginBottom:8},divider:{height:1,backgroundColor:colors.border,marginVertical:4},row:{flexDirection:'row',alignItems:'center',justifyContent:'space-between',gap:12},
+ story:{width:'44%',padding:36,gap:20,justifyContent:'center'},storyArt:{height:260,width:'100%',marginVertical:12},storyHeading:{fontFamily:'Inter_800ExtraBold',fontSize:42,lineHeight:47,color:colors.navy,letterSpacing:-1.4},storyText:{fontFamily:'Inter_400Regular',fontSize:15,lineHeight:25,color:colors.muted},storyPill:{flexDirection:'row',gap:8,alignItems:'center',padding:12,borderRadius:24,backgroundColor:'#ffffffa8',alignSelf:'flex-start'},dot:{width:7,height:7,borderRadius:4,backgroundColor:'#52967d'},storyPillText:{fontFamily:'Inter_500Medium',fontSize:11,color:colors.navy},
+});

@@ -1,18 +1,27 @@
 import React, {createContext, useContext, useEffect, useRef, useState, useCallback} from 'react';
+import NetInfo from '@react-native-community/netinfo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type {User} from 'firebase/auth';
 import {initialState} from '../data/seed';
 import type {AppState, Role} from '../data/types';
 import {applyCommand, type Command} from './domain';
-import {liveMode, configured, watchAuth, accountRole, subscribeLive, liveCommand} from './firebase';
+import {liveMode, configured, auth, watchAuth, accountRole, subscribeLive, liveCommand, login, register, reloadAccount,loadUserProfile,logout} from './firebase';
+import type {RegistrationFields} from './authentication';
+import type {UserProfile} from './user-profile';
 const storageKey = 'carequeue.demo.v1';
+const modeKey = 'carequeue.mode.v1';
+const welcomeKey = 'carequeue.welcome.v1';
 const offlineKey = (uid: string) => `carequeue.offline.${uid}`;
 function emptyState(): AppState {
  return {...initialState(), queue: [], nowServing: '—', myToken: '—', updatedAt: '', audit: [], broadcasts: [], offlineActions: [], patientName: 'Patient'};
 }
 interface Store {
  isLive: boolean; setDataMode: (live: boolean) => void;
- state: AppState; ready: boolean; user: User | null;
+ booted: boolean; onboardingComplete: boolean; completeOnboarding: () => Promise<void>;
+ authPending: boolean; signIn: (email: string, password: string) => Promise<void>;
+ signUp: (fields: RegistrationFields) => Promise<void>; refreshAccount: () => Promise<void>;
+ accountProfile: UserProfile | null;
+ connected: boolean; state: AppState; ready: boolean; user: User | null;
  error: string; setError: (message: string) => void;
  update: (patch: Partial<AppState>) => void;
  execute: (command: Command, fields?: Record<string, string>) => Promise<void>;
@@ -20,42 +29,73 @@ interface Store {
 }
 const Context = createContext<Store | null>(null);
 export function StoreProvider({children}: {children: React.ReactNode}) {
+ const [connected,setConnected]=useState(true);
+ useEffect(()=>NetInfo.addEventListener(n=>setConnected(n.isConnected!==false&&n.isInternetReachable!==false)),[]);
  const [isLive, setIsLive] = useState(liveMode);
+ const [booted,setBooted] = useState(false);
+ const [onboardingComplete,setOnboardingComplete] = useState(false);
+ const [authPending,setAuthPending] = useState(false);
  const [state, setState] = useState(() => liveMode ? emptyState() : initialState());
  const [ready, setReady] = useState(false);
  const [user, setUser] = useState<User | null>(null);
+ const [accountProfile,setAccountProfile]=useState<UserProfile|null>(null);
  const [error, setError] = useState('');
  const current = useRef(state);
+ const accountUid = useRef<string|null>(null);
+ const sessionEpoch=useRef(0),authAction=useRef(false);
  const chain = useRef(Promise.resolve());
  const replaceState = useCallback((next: AppState) => {current.current = next; setState(next);}, []);
  const update = useCallback((patch: Partial<AppState>) => replaceState({...current.current, ...patch}), [replaceState]);
+ const hydrateAccount=useCallback(async(account:User)=>{
+  const version=++sessionEpoch.current;accountUid.current=account.uid;
+  const [role,profile,saved]=await Promise.all([accountRole(account),loadUserProfile(account),AsyncStorage.getItem(offlineKey(account.uid))]);
+  if(version!==sessionEpoch.current||auth?.currentUser?.uid!==account.uid)return;
+  let pending=[];
+  try{pending=saved?JSON.parse(saved):[];}catch{setError('Saved offline notes could not be read. They were kept on this device for recovery.');}
+  update({role,patientName:profile.fullName,offlineActions:Array.isArray(pending)?pending:[]});
+  setAccountProfile(profile);setUser(account);setReady(true);
+ },[update]);
  useEffect(() => {
+  let active = true;
+  AsyncStorage.multiGet([modeKey,welcomeKey]).then(values => {
+   if (!active) return;
+   const savedMode = values[0][1];
+   const enabled = savedMode ? savedMode === 'firebase' && configured : liveMode;
+   setIsLive(enabled); replaceState(enabled ? emptyState() : initialState());
+   setOnboardingComplete(values[1][1] === 'complete');
+  }).catch(() => {if(active)setError('Your saved welcome settings could not be read.');})
+   .finally(() => {if(active)setBooted(true);});
+  return () => {active=false;};
+ },[replaceState]);
+ const completeOnboarding = useCallback(async () => {
+  await AsyncStorage.setItem(welcomeKey,'complete'); setOnboardingComplete(true);
+ },[]);
+ useEffect(() => {
+  if (!booted) return;
   let active = true;
   if (isLive) {
    const stop = watchAuth(async account => {
     if (!active) return;
-    setUser(account); replaceState(emptyState()); setReady(true);
-    if (account) {
+    ++sessionEpoch.current;accountUid.current = account?.uid || null;
+    setUser(null);setAccountProfile(null);replaceState(emptyState());setReady(!account);
+    if (account&&!authAction.current) {
      try {
-      const role = await accountRole(account);
-      const saved = await AsyncStorage.getItem(offlineKey(account.uid));
-      if (!active) return;
-      const pending = saved ? JSON.parse(saved) : [];
-      update({role, patientName: account.displayName || 'Patient', offlineActions: Array.isArray(pending) ? pending : []});
-     } catch (e) {if (active) setError(String(e));}
+      await hydrateAccount(account);
+     } catch {if (active&&accountUid.current===account.uid) {setError('Your account profile could not be loaded. Check your connection and sign in again.');setReady(true);}}
     }
    });
-   return () => {active = false; stop();};
+   return () => {active = false;++sessionEpoch.current;stop();};
   }
   AsyncStorage.getItem(storageKey).then(raw => {
    if (!active) return;
    if (raw) {const data = JSON.parse(raw); if (data.version === 1) replaceState(data);}
   }).catch(() => setError('Saved sample data could not be read.')).finally(() => {if (active) setReady(true);});
   return () => {active = false;};
- }, [isLive, replaceState, update]);
+ }, [booted, isLive, replaceState, hydrateAccount]);
  useEffect(() => {
   if (isLive && user) return subscribeLive(user, state.role, patch => {
    // Unreconciled notes belong to this device, not the server's current snapshot.
+   if(accountUid.current!==user.uid)return;
    const {offlineActions: _serverPending, ...data} = patch;
    update({...data, role: current.current.role});
   }, setError);
@@ -67,13 +107,15 @@ export function StoreProvider({children}: {children: React.ReactNode}) {
   const task = async () => {
    const snapshot = current.current;
    if (isLive) {
-    if (!user) throw Error('Sign in to continue.');
+    if (!user || accountUid.current !== user.uid) throw Error('Sign in to continue.');
     if (command === 'offline' || command === 'manualRecord') {
      const next = applyCommand(snapshot, command, fields);
      await AsyncStorage.setItem(offlineKey(user.uid), JSON.stringify(next.offlineActions));
+     if(accountUid.current!==user.uid)return;
      replaceState(next); return;
     }
     await liveCommand(user, snapshot, command, fields, `${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    if(accountUid.current!==user.uid)return;
     if (command === 'reconcile') {
      await AsyncStorage.setItem(offlineKey(user.uid), '[]'); update({offlineActions: []});
     }
@@ -84,7 +126,33 @@ export function StoreProvider({children}: {children: React.ReactNode}) {
  }, [user, isLive, replaceState, update]);
  const setRole = useCallback((role: Role) => {if (!isLive) update({role});}, [isLive, update]);
  const reset = useCallback(async () => {if (!isLive) {await AsyncStorage.removeItem(storageKey); replaceState(initialState());}}, [isLive, replaceState]);
- const setDataMode = useCallback((enabled: boolean) => {if(enabled&&!configured){setError('Firebase configuration is missing. Copy the app configuration before starting the app.');return;}setIsLive(enabled); setReady(false); setUser(null); setError(''); replaceState(enabled ? emptyState() : initialState());}, [replaceState]);
- return <Context.Provider value={{isLive, setDataMode, state, ready, user, error, setError, update, execute, setRole, reset}}>{children}</Context.Provider>;
+ const setDataMode = useCallback((enabled: boolean) => {
+  if(enabled&&!configured){setError('Firebase configuration is missing. Copy the app configuration before starting the app.');return;}
+  if(enabled===isLive)return;
+  ++sessionEpoch.current;accountUid.current=null;setIsLive(enabled);setReady(false);setUser(null);setAccountProfile(null);setError('');replaceState(enabled?emptyState():initialState());
+  AsyncStorage.setItem(modeKey,enabled?'firebase':'demo').catch(()=>setError('Your account mode could not be saved on this device.'));
+ },[isLive,replaceState]);
+ const refreshAccount = useCallback(async () => {
+  const account=auth?.currentUser;
+  if(!account)throw Error('Sign in to continue.');
+  await reloadAccount(account);const [role,profile]=await Promise.all([accountRole(account),loadUserProfile(account)]);
+  if(accountUid.current!==account.uid)return;
+  setAccountProfile(profile);setUser(account);update({role,...(current.current.myToken==='—'?{patientName:profile.fullName}:{})});
+ },[update]);
+ const signIn=useCallback(async(email:string,password:string)=>{
+  if(authAction.current)throw Error('Please wait for the current account action to finish.');
+  authAction.current=true;setAuthPending(true);setError('');setDataMode(true);
+  try{const result=await login(email,password);await hydrateAccount(result.user);}
+  catch(e){await logout();setReady(true);throw e;}
+  finally{authAction.current=false;setAuthPending(false);}
+ },[hydrateAccount,setDataMode]);
+ const signUp=useCallback(async(fields:RegistrationFields)=>{
+  if(authAction.current)throw Error('Please wait for the current account action to finish.');
+  authAction.current=true;setAuthPending(true);setError('');setDataMode(true);
+  try{await register(fields);await logout();}
+  catch(e){await logout();setReady(true);throw e;}
+  finally{authAction.current=false;setAuthPending(false);}
+ },[setDataMode]);
+ return <Context.Provider value={{connected,isLive,setDataMode,booted,onboardingComplete,completeOnboarding,authPending,accountProfile,signIn,signUp,refreshAccount,state,ready,user,error,setError,update,execute,setRole,reset}}>{children}</Context.Provider>;
 }
 export function useStore() {const store = useContext(Context); if (!store) throw Error('StoreProvider is missing'); return store;}

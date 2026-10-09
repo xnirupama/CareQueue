@@ -5,6 +5,20 @@ service cloud.firestore {
   function staff(){return signedIn() && request.auth.token.role in ['staff','admin'];}
   function admin(){return signedIn() && request.auth.token.role == 'admin';}
   function owner(uid){return signedIn() && request.auth.uid == uid;}
+  match /users/{uid}{
+   allow read,delete: if owner(uid);
+   allow create: if owner(uid)
+    && request.resource.data.keys().hasAll(['uid','fullName','email','createdAt','updatedAt'])
+    && request.resource.data.keys().hasOnly(['uid','fullName','email','createdAt','updatedAt'])
+    && request.resource.data.uid == uid
+    && request.resource.data.email == request.auth.token.email
+    && request.resource.data.fullName is string && request.resource.data.fullName.size() > 0 && request.resource.data.fullName.size() <= 80
+    && request.resource.data.createdAt == request.time && request.resource.data.updatedAt == request.time;
+   allow update: if owner(uid)
+    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['fullName','updatedAt'])
+    && request.resource.data.fullName is string && request.resource.data.fullName.size() > 0 && request.resource.data.fullName.size() <= 80
+    && request.resource.data.updatedAt == request.time;
+  }
   match /services/{id}{allow read: if signedIn(); allow write: if staff() && request.resource.data.keys().hasOnly(['nowServing','serviceStatus','updatedAt','broadcasts']);}
   match /operations/{id}{allow read: if staff();allow update: if staff() && (admin() || request.resource.data.incidentVerified == resource.data.incidentVerified);allow create: if admin();allow delete: if false;}
   match /audit/{id}{allow read,create: if staff();allow update,delete:if false;}
@@ -17,11 +31,25 @@ service cloud.firestore {
     && (!('largeText' in request.resource.data)||request.resource.data.largeText is bool);
    allow delete: if owner(uid);
   }
+  match /caregiverShares/{uid}{
+   allow read: if owner(uid) || staff() || (signedIn() && resource.data.caregiverId == request.auth.uid);
+   allow create,update: if (staff() || owner(uid))
+    && request.resource.data.keys().hasOnly(['caregiverId','token','status','patientsAhead'])
+    && request.resource.data.caregiverId is string && request.resource.data.caregiverId != uid
+    && request.resource.data.token == getAfter(/databases/$(database)/documents/tickets/$(uid)).data.token
+    && request.resource.data.status == getAfter(/databases/$(database)/documents/tickets/$(uid)).data.status
+    && request.resource.data.patientsAhead == getAfter(/databases/$(database)/documents/tickets/$(uid)).data.patientsAhead;
+   allow delete: if owner(uid) || staff();
+  }
   match /tickets/{uid}{allow read: if owner(uid)||staff();allow write: if staff();}
   match /recoveryRequests/{uid}{
    allow read: if owner(uid)||staff();
    allow create: if owner(uid) && request.resource.data.keys().hasOnly(['patientId','token','status','requestedAt']) && request.resource.data.patientId==uid && request.resource.data.status=='pending' && request.resource.data.token==get(/databases/$(database)/documents/tickets/$(uid)).data.token;
-   allow update: if staff() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']) && request.resource.data.status in ['approved','pending','rejected'];
+   allow update: if (staff() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']) && request.resource.data.status in ['approved','pending','rejected'])
+    || (owner(uid) && resource.data.status in ['approved','rejected'] && request.resource.data.status == 'pending'
+     && request.resource.data.keys().hasOnly(['patientId','token','status','requestedAt']) && request.resource.data.patientId == uid
+     && request.resource.data.token == get(/databases/$(database)/documents/tickets/$(uid)).data.token
+     && get(/databases/$(database)/documents/tickets/$(uid)).data.status == 'missed');
    allow delete: if false;
   }
   match /{document=**}{allow read,write:if false;}

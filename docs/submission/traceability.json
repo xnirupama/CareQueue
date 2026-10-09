@@ -1,0 +1,817 @@
+{
+  "requirements": [
+    {
+      "id": "FR01",
+      "requirement": "Queue progress and update time",
+      "prototype": "P02/P05/P06; S01/S03; A02",
+      "nodes": "16:28;16:95;18:599;138:4;139:297;35:212",
+      "implementation": "firebase.ts listeners; domain.ts aheadOf; manage.tsx",
+      "tests": "FT02; W05; MT01",
+      "status": "Implemented; connected-device timing pending"
+    },
+    {
+      "id": "FR02",
+      "requirement": "Approximate waiting range",
+      "prototype": "P05/P06/P09/P11",
+      "nodes": "16:95;18:599;16:189;16:206",
+      "implementation": "domain.ts waitEstimate; DesignRenderer.tsx",
+      "tests": "FT02; MT02",
+      "status": "Heuristic 3-5 min per person; not hospital calibrated"
+    },
+    {
+      "id": "FR03",
+      "requirement": "Approaching-turn alerts",
+      "prototype": "P07/P09/P10",
+      "nodes": "16:122;16:189;18:636",
+      "implementation": "manage.tsx foreground states; saved preferences",
+      "tests": "W05; MT03",
+      "status": "Foreground in-app states; SMS/background channels pending"
+    },
+    {
+      "id": "FR04",
+      "requirement": "Delay, cancellation, unavailable notices",
+      "prototype": "P11/P12; A04/A05",
+      "nodes": "16:206;135:656;35:332;35:374",
+      "implementation": "serviceStatus/cancel commands; shared service listener",
+      "tests": "FT04; FT06; MT03",
+      "status": "App states implemented; external delivery pending"
+    },
+    {
+      "id": "FR05",
+      "requirement": "Registration guidance and directions",
+      "prototype": "P03/P15/P16",
+      "nodes": "16:60;16:247;16:276",
+      "implementation": "DesignRenderer.tsx; display.tsx; token printing",
+      "tests": "W06; MT04",
+      "status": "Scenario directions need hospital confirmation"
+    },
+    {
+      "id": "FR06",
+      "requirement": "Limited authorized caregiver updates",
+      "prototype": "P07/P08; shared visit extension",
+      "nodes": "16:122;16:154;153:919",
+      "implementation": "caregiverShares grant/read/revoke; manage.tsx",
+      "tests": "W05; caregiver rules case; MT05",
+      "status": "Implemented in source; rule rollout and multi-account test pending"
+    },
+    {
+      "id": "FR07",
+      "requirement": "Walk-in registration and queue control",
+      "prototype": "S01/S02/S03",
+      "nodes": "138:4;139:223;139:297",
+      "implementation": "register/editPatient/callNext/cancel; manage.tsx",
+      "tests": "FT01; FT03; FT04; W02; MT06",
+      "status": "Implemented; concurrent live-device test pending"
+    },
+    {
+      "id": "FR08",
+      "requirement": "Clinician-reviewed priority and reason",
+      "prototype": "S04; A08",
+      "nodes": "139:376;154:813;35:537",
+      "implementation": "priority command; authenticated staff claims; audit",
+      "tests": "FT02; FT07; W03; MT02",
+      "status": "Staff role must represent clinician-reviewed authority"
+    },
+    {
+      "id": "FR09",
+      "requirement": "Missed-turn recovery and decision",
+      "prototype": "P13/P14; S05",
+      "nodes": "16:227;18:648;139:445",
+      "implementation": "requestRecovery; approve/reject transaction",
+      "tests": "FT05; W01; recovery rules case; MT07",
+      "status": "Implemented; real multi-account flow pending"
+    },
+    {
+      "id": "FR10",
+      "requirement": "Flow/wait/delay/missed reports",
+      "prototype": "A01/A02/A03/A06",
+      "nodes": "35:168;35:212;35:281;35:416",
+      "implementation": "operationalMetrics; report.ts; manage.tsx",
+      "tests": "FT08; MT08",
+      "status": "Current-session metrics; historical chart pipeline pending"
+    },
+    {
+      "id": "FR11",
+      "requirement": "One verified shared service update",
+      "prototype": "S06; A04/A05; token display",
+      "nodes": "140:243;35:332;35:374",
+      "implementation": "broadcast/withdraw; services/general-opd; display.tsx",
+      "tests": "FT06; W04; MT08",
+      "status": "App/display status share source; external channels pending"
+    },
+    {
+      "id": "FR12",
+      "requirement": "Manual fallback and reconciliation",
+      "prototype": "S07/S08; A07/A08",
+      "nodes": "140:1066;140:1131;35:485;35:537",
+      "implementation": "device notes; explicit reconciliation; audit",
+      "tests": "FT09; MT09",
+      "status": "Notes archived after review; queue corrections remain explicit"
+    },
+    {
+      "id": "NFR01",
+      "requirement": "Simple task wording",
+      "prototype": "All",
+      "nodes": "74 current frames",
+      "implementation": "Existing labels plus supplemental operations",
+      "tests": "W08; MT10; T01-T12",
+      "status": "Usability evidence pending"
+    },
+    {
+      "id": "NFR02",
+      "requirement": "Accessible/assisted alternatives",
+      "prototype": "P16; display; settings",
+      "nodes": "16:276",
+      "implementation": "large text; 52px management controls; token display/slip",
+      "tests": "MT04; MT10; T12",
+      "status": "Screen-reader/device text expansion pending; translations partial"
+    },
+    {
+      "id": "NFR03",
+      "requirement": "Confirmed update visible within 5s",
+      "prototype": "Connected queue views",
+      "nodes": "16:95;35:212",
+      "implementation": "Firestore realtime listeners",
+      "tests": "MT01",
+      "status": "Not measured on physical devices"
+    },
+    {
+      "id": "NFR04",
+      "requirement": "Freshness and stale indication",
+      "prototype": "Queue/service/health",
+      "nodes": "16:95;35:485",
+      "implementation": "last-update text; NetInfo disconnected banner",
+      "tests": "MT09; MT10",
+      "status": "Disconnected state implemented; connected stale-age threshold pending"
+    },
+    {
+      "id": "NFR05",
+      "requirement": "Documented manual continuity",
+      "prototype": "S07/S08; A07",
+      "nodes": "140:1066;140:1131;35:485",
+      "implementation": "manage.tsx guidance and durable notes",
+      "tests": "FT09; MT09",
+      "status": "Physical restart/retry evidence pending"
+    },
+    {
+      "id": "NFR06",
+      "requirement": "Public information boundaries",
+      "prototype": "Token display/slip/report",
+      "nodes": "Supplemental /display",
+      "implementation": "token-only display; sanitized reporting; caregiver share fields",
+      "tests": "caregiver rules case; MT04; MT05",
+      "status": "Public view renders no record names/phone/reasons"
+    },
+    {
+      "id": "NFR07",
+      "requirement": "Authenticated role restrictions",
+      "prototype": "All protected operations",
+      "nodes": "All roles",
+      "implementation": "Custom claims; Firestore rules; route gates",
+      "tests": "FT07; rules tests; MT10",
+      "status": "Owner role assignment; new rule deployment pending"
+    }
+  ],
+  "interfaces": [
+    {
+      "node": "16:7",
+      "screen": "P01 — Language Selection",
+      "role": "patient",
+      "flow_operations": "U: language selection (device state)",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "16:28",
+      "screen": "P02 — Patient Home",
+      "role": "patient",
+      "flow_operations": "R: information/navigation only",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "16:60",
+      "screen": "P03 — Prepare My Visit",
+      "role": "patient",
+      "flow_operations": "R: information/navigation only",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "16:95",
+      "screen": "P05 — Queue Status",
+      "role": "patient",
+      "flow_operations": "R: information/navigation only",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "16:122",
+      "screen": "P07 — Notification Preferences",
+      "role": "patient",
+      "flow_operations": "R/U: preferences saved",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "16:154",
+      "screen": "P08 — Caregiver Authorization",
+      "role": "patient",
+      "flow_operations": "C/R/U/D: caregiver consent; sharing extension",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "16:189",
+      "screen": "P09 — Approaching Turn",
+      "role": "patient",
+      "flow_operations": "R: information/navigation only",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "16:206",
+      "screen": "P11 — Delay Alert",
+      "role": "patient",
+      "flow_operations": "R: information/navigation only",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "16:227",
+      "screen": "P13 — Missed Turn",
+      "role": "patient",
+      "flow_operations": "C/R: recovery request",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "16:247",
+      "screen": "P15 — Directions",
+      "role": "patient",
+      "flow_operations": "R: information/navigation only",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "16:276",
+      "screen": "P16 — Help & Accessibility",
+      "role": "patient",
+      "flow_operations": "R: information/navigation only",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "18:576",
+      "screen": "P04 — Join / Retrieve Queue",
+      "role": "patient",
+      "flow_operations": "R: information/navigation only",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "18:599",
+      "screen": "P06 — Queue Timeline",
+      "role": "patient",
+      "flow_operations": "R: information/navigation only",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "18:636",
+      "screen": "P10 — Your Turn",
+      "role": "patient",
+      "flow_operations": "R: information/navigation only",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "18:648",
+      "screen": "P14 — Recovery Confirmation",
+      "role": "patient",
+      "flow_operations": "R: recovery outcome",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "135:656",
+      "screen": "P12 — Service unavailable",
+      "role": "patient",
+      "flow_operations": "R: information/navigation only",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "151:769",
+      "screen": "P04SCAN — Scan your queue slip",
+      "role": "patient",
+      "flow_operations": "R: information/navigation only",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "151:835",
+      "screen": "P07SAVED — Preferences saved",
+      "role": "patient",
+      "flow_operations": "R/U: preferences saved",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "153:847",
+      "screen": "P08SAVED — Caregiver access",
+      "role": "patient",
+      "flow_operations": "C/R/U/D: caregiver consent; sharing extension",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "153:919",
+      "screen": "P08REVOKED — Access withdrawn",
+      "role": "patient",
+      "flow_operations": "C/R/U/D: caregiver consent; sharing extension",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "153:987",
+      "screen": "P09READY — You’re near Room 04",
+      "role": "patient",
+      "flow_operations": "R: information/navigation only",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "153:1049",
+      "screen": "P11SAVED — Updates remain active",
+      "role": "patient",
+      "flow_operations": "R: information/navigation only",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "153:1117",
+      "screen": "P05DELAY — My queue",
+      "role": "patient",
+      "flow_operations": "R: information/navigation only",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "153:1207",
+      "screen": "P15R — Find Counter 03",
+      "role": "patient",
+      "flow_operations": "R: information/navigation only",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "153:1292",
+      "screen": "P16SUPPORT — Talk to OPD staff",
+      "role": "patient",
+      "flow_operations": "R: information/navigation only",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "158:1140",
+      "screen": "P01SI — Sinhala language selected",
+      "role": "patient",
+      "flow_operations": "U: language selection (device state)",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "158:1207",
+      "screen": "P01TA — Tamil language selected",
+      "role": "patient",
+      "flow_operations": "U: language selection (device state)",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "159:1248",
+      "screen": "P07OFF — Notification choices",
+      "role": "patient",
+      "flow_operations": "R/U: preferences saved",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "159:1314",
+      "screen": "P07APPOFF — Notification choices",
+      "role": "patient",
+      "flow_operations": "R/U: preferences saved",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "159:1380",
+      "screen": "P07BOTHOFF — Notification choices",
+      "role": "patient",
+      "flow_operations": "R/U: preferences saved",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "159:1446",
+      "screen": "P07REVOKED — Notification choices",
+      "role": "patient",
+      "flow_operations": "R/U: preferences saved",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "160:1464",
+      "screen": "P05PENDING — Recovery status",
+      "role": "patient",
+      "flow_operations": "R: information/navigation only",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "138:4",
+      "screen": "S01 — Staff dashboard",
+      "role": "staff",
+      "flow_operations": "R/U: queue call",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "139:223",
+      "screen": "S02 — Register a walk-in",
+      "role": "staff",
+      "flow_operations": "C/R/U: registration and review; edit in /manage",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "139:297",
+      "screen": "S03 — Manage the queue",
+      "role": "staff",
+      "flow_operations": "R/U: call/recall; cancel in /manage",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "139:376",
+      "screen": "S04 — Clinical priority",
+      "role": "staff",
+      "flow_operations": "R/U: clinical priority",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "139:445",
+      "screen": "S05 — Missed-turn requests",
+      "role": "staff",
+      "flow_operations": "R/U: recovery decision",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "140:243",
+      "screen": "S06 — Service broadcast",
+      "role": "staff",
+      "flow_operations": "C/R: broadcast",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "140:1066",
+      "screen": "S07 — Offline mode",
+      "role": "staff",
+      "flow_operations": "C/R: manual note extension",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "140:1131",
+      "screen": "S08 — Reconcile offline actions",
+      "role": "staff",
+      "flow_operations": "R/U: reconciliation",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "140:1208",
+      "screen": "SMORE — Staff tools",
+      "role": "staff",
+      "flow_operations": "R: information/navigation only",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "154:453",
+      "screen": "S02REVIEW — Review registration",
+      "role": "staff",
+      "flow_operations": "C/R/U: registration and review; edit in /manage",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "154:528",
+      "screen": "S02DONE — Patient registered",
+      "role": "staff",
+      "flow_operations": "C/R/U: registration and review; edit in /manage",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "154:605",
+      "screen": "S03REVIEW — Call next patient?",
+      "role": "staff",
+      "flow_operations": "R/U: call/recall; cancel in /manage",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "154:675",
+      "screen": "S03CALLED — Patient called",
+      "role": "staff",
+      "flow_operations": "R/U: call/recall; cancel in /manage",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "154:745",
+      "screen": "S03RECALL — Token recalled",
+      "role": "staff",
+      "flow_operations": "R/U: call/recall; cancel in /manage",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "154:813",
+      "screen": "S04REVIEW — Confirm priority change",
+      "role": "staff",
+      "flow_operations": "R/U: clinical priority",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "154:889",
+      "screen": "S04DONE — Priority applied",
+      "role": "staff",
+      "flow_operations": "R/U: clinical priority",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "154:957",
+      "screen": "S05REVIEW — Confirm recovery",
+      "role": "staff",
+      "flow_operations": "R/U: recovery decision",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "154:1025",
+      "screen": "S05DONE — Recovery recorded",
+      "role": "staff",
+      "flow_operations": "R/U: recovery decision",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "154:1087",
+      "screen": "S06REVIEW — Confirm broadcast",
+      "role": "staff",
+      "flow_operations": "C/R: broadcast",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "154:1166",
+      "screen": "S06DONE — Update published",
+      "role": "staff",
+      "flow_operations": "C/R: broadcast",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "154:1237",
+      "screen": "S07ACTIVE — Manual fallback active",
+      "role": "staff",
+      "flow_operations": "C/R: manual note extension",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "155:931",
+      "screen": "S08CONFLICT — Review possible duplicate",
+      "role": "staff",
+      "flow_operations": "R/U: reconciliation",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "155:1008",
+      "screen": "S08DONE — Reconciliation complete",
+      "role": "staff",
+      "flow_operations": "R/U: reconciliation",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "35:168",
+      "screen": "A01 — Operations overview · Mobile",
+      "role": "admin",
+      "flow_operations": "R: information/navigation only",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "35:212",
+      "screen": "A02 — Live queue · Mobile",
+      "role": "admin",
+      "flow_operations": "R: information/navigation only",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "35:281",
+      "screen": "A03 — Bottleneck analytics · Mobile",
+      "role": "admin",
+      "flow_operations": "R: information/navigation only",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "35:332",
+      "screen": "A04 — Service incidents · Mobile",
+      "role": "admin",
+      "flow_operations": "R/U: incident verification",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "35:374",
+      "screen": "A05 — Broadcast centre · Mobile",
+      "role": "admin",
+      "flow_operations": "C/R/D: message publication/withdrawal extension",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "35:416",
+      "screen": "A06 — Reports · Mobile",
+      "role": "admin",
+      "flow_operations": "R: report preview/export (export is not CRUD)",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "35:485",
+      "screen": "A07 — System health · Mobile",
+      "role": "admin",
+      "flow_operations": "R: service health; admin status update in /manage",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "35:537",
+      "screen": "A08 — Audit log · Mobile",
+      "role": "admin",
+      "flow_operations": "R: immutable audit",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "156:921",
+      "screen": "A04REVIEW — Review verification · Mobile",
+      "role": "admin",
+      "flow_operations": "R/U: incident verification",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "156:3178",
+      "screen": "A04DONE — Incident verified · Mobile",
+      "role": "admin",
+      "flow_operations": "R/U: incident verification",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "156:3305",
+      "screen": "A05REVIEW — Review broadcast · Mobile",
+      "role": "admin",
+      "flow_operations": "C/R/D: message publication/withdrawal extension",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "156:3432",
+      "screen": "A05DONE — Broadcast published · Mobile",
+      "role": "admin",
+      "flow_operations": "C/R/D: message publication/withdrawal extension",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "157:1337",
+      "screen": "A06READY — Report preview · Mobile",
+      "role": "admin",
+      "flow_operations": "R: report preview/export (export is not CRUD)",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "157:3600",
+      "screen": "A07OUTAGE — Outage procedure · Mobile",
+      "role": "admin",
+      "flow_operations": "R: service health; admin status update in /manage",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "208:1545",
+      "screen": "ANOTIFY — Notifications · Mobile",
+      "role": "admin",
+      "flow_operations": "R: information/navigation only",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "405:2122",
+      "screen": "AMORE — Admin tools · Mobile",
+      "role": "admin",
+      "flow_operations": "R: information/navigation only",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "405:2123",
+      "screen": "A02PAUSED — Paused service · Mobile",
+      "role": "admin",
+      "flow_operations": "R: information/navigation only",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "405:2124",
+      "screen": "A05LOCKED — Broadcast centre · Mobile",
+      "role": "admin",
+      "flow_operations": "C/R/D: message publication/withdrawal extension",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    },
+    {
+      "node": "405:2125",
+      "screen": "A08PUBLISHED — Audit log · Mobile",
+      "role": "admin",
+      "flow_operations": "R: immutable audit",
+      "per_screen_crud_verified": false,
+      "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
+    }
+  ],
+  "ownership": "Pending actual member confirmation",
+  "crud_gate": "Not certified: informational/read-only interfaces and individual state frames do not establish two working CRUD operations each.",
+  "repository": "https://github.com/xnirupama/CareQueue",
+  "checks": {
+    "typecheck": "pass",
+    "lint": "pass",
+    "domain_source_tests": {
+      "pass": 21,
+      "fail": 0
+    },
+    "firestore_rules_tests": {
+      "pass": 4,
+      "fail": 0
+    },
+    "platform_export": [
+      "web",
+      "android",
+      "ios"
+    ],
+    "device_installation": "pending",
+    "usability_sessions": 0,
+    "cloud_rule_rollout": "pending",
+    "android_apk": {
+      "file": "artifacts/CareQueue-preview.apk",
+      "sha256": "edb75e8443d002f7786e61708acc90a77c4764530e45b89de93fd506c7a01dfd",
+      "bytes": 58641113,
+      "package": "lk.carequeue.mobile",
+      "version": "1.0.0",
+      "versionCode": 1,
+      "minSdk": 24,
+      "targetSdk": 36,
+      "architectures": [
+        "arm64-v8a"
+      ],
+      "signature_verified": true,
+      "signing": "Android Debug certificate; preview/test installation",
+      "device_installation": "not verified",
+      "build_result": "BUILD SUCCESSFUL",
+      "source_checks": {
+        "pass": 21,
+        "fail": 0
+      },
+      "rules_checks": {
+        "pass": 4,
+        "fail": 0
+      }
+    }
+  }
+}

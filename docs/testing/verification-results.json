@@ -1,0 +1,247 @@
+{
+  "checks": {
+    "cloud_firestore_rules_deployment": {
+      "outcome": "pass",
+      "project": "carequeue-db90e",
+      "account": "nirupama.minipa@gmail.com",
+      "execution_date": "2026-10-09",
+      "rules": "firebase/firestore.rules",
+      "evidence": "Firebase CLI compiled, uploaded and released rules including users/{uid}; exit code 0"
+    },
+    "typecheck": "pass",
+    "lint": "pass",
+    "domain_source_tests": {
+      "pass": 23,
+      "fail": 0
+    },
+    "firestore_rules_tests": {
+      "pass": 5,
+      "fail": 0
+    },
+    "platform_export": [
+      "web",
+      "android",
+      "ios"
+    ],
+    "auth_emulator": {
+      "outcome": "pass",
+      "execution_date": "2026-10-09",
+      "flow_groups": 7,
+      "source": "tests/auth-smoke.mjs",
+      "includes": "database registration, matching-credential login, name synchronization, missing-profile migration and failed-write recovery"
+    },
+    "live_account_services": {
+      "outcome": "pass",
+      "execution_date": "2026-10-09",
+      "project": "carequeue-db90e",
+      "registration_profile_persisted": true,
+      "matching_credentials_login": true,
+      "temporary_account_profile_removed": true,
+      "real_email_sent": false,
+      "source": "tests/live-smoke.mjs"
+    },
+    "android_account_build": {
+      "outcome": "pass",
+      "execution_date": "2026-10-09",
+      "sha256": "4f1df4237a003c75a4bd8af46b524860d1aa6261bcde8f52409ce92588570a1f",
+      "signature_verified": true,
+      "mobile_account_profile_bundle_verified": true,
+      "device_installation": "not verified"
+    }
+  },
+  "test_cases": [
+    {
+      "case": "FT01 first live registration starts at A001 and cancelled tokens are not reused",
+      "source": "tests/completion.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-07",
+      "kind": "domain/source automated check"
+    },
+    {
+      "case": "FT02 patients ahead follows clinical call order and excludes missed/completed/cancelled visits",
+      "source": "tests/completion.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-07",
+      "kind": "domain/source automated check"
+    },
+    {
+      "case": "FT03 edit changes only selected patient and retains account link and token",
+      "source": "tests/completion.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-07",
+      "kind": "domain/source automated check"
+    },
+    {
+      "case": "FT04 missed/completed transitions require a called visit; cancellation preserves history",
+      "source": "tests/completion.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-07",
+      "kind": "domain/source automated check"
+    },
+    {
+      "case": "FT05 recovery approval and rejection have distinct states and preserve terminal visits",
+      "source": "tests/completion.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-07",
+      "kind": "domain/source automated check"
+    },
+    {
+      "case": "FT06 service changes stop calls; only admin changes availability or withdraws messages",
+      "source": "tests/completion.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-07",
+      "kind": "domain/source automated check"
+    },
+    {
+      "case": "FT07 patient role cannot mutate operational records",
+      "source": "tests/completion.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-07",
+      "kind": "domain/source automated check"
+    },
+    {
+      "case": "FT08 wait report derives times from recorded calls and omits missing samples",
+      "source": "tests/completion.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-07",
+      "kind": "domain/source automated check"
+    },
+    {
+      "case": "FT09 manual notes require content, remain device pending until reconciliation, and retry is safe",
+      "source": "tests/completion.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-07",
+      "kind": "domain/source automated check"
+    },
+    {
+      "case": "FT10 personal preferences, consent and recovery requests do not claim a fresh staff queue update",
+      "source": "tests/completion.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-07",
+      "kind": "domain/source automated check"
+    },
+    {
+      "case": "FT11 full application state cannot leak role or patient queue data into preference writes",
+      "source": "tests/completion.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-07",
+      "kind": "domain/source automated check"
+    },
+    {
+      "case": "FT12 raster filenames match their native resource signatures",
+      "source": "tests/completion.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-07",
+      "kind": "domain/source automated check"
+    },
+    {
+      "case": "FT13 called and ended visits do not show a waiting estimate or ask for another call",
+      "source": "tests/completion.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-07",
+      "kind": "domain/source automated check"
+    },
+    {
+      "case": "patient recovery remains pending until an authorized staff decision",
+      "source": "tests/workflows.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-07",
+      "kind": "domain/source automated check"
+    },
+    {
+      "case": "registration is atomic, validated and retry safe",
+      "source": "tests/workflows.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-07",
+      "kind": "domain/source automated check"
+    },
+    {
+      "case": "clinical priority changes the next call and records its reason",
+      "source": "tests/workflows.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-07",
+      "kind": "domain/source automated check"
+    },
+    {
+      "case": "admin publication requires verification, navigation does not repeat mutations",
+      "source": "tests/workflows.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-07",
+      "kind": "domain/source automated check"
+    },
+    {
+      "case": "current patient is included in the people ahead and caregiver can be revoked",
+      "source": "tests/workflows.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-07",
+      "kind": "domain/source automated check"
+    },
+    {
+      "case": "all current design destinations and original assets are available locally",
+      "source": "tests/workflows.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-07",
+      "kind": "domain/source automated check"
+    },
+    {
+      "case": "all 474 current prototype connections resolve to rendered controls",
+      "source": "tests/workflows.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-07",
+      "kind": "domain/source automated check"
+    },
+    {
+      "case": "primary and secondary buttons retain their original visible label",
+      "source": "tests/workflows.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-07",
+      "kind": "domain/source automated check"
+    },
+    {
+      "case": "account validation accepts existing sign-in passwords while requiring stronger matching registration passwords",
+      "source": "tests/authentication.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-08",
+      "kind": "account validation automated check"
+    },
+    {
+      "case": "unknown users and wrong passwords receive the same sign-in message",
+      "source": "tests/authentication.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-08",
+      "kind": "account validation automated check"
+    }
+  ],
+  "limitations": [
+    "No participant results",
+    "No physical-device installation or layout verification",
+    "Per-interface CRUD assignment not certified"
+  ],
+  "report_qa": {
+    "main_pages": 23,
+    "total_pages": 29,
+    "rendered_pages": 29,
+    "visual_review": "Passed; new deviation/test/reference pages inspected after regeneration"
+  },
+  "source_hashes": {
+    "src/services/domain.ts": "d2b9c3f2d53d118005d0a492074a807e9a19c92dedec1584875ff98449268616",
+    "src/services/firebase.ts": "0d59b546823637bec9d601a6e92794dbe96522e49e49f5bed5574740b96158f7",
+    "firebase/firestore.rules": "2174e2f4784348047cec9572bb0861f3655fdf8731febfaf9ae8e7031ca1b604",
+    "tests/completion.test.mjs": "0a3f295c5600b0f8f95907de5bdb18866c0f2f7c847c3faadfeba14c6971fe63",
+    "tests/rules-smoke.mjs": "19956f6d193117a454ce40d33763d23c65dc7b20b37d63ff3b79b00fccde7cef",
+    "src/services/authentication.ts": "1716882510c360d837183500459ef72dc991f70bc25e242992f3580bec8693c4",
+    "src/services/store.tsx": "fa15c1e309a21e50c54cb2fe55a1b68511a9ffb3886a1b284479efb8b3db227b",
+    "src/app/_layout.tsx": "a11fdb83ed39e04ff89e8e71a12061046b634ca08b86b85922e6a53e18c58d36",
+    "src/app/account.tsx": "8b69ce56474ad3307b8cf4a29a8a65bfad9d86e7865c2c39f25e2174ddfccd90",
+    "src/app/login.tsx": "e5dcdb3d6f3cdd0f170747f1d14b3de31465a7e01db05a680a3b5ba1889ff9f0",
+    "src/app/register.tsx": "38d2e45667d9a87b3600443f4b3278712014a571953bb3470578a2f528083198",
+    "src/app/forgot-password.tsx": "3260601f84aaf9f29b9853a6326ba0d1699379e57417dea938ad980676810b36",
+    "src/app/onboarding.tsx": "cb5242e4a3c7b4e3bcbfa93e79503555d07765eb8bd7946db6dc81b0629ac289",
+    "src/components/AccountUI.tsx": "22eb8b25f750c64e4829b35f5b7bbd5962c7deddd925c69978f36425a9ca95cd",
+    "src/components/WelcomeArt.tsx": "40f78b8b3bf4c007126681136cd1adab675f08217de686d78f8f1ad0f2d51eae",
+    "tests/authentication.test.mjs": "28ee8d3a90a99315f02b127fd0563dc0033e4424cef23beacc88ba674c8391a7",
+    "tests/auth-smoke.mjs": "ceca73a4660e9f3842190b892c6c8674f4952bf9c41fe1d1225a6ef0ea8aa52e",
+    "tests/live-smoke.mjs": "b1cd8ae5fc6d277dcd84546c00d6b7f94446cb050f06e65e453d7d217eeb90b0",
+    "src/services/user-profile.ts": "cba3044f88c76a7953af751b8b5a2bcc496eb387ff55f33003e6d72d8c70826c"
+  }
+}

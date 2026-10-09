@@ -5,7 +5,7 @@ export const assets: Record<string, number> = {
   '028f6486-2d6a-48b7-add8-8d2df18cf59b.svg': require('../../assets/figma/028f6486-2d6a-48b7-add8-8d2df18cf59b.svg'),
   'eebf46d6-8620-4718-82b8-cded45c3670f.svg': require('../../assets/figma/eebf46d6-8620-4718-82b8-cded45c3670f.svg'),
   '691d475d-c260-411f-b6cd-cd57f8cdbe2b.svg': require('../../assets/figma/691d475d-c260-411f-b6cd-cd57f8cdbe2b.svg'),
-  '194c4ad6-a8fe-412b-92bc-ba1a47732585.png': require('../../assets/figma/194c4ad6-a8fe-412b-92bc-ba1a47732585.png'),
+  '194c4ad6-a8fe-412b-92bc-ba1a47732585.jpg': require('../../assets/figma/194c4ad6-a8fe-412b-92bc-ba1a47732585.jpg'),
   '1a2fc656-a14a-470a-b233-c51af1ee51f4.svg': require('../../assets/figma/1a2fc656-a14a-470a-b233-c51af1ee51f4.svg'),
   '5bbea3f6-c917-4ee5-97cf-c1e5492f504b.svg': require('../../assets/figma/5bbea3f6-c917-4ee5-97cf-c1e5492f504b.svg'),
   'd429fdb9-57ef-4b93-b453-70198e45342d.svg': require('../../assets/figma/d429fdb9-57ef-4b93-b453-70198e45342d.svg'),

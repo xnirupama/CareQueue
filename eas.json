@@ -1,1 +1,33 @@
-{"cli":{"version":">=16.0.0","appVersionSource":"remote"},"build":{"development":{"developmentClient":true,"distribution":"internal"},"preview":{"distribution":"internal","android":{"buildType":"apk"}},"production":{"autoIncrement":true}},"submit":{"production":{}}}
+{
+  "cli": {
+    "version": ">=16.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_DATA_MODE": "demo",
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyATtvS0elJiK29RfAhTFGUkA7um7VwJw5s",
+        "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "carequeue-db90e.firebaseapp.com",
+        "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "carequeue-db90e",
+        "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "carequeue-db90e.firebasestorage.app",
+        "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "788886392173",
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:788886392173:web:901c4c902c64cb0c7bde64"
+      }
+    },
+    "production": {
+      "autoIncrement": true
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

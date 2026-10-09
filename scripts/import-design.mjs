@@ -6,6 +6,8 @@ const metadata=[0,1,2].flatMap(i=>JSON.parse(fs.readFileSync(`design/map-${i}.js
 const links=[0,1,2].flatMap(i=>JSON.parse(fs.readFileSync(`design/links-${i}.json`)));
 const conditional=JSON.parse(fs.readFileSync("design/conditional-links.json"));
 const assets={};const screens={};
+const assetAliases=JSON.parse(fs.readFileSync('design/asset-aliases.json','utf8'));
+function localAssetKey(url){const original=path.basename(new URL(url).pathname);return assetAliases[original]||original;}
 function evalNode(n, env){
  if(!n)return undefined;
  if(n.type==='StringLiteral'||n.type==='NumericLiteral'||n.type==='BooleanLiteral')return n.value;
@@ -49,8 +51,8 @@ for(const meta of metadata){
    return tree;
   }
   const tree={tag,classes:props.className||'',id:props['data-node-id'],name:props['data-name'],css:props.style,children:n.children.map(c=>expand(c,scope,prefix)).filter(Boolean)};
-  if(tag==='img'){const url=props.src;if(!url)throw Error('Missing image');const key=path.basename(new URL(url).pathname);assets[key]=url;tree.asset=key;tree.alt=props.alt;}
-  if(tree.css?.maskImage){const url=tree.css.maskImage.match(/url\("(.*)"\)/)?.[1];if(url){const key=path.basename(new URL(url).pathname);assets[key]=url;tree.maskAsset=key;}delete tree.css;}
+  if(tag==='img'){const url=props.src;if(!url)throw Error('Missing image');const key=localAssetKey(url);assets[key]=url;tree.asset=key;tree.alt=props.alt;}
+  if(tree.css?.maskImage){const url=tree.css.maskImage.match(/url\("(.*)"\)/)?.[1];if(url){const key=localAssetKey(url);assets[key]=url;tree.maskAsset=key;}delete tree.css;}
   return tree;
  }
  if(!main)throw Error('Missing code '+meta.id);

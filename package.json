@@ -56,8 +56,10 @@
     "check": "npm run typecheck && npm run lint && npm test",
     "export": "expo export --platform all",
     "design:import": "node scripts/import-design.mjs",
-    "test:firebase": "node tests/live-smoke.mjs",
-    "test:rules": "firebase emulators:exec --project demo-carequeue --only firestore \"node tests/rules-smoke.mjs\""
+    "test:firebase": "node --import tsx tests/live-smoke.mjs",
+    "test:rules": "firebase emulators:exec --project demo-carequeue --only firestore \"node --import tsx tests/rules-smoke.mjs\"",
+    "test:auth": "firebase emulators:exec --project demo-carequeue --only auth,firestore \"node --import tsx tests/auth-smoke.mjs\"",
+    "test:accounts": "firebase emulators:exec --project demo-carequeue --only auth,firestore \"node --import tsx tests/rules-smoke.mjs && node --import tsx tests/auth-smoke.mjs\""
   },
   "private": true,
   "engines": {

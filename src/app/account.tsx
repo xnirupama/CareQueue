@@ -1,12 +1,50 @@
-import {useState} from 'react';
-import {Text,TextInput,Pressable,StyleSheet,ScrollView} from 'react-native';
-import {useRouter} from 'expo-router';
-import {login,configured,logout,initializeService,linkTicket} from '../services/firebase';
+import {useEffect,useState} from 'react';
+import {Text,View} from 'react-native';
+import {Redirect,useRouter} from 'expo-router';
+import {AccountShell,AccountField,ActionButton,TextLink,Notice,styles,colors} from '../components/AccountUI';
+import {accountError,logout,renameAccount,verifyAccountEmail,changePassword,initializeService,linkTicket} from '../services/firebase';
 import {useStore} from '../services/store';
-export default function Account(){const [email,setEmail]=useState(''),[password,setPassword]=useState(''),[busy,setBusy]=useState(false),[register,setRegister]=useState(false),[error,setError]=useState('');const router=useRouter();const [manualNote,setManualNote]=useState('');const [patientId,setPatientId]=useState(''),[token,setToken]=useState('');const {isLive,setDataMode,state,user,setRole,reset,execute}=useStore();
- async function submit(){setBusy(true);setError('');try{await login(email,password,register);router.replace('/');}catch(e){setError(e instanceof Error?e.message:String(e));}finally{setBusy(false);}}
- return <ScrollView contentContainerStyle={s.page}><Text style={s.brand}>CareQueue</Text><Text style={s.title}>{isLive?'Welcome to CareQueue':'CareQueue demo'}</Text><Text style={s.caption}>{isLive?'Sign in to your hospital queue account.':'Explore the patient, staff and admin flows using sample data saved on this device.'}</Text>
- {isLive&&user?<><Text style={s.caption}>Signed in as {user.email}. Your account ID:</Text><Text selectable style={s.caption}>{user.uid}</Text>{state.role!=='patient'?<><Text style={s.title}>Link a patient token</Text><TextInput style={s.input} accessibilityLabel="Patient account ID" placeholder="Patient account ID" value={patientId} onChangeText={setPatientId}/><TextInput style={s.input} accessibilityLabel="Issued token" placeholder="Issued token" value={token} onChangeText={setToken}/><Pressable style={s.button} onPress={async()=>{try{await linkTicket(patientId,token);setError('Patient token linked.');}catch(e){setError(String(e));}}}><Text style={s.white}>Link issued token</Text></Pressable><TextInput style={s.input} accessibilityLabel="Manual queue action" placeholder="Manual queue action and token" value={manualNote} onChangeText={setManualNote}/><Pressable style={s.button} onPress={async()=>{try{if(!manualNote.trim())throw Error('Enter the action and token.');await execute('manualRecord',{'Manual action':manualNote});setManualNote('');setError('Saved on this device for staff reconciliation.');}catch(e){setError(String(e));}}}><Text style={s.white}>Save offline note</Text></Pressable>{state.role==='admin'?<Pressable style={s.button} onPress={async()=>{try{await initializeService();setError('Service initialized.');}catch(e){setError(String(e));}}}><Text style={s.white}>Initialize General OPD</Text></Pressable>:null}</>:null}<Pressable onPress={()=>router.replace('/')}><Text style={s.link}>Return to queue</Text></Pressable><Pressable onPress={()=>logout()}><Text style={s.link}>Sign out</Text></Pressable></>:isLive?<><TextInput style={s.input} accessibilityLabel="Email" value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" placeholder="Email"/><TextInput style={s.input} accessibilityLabel="Password" value={password} onChangeText={setPassword} secureTextEntry placeholder="Password"/><Pressable style={s.button} disabled={busy||!configured} onPress={submit}><Text style={s.white}>{busy?'Signing in…':register?'Create patient account':'Sign in'}</Text></Pressable><Pressable onPress={()=>setRegister(v=>!v)}><Text style={s.link}>{register?'Already have an account? Sign in':'Create a patient account'}</Text></Pressable></>:<>{(['patient','staff','admin'] as const).map(role=><Pressable key={role} style={[s.input,state.role===role&&s.selected]} onPress={()=>{setRole(role);router.replace('/');}}><Text style={s.link}>Open {role} experience</Text></Pressable>)}</>}
- <Pressable onPress={()=>setDataMode(!isLive)}><Text style={s.link}>{isLive?'Explore with sample data':'Use my Firebase account'}</Text></Pressable>{!isLive?<Pressable onPress={()=>reset()}><Text style={s.link}>Reset sample data</Text></Pressable>:null}{error?<Text accessibilityRole="alert" style={s.error}>{error}</Text>:null}{isLive&&!configured?<Text style={s.error}>Firebase setup is incomplete.</Text>:null}</ScrollView>;
+
+export default function Account(){
+ const router=useRouter(),{isLive,state,user,accountProfile,setDataMode,setRole,reset,refreshAccount,error,setError}=useStore();
+ const [name,setName]=useState(accountProfile?.fullName||user?.displayName||''),[busy,setBusy]=useState(false),[feedback,setFeedback]=useState(''),[success,setSuccess]=useState(false),[cooldown,setCooldown]=useState(0);
+ const [current,setCurrent]=useState(''),[password,setPassword]=useState(''),[confirm,setConfirm]=useState(''),[showPassword,setShowPassword]=useState(false);
+ const [patientId,setPatientId]=useState(''),[token,setToken]=useState('');
+ useEffect(()=>{if(cooldown<=0)return;const timer=setTimeout(()=>setCooldown(c=>c-1),1000);return()=>clearTimeout(timer);},[cooldown]);
+ if(isLive&&!user)return <Redirect href="/login"/>;
+ async function run(action:()=>Promise<unknown>,message:string){if(busy)return;setBusy(true);setFeedback('');setSuccess(false);setError('');try{await action();setFeedback(message);setSuccess(true);}catch(e){setFeedback(accountError(e));}finally{setBusy(false);}}
+ return <AccountShell title={isLive?'Your account.':'Explore CareQueue.'} subtitle={isLive?'Manage your details and stay connected to your visit.':'Try the patient, staff and administrator experiences with sample visits.'} eyebrow={isLive?'A space that’s yours.':'Sample data · saved on this device.'}>
+  <Notice message={feedback} success={success}/><Notice message={error}/>
+  <ActionButton label={state.role==='patient'?'My visit and settings':'Queue operations'} disabled={busy} onPress={()=>router.push('/manage')}/>
+  <TextLink label="Return to queue" disabled={busy} onPress={()=>router.replace('/')}/>
+  {isLive&&user?<>
+   <View style={styles.divider}/><View style={styles.row}><Text style={styles.label}>Account access</Text><Text style={[styles.label,{color:'#397460',textTransform:'capitalize'}]}>{state.role}</Text></View>
+   <Text selectable style={styles.subtitle}>{user.email}</Text><Text style={styles.label}>Account ID</Text><Text selectable style={[styles.helper,{color:colors.navy}]}>{user.uid}</Text><Text style={styles.helper}>Copy this ID to link your issued token or share a visit with a caregiver.</Text>
+   <AccountField label="Full name" value={name} onChangeText={setName} placeholder="Your full name" autoComplete="name" textContentType="name" maxLength={80} editable={!busy}/>
+   <ActionButton label="Save name" secondary disabled={busy} onPress={()=>run(async()=>{await renameAccount(user,name);await refreshAccount();},'Your account name was saved.')}/>
+   <View style={styles.divider}/><Text style={styles.label}>{user.emailVerified?'Email verified':'Verify your email'}</Text><Text style={styles.helper}>{user.emailVerified?'Your email address has been verified.':'Send a verification link, open it from your inbox, then check your status here.'}</Text>
+   {!user.emailVerified?<><ActionButton label={cooldown?`Send again in ${cooldown}s`:'Send verification email'} secondary disabled={busy||cooldown>0} onPress={()=>run(async()=>{await verifyAccountEmail(user);setCooldown(60);},'Verification email sent. Check your inbox and spam folder.')}/><TextLink label="I’ve verified my email — check status" disabled={busy} onPress={()=>run(async()=>{await refreshAccount();if(!user.emailVerified)throw Error('Your email is not verified yet. Open the link in your inbox, then try again.');},'Your email is verified.')}/></>:null}
+   <View style={styles.divider}/><TextLink label={showPassword?'Close password settings':'Change password'} disabled={busy} onPress={()=>{setShowPassword(v=>!v);setCurrent('');setPassword('');setConfirm('');}}/>
+   {showPassword?<>
+    <AccountField label="Current password" value={current} onChangeText={setCurrent} password autoCapitalize="none" autoCorrect={false} autoComplete="current-password" textContentType="password" editable={!busy}/>
+    <AccountField label="New password" value={password} onChangeText={setPassword} helper="Use at least 8 characters." password autoCapitalize="none" autoCorrect={false} autoComplete="new-password" textContentType="newPassword" editable={!busy}/>
+    <AccountField label="Confirm new password" value={confirm} onChangeText={setConfirm} password autoCapitalize="none" autoCorrect={false} autoComplete="new-password" textContentType="newPassword" editable={!busy}/>
+    <ActionButton label="Update password" disabled={busy} onPress={()=>run(async()=>{await changePassword(user,current,password,confirm);setCurrent('');setPassword('');setConfirm('');setShowPassword(false);},'Your password was changed.')}/>
+   </>:null}
+   {state.role!=='patient'?<>
+    <View style={styles.divider}/><Text style={styles.label}>Link an issued patient token</Text><Text style={styles.helper}>Register the visit first, then link its token to the patient’s account ID.</Text>
+    <AccountField label="Patient account ID" value={patientId} onChangeText={setPatientId} autoCapitalize="none" autoCorrect={false} editable={!busy}/>
+    <AccountField label="Issued token" value={token} onChangeText={setToken} placeholder="A001" autoCapitalize="characters" autoCorrect={false} editable={!busy}/>
+    <ActionButton label="Link issued token" secondary disabled={busy} onPress={()=>run(async()=>{await linkTicket(patientId,token);setPatientId('');setToken('');},'Patient token linked.')}/>
+    {state.role==='admin'?<ActionButton label="Initialize General OPD" secondary disabled={busy} onPress={()=>run(()=>initializeService(),'General OPD is initialized. Any existing queue was preserved.')}/>:null}
+   </>:null}
+   <View style={styles.divider}/><ActionButton label="Sign out" secondary disabled={busy} onPress={()=>run(()=>logout(),'Signed out.')}/>
+   <TextLink label="Explore with sample data" disabled={busy} onPress={()=>{setDataMode(false);router.replace('/account');}}/>
+  </>:<>
+   {(['patient','staff','admin'] as const).map(role=><ActionButton key={role} label={`Open ${role} demo`} secondary disabled={busy} onPress={()=>{setRole(role);router.replace('/');}}/>)}
+   <ActionButton label="Sign in to my account" disabled={busy} onPress={()=>{setDataMode(true);router.replace('/login');}}/>
+   <TextLink label="Reset sample visits" disabled={busy} onPress={()=>run(()=>reset(),'Sample visits were reset.')}/>
+  </>}
+  <TextLink label="View the three welcome screens" disabled={busy} onPress={()=>router.push('/onboarding')}/>
+ </AccountShell>;
 }
-const s=StyleSheet.create({page:{flexGrow:1,padding:24,paddingTop:72,backgroundColor:'#f8fafc',gap:16},brand:{fontFamily:'Inter_700Bold',fontSize:20,color:'#09386b'},title:{fontFamily:'Inter_700Bold',fontSize:28,color:'#141f2b'},caption:{fontFamily:'Inter_400Regular',fontSize:14,lineHeight:22,color:'#52697a'},input:{padding:16,borderWidth:1,borderColor:'#d3e1eb',borderRadius:16,backgroundColor:'white',fontFamily:'Inter_400Regular'},selected:{borderColor:'#09386b'},button:{backgroundColor:'#09386b',padding:18,borderRadius:16,alignItems:'center'},white:{fontFamily:'Inter_700Bold',color:'white'},link:{fontFamily:'Inter_600SemiBold',color:'#09386b'},error:{color:'#be3036',fontFamily:'Inter_400Regular'}});
