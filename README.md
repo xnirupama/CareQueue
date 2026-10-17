@@ -53,14 +53,14 @@ npm run export
 npm run test:rules
 npm run test:auth
 npm run test:accounts
-npm run test:firebase
+npm run test:firebase  
 ```
 
 The rules and account tests run local emulators under the isolated `demo-carequeue` project. They verify patient/staff registration, restricted admin sign-in, administrator staff approval, revocation, profiles and password flows. The Auth emulator tests verification and reset links without sending real email. The live smoke test creates temporary patient and staff accounts, checks persistence and access restrictions, then removes its own accounts/documents. It never prints real credentials or sends real email.
 
 See [design provenance](docs/design-source.md) and [verification and remaining setup](docs/verification.md).
 
-## Device builds
+## Device builds 
 
 `eas.json` includes development, preview and production profiles. EAS builds require your Expo account; App Store distribution also requires Apple signing credentials. Generated native projects and signing files are excluded from the repository.
 

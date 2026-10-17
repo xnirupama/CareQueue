@@ -1,0 +1,27 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "CareQueue: Start Pixel emulator",
+      "type": "shell",
+      "command": "\"$HOME/Library/Android/sdk/emulator/emulator\" -avd Pixel_9_Pro",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "dedicated" }
+    },
+    {
+      "label": "CareQueue: Run Android",
+      "type": "shell",
+      "command": "npm run android",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "ANDROID_HOME": "${env:HOME}/Library/Android/sdk",
+          "PATH": "${env:HOME}/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:${env:HOME}/Library/Android/sdk/platform-tools:${env:HOME}/Library/Android/sdk/emulator:${env:PATH}"
+        }
+      },
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "dedicated" }
+    }
+  ]
+}
