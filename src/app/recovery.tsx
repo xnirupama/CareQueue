@@ -1,15 +1,17 @@
 import {useState} from 'react';
 import {WorkspacePage,Card,Body,AccountField,ActionButton,useAction} from '../components/WorkspaceUI';
 import {useStore} from '../services/store';
+import {recoveryReasonError} from '../services/patient-validation';
 export default function Recovery(){
  const {state,execute,isLive,update}=useStore(),a=useAction(),[reasonDraft,setReason]=useState<string|null>(null);
+ const [reasonError,setReasonError]=useState<string>();
  const reason=reasonDraft??state.ownRecovery?.reason??'';
  const staff=state.role!=='patient',status=state.ticketStatus||state.queue.find(q=>q.token===state.myToken)?.status;
  return <WorkspacePage title={staff?'Recovery desk':'Missed-turn recovery'} subtitle={staff?'Review requests before restoring a visit.':'Ask staff to review a missed turn. Your place changes only after staff approval.'} busy={a.busy}>{a.feedback}
   {!staff?<>
    <Card title={`My visit · ${state.myToken}`}><Body>Visit status: {status||'No linked visit'}. Recovery: {state.recovery}.</Body>
     {state.ownRecovery?<Body>Your reason: {state.ownRecovery.reason||'No reason supplied'}</Body>:null}
-    {status==='missed'&&(state.recovery!=='approved'||state.ownRecovery?.token!==state.myToken)?<><AccountField label="Why did you miss your turn?" value={reason} onChangeText={setReason} multiline maxLength={500} editable={!a.busy}/><ActionButton label={state.recovery==='pending'?'Save request changes':'Create recovery request'} busy={a.busy} onPress={()=>a.run(()=>execute(state.recovery==='pending'?'editRecovery':'requestRecovery',{'Reason':reason}),'Your request is waiting for staff review.')}/></>:null}
+    {status==='missed'&&(state.recovery!=='approved'||state.ownRecovery?.token!==state.myToken)?<><AccountField label="Why did you miss your turn?" value={reason} onChangeText={value=>{setReason(value);setReasonError(undefined);}} error={reasonError} helper={`Briefly describe what happened. ${reason.length}/500 characters.`} multiline maxLength={500} editable={!a.busy}/><ActionButton label={state.recovery==='pending'?'Save request changes':'Create recovery request'} busy={a.busy} onPress={()=>{const invalid=recoveryReasonError(reason);setReasonError(invalid);if(!invalid)a.run(()=>execute(state.recovery==='pending'?'editRecovery':'requestRecovery',{'Reason':reason}),'Your request is waiting for staff review.');}}/></>:null}
     {state.recovery==='pending'?<ActionButton label="Withdraw and delete request" secondary disabled={a.busy} onPress={()=>a.confirm('Delete your pending request. Your visit stays missed; you can request another review.',()=>execute('cancelRecovery'))}/>:null}
     {status!=='missed'?<Body>Recovery becomes available when staff mark your visit as a missed turn. For other queue problems, open Patient support.</Body>:null}
    </Card>

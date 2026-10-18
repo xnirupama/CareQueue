@@ -6,12 +6,14 @@ import {requestResetCode,verifyResetCode,completePasswordReset,configured} from 
 import {passwordResetError,type ResetChallenge} from '../services/password-reset';
 import {navigateBack} from '../services/back-navigation';
 import {portalPath} from '../services/account-access';
+import {emailAddressError} from '../services/patient-validation';
 
 export default function ForgotPassword(){
  const router=useRouter(),params=useLocalSearchParams<{portal?:string;email?:string}>();
  const [email,setEmail]=useState(params.email||''),[step,setStep]=useState<'email'|'code'|'password'|'done'>('email');
  const [busy,setBusy]=useState(false),[message,setMessage]=useState(''),[code,setCode]=useState(''),[challenge,setChallenge]=useState<ResetChallenge|null>(null),[cooldown,setCooldown]=useState(0);
  const [password,setPassword]=useState(''),[confirmation,setConfirmation]=useState('');
+ const [emailError,setEmailError]=useState<string>();
  const resetToken=useRef<string|null>(null);
  const fallback=params.portal==='patient'||params.portal==='staff'||params.portal==='admin'?portalPath(params.portal):'/login';
  useEffect(()=>()=>{resetToken.current=null;},[]);
@@ -19,7 +21,7 @@ export default function ForgotPassword(){
  function clear(){resetToken.current=null;setCode('');setPassword('');setConfirmation('');setMessage('');}
  function back(){clear();navigateBack(router,fallback);}
  async function send(){
-  if(busy)return;setBusy(true);setMessage('');
+  if(busy)return;const invalid=emailAddressError(email);setEmailError(invalid);if(invalid)return;setBusy(true);setMessage('');
   try{const result=await requestResetCode(email);clear();setChallenge(result);setCooldown(result.retryAfterSeconds);setStep('code');}
   catch(error){setMessage(passwordResetError(error));}finally{setBusy(false);}
  }
@@ -39,7 +41,7 @@ export default function ForgotPassword(){
   {step!=='done'?<View style={s.steps}>{['Email','Code','Password'].map((label,index)=><View key={label} style={s.step}><View style={[s.number,index<=currentStep&&s.numberActive]}><Text style={[s.numberText,index<=currentStep&&s.numberTextActive]}>{index+1}</Text></View><Text style={[s.stepText,index===currentStep&&s.stepActive]}>{label}</Text></View>)}</View>:null}
   <Notice message={message}/>
   {step==='email'?<>
-   <AccountField label="Email address" placeholder="you@example.com" value={email} onChangeText={value=>{setEmail(value);setMessage('');}} keyboardType="email-address" autoCapitalize="none" autoCorrect={false} autoComplete="email" textContentType="emailAddress" editable={!busy} returnKeyType="send" onSubmitEditing={send}/>
+   <AccountField label="Email address" placeholder="you@example.com" value={email} onChangeText={value=>{setEmail(value);setMessage('');setEmailError(undefined);}} error={emailError} maxLength={254} keyboardType="email-address" autoCapitalize="none" autoCorrect={false} autoComplete="email" textContentType="emailAddress" editable={!busy} returnKeyType="send" onSubmitEditing={send}/>
    <ActionButton label={busy?'Requesting code…':'Send verification code'} busy={busy} disabled={!configured} onPress={send}/>
   </>:step==='code'?<>
    <View style={s.delivery}><Text style={styles.helper}>If an account exists for <Text style={s.email}>{email.trim()}</Text>, a code will arrive shortly. Check your inbox and spam folder. The code expires in ten minutes.</Text></View>

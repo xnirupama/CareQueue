@@ -6,6 +6,7 @@ import {accountError,renameAccount,verifyAccountEmail,changePassword,initializeS
 import {useStore} from '../services/store';
 import {WorkspaceLinks} from '../components/WorkspaceUI';
 import {navigateBack} from '../services/back-navigation';
+import {personNameError} from '../services/patient-validation';
 
 export default function Account(){
  const router=useRouter(),{isLive,state,user,accountProfile,setDataMode,setRole,reset,refreshAccount,logOut,error,setError}=useStore();
@@ -13,6 +14,7 @@ export default function Account(){
  const [current,setCurrent]=useState(''),[password,setPassword]=useState(''),[confirm,setConfirm]=useState(''),[showPassword,setShowPassword]=useState(false);
  const [patientId,setPatientId]=useState(''),[token,setToken]=useState('');
  const [deleting,setDeleting]=useState(false),[deletePassword,setDeletePassword]=useState('');
+ const [nameError,setNameError]=useState<string>();
  useEffect(()=>{if(cooldown<=0)return;const timer=setTimeout(()=>setCooldown(c=>c-1),1000);return()=>clearTimeout(timer);},[cooldown]);
  if(isLive&&!user)return <Redirect href="/login"/>;
  async function run(action:()=>Promise<unknown>,message:string){if(busy)return;setBusy(true);setFeedback('');setSuccess(false);setError('');try{await action();setFeedback(message);setSuccess(true);}catch(e){setFeedback(accountError(e));}finally{setBusy(false);}}
@@ -24,8 +26,8 @@ export default function Account(){
   {isLive&&user?<>
    <View style={styles.divider}/><View style={styles.row}><Text style={styles.label}>Account access</Text><Text style={[styles.label,{color:'#397460',textTransform:'capitalize'}]}>{accountProfile?.accountType==='staff'&&state.role==='patient'?'Staff · awaiting approval':state.role}</Text></View>
    <Text selectable style={styles.subtitle}>{user.email}</Text><Text style={styles.label}>Account ID</Text><Text selectable style={[styles.helper,{color:colors.navy}]}>{user.uid}</Text><Text style={styles.helper}>Copy this ID to link your issued token or share a visit with a caregiver.</Text>
-   <AccountField label="Full name" value={name} onChangeText={setName} placeholder="Your full name" autoComplete="name" textContentType="name" maxLength={80} editable={!busy}/>
-   <ActionButton label="Save name" secondary disabled={busy} onPress={()=>run(async()=>{await renameAccount(user,name);await refreshAccount();},'Your account name was saved.')}/>
+   <AccountField label="Full name" value={name} onChangeText={value=>{setName(value);setNameError(undefined);}} error={nameError} placeholder="Your full name" helper="2–80 characters. You can use initials and your preferred language." autoComplete="name" textContentType="name" maxLength={80} editable={!busy}/>
+   <ActionButton label="Save name" secondary disabled={busy} onPress={()=>{const invalid=personNameError(name);setNameError(invalid);if(!invalid)run(async()=>{await renameAccount(user,name);await refreshAccount();},'Your account name was saved.');}}/>
    <View style={styles.divider}/><Text style={styles.label}>{user.emailVerified?'Email verified':'Verify your email'}</Text><Text style={styles.helper}>{user.emailVerified?'Your email address has been verified.':'Send a verification link, open it from your inbox, then check your status here.'}</Text>
    {!user.emailVerified?<><ActionButton label={cooldown?`Send again in ${cooldown}s`:'Send verification email'} secondary disabled={busy||cooldown>0} onPress={()=>run(async()=>{await verifyAccountEmail(user);setCooldown(60);},'Verification email sent. Check your inbox and spam folder.')}/><TextLink label="I’ve verified my email — check status" disabled={busy} onPress={()=>run(async()=>{await refreshAccount();if(!user.emailVerified)throw Error('Your email is not verified yet. Open the link in your inbox, then try again.');},'Your email is verified.')}/></>:null}
    <View style={styles.divider}/><TextLink label={showPassword?'Close password settings':'Change password'} disabled={busy} onPress={()=>{setShowPassword(v=>!v);setCurrent('');setPassword('');setConfirm('');}}/>

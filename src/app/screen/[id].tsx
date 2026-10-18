@@ -13,14 +13,16 @@ import {navigateBack} from '../../services/back-navigation';
 import {exportReport} from '../../services/report';
 import {commandForAction} from '../../services/navigation';
 import {readDesignDrafts,writeDesignDraft} from '../../services/design-drafts';
+import {patientFormErrors,linkedTokenError,queueTokenError,type FieldErrors} from '../../services/patient-validation';
 const screens=screensData as unknown as Record<string,DesignScreen>;
 function gatherFields(node:DesignNode,fields:Record<string,string>){if(node.component==='CareQueueField'&&node.props)fields[node.props.label||'Phone number']=node.props.value||'';node.children?.forEach(n=>gatherFields(n,fields));}
 const defaults:Record<string,Record<string,string>>={patient:{...fieldDefaults.patient},staff:{...fieldDefaults.staff},admin:{}};
 for(const screen of Object.values(screens))gatherFields(screen.tree,defaults[screen.role]);
-export default function Screen(){const {id}=useLocalSearchParams<{id:string}>(),router=useRouter(),{width}=useWindowDimensions();const {isLive,state,ready,user,connected,error,setError,execute,update,setRole}=useStore();const screenId=id?.replace('-',':'),screen=screens[screenId];const [fields,setFields]=useState(()=>readDesignDrafts(screen?.role||'patient',defaults[screen?.role||'patient'])),[busy,setBusy]=useState(false);
+export default function Screen(){const {id}=useLocalSearchParams<{id:string}>(),router=useRouter(),{width}=useWindowDimensions();const {isLive,state,ready,user,connected,error,setError,execute,update,setRole}=useStore();const screenId=id?.replace('-',':'),screen=screens[screenId];const [fields,setFields]=useState(()=>readDesignDrafts(screen?.role||'patient',isLive&&screen?.role==='patient'?{...defaults.patient,'Caregiver name':state.caregiver?.name||'','Phone number':state.caregiver?.phone||'','Queue number':queueTokenError(state.myToken)?'':state.myToken,'Visit reference':''}:defaults[screen?.role||'patient'])),[busy,setBusy]=useState(false);
+ const [fieldErrors,setFieldErrors]=useState<FieldErrors>({});
 
  const back=useCallback(()=>{setError('');navigateBack(router,['16:7','138:4','35:168'].includes(screenId)?'/account':'/');},[router,setError,screenId]);
- const onField=useCallback((label:string,value:string)=>{setFields(f=>({...f,[label]:value}));writeDesignDraft(state.role,label,value);},[state.role]);
+ const onField=useCallback((label:string,value:string)=>{setFields(f=>({...f,[label]:value}));setFieldErrors(e=>({...e,[label]:undefined}));writeDesignDraft(state.role,label,value);},[state.role]);
  const onAction=useCallback(async(label:string,to?:string)=>{if(busy)return;setError('');setBusy(true);try{
   if(to==='139:376'){const selected=label.match(/A\d{3,6}/)?.[0];if(selected)update({selectedToken:selected});}
   if(/Toggle SMS/i.test(label)){update({sms:!state.sms});return;}
@@ -31,19 +33,25 @@ export default function Screen(){const {id}=useLocalSearchParams<{id:string}>(),
   if(/large text|text size/i.test(label)&&!to){update({largeText:!state.largeText});return;}
   if(to==='151:769'&&Platform.OS!=='web'){router.push('/scan');return;}
   if(to==='157:1337'){await exportReport(state,!isLive);}
+  // Check the entered token before choosing its missed/called/recovery page.
+  if(to==='16:95'&&/connect/i.test(label)){
+   const entered=screenId==='151:769'?(state.scannedToken||''):(fields['Queue number']||'');
+   const invalid=linkedTokenError(entered,state.myToken);
+   if(invalid){setFieldErrors({'Queue number':invalid});throw Error(invalid);}
+  }
   if(to==='16:95'&&state.ticketStatus==='missed')to='16:227';
   if(to==='16:95'&&state.nowServing===state.myToken&&state.myToken!=='—')to='18:636';
   if(to==='16:95'&&state.recovery==='pending')to='160:1464';
   if(to==='151:835'&&state.appAlerts&&Platform.OS!=='web'){const permission=await Notifications.requestPermissionsAsync();if(permission.status!=='granted'){update({appAlerts:false});setError('App notifications are disabled. You can still follow your queue here.');return;}}
-  const command=commandForAction(screenId,label,to);if(command==='requestRecovery'){router.push('/recovery');return;}if(command)await execute(command,{...fields,...command==='priority'?{'Token':state.selectedToken||state.queue.find(q=>q.status==='waiting')?.token||'A121'}:{}});
+  const command=commandForAction(screenId,label,to);if(command==='requestRecovery'){router.push('/recovery');return;}
+  if(command){const invalid=patientFormErrors(command,fields,isLive?user?.uid:undefined);setFieldErrors(invalid);if(Object.keys(invalid).length)return;await execute(command,{...fields,...command==='priority'?{'Token':state.selectedToken||state.queue.find(q=>q.status==='waiting')?.token||'A121'}:{}});}
   if(to==='154:1237'&&screenId==='140:1066')await execute('offline',fields);
-  if(to==='16:95'&&/connect/i.test(label)){const entered=screenId==='151:769'?(state.scannedToken||state.myToken):(fields['Queue number']||state.myToken);if(entered.toUpperCase().trim()!==state.myToken)throw Error('This token does not match your registered visit. Ask Counter 03 for assistance.');}
   if(to==='18:599'&&/retrieve|queue details/i.test(label)){const token=fields['Queue token']||fields['Token number']||fields['Queue reference'];if(token&&isLive)throw Error('Your hospital-issued token appears automatically after registration.');}
   if(to&&screens[to]){router.push({pathname:'/screen/[id]',params:{id:to.replace(':','-')}});return;}
   if(/close notifications/i.test(label)){back();return;}
   if(/save|request|confirm|apply|publish|download|scan|review/i.test(label))throw Error('This action needs additional service setup. Open Help for assistance.');
- }catch(e){setError(e instanceof Error?e.message:String(e));}finally{setBusy(false);}},[busy,state,update,screenId,fields,execute,router,setError,isLive,back]);
- const ctx=useMemo(()=>({screen,state,fields,onField,onAction,busy,isLive,scale:Platform.OS==='web'&&width>=720?1:Math.min(width,600)/375}),[screen,state,fields,onField,onAction,busy,width,isLive]);
+ }catch(e){setError(e instanceof Error?e.message:String(e));}finally{setBusy(false);}},[busy,state,update,screenId,fields,execute,router,setError,isLive,user,back]);
+ const ctx=useMemo(()=>({screen,state,fields,fieldErrors,onField,onAction,busy,isLive,scale:Platform.OS==='web'&&width>=720?1:Math.min(width,600)/375}),[screen,state,fields,fieldErrors,onField,onAction,busy,width,isLive]);
  if(!ready)return <ActivityIndicator/>;if(!screen)return <View style={s.toolbar}><BackButton onPress={()=>navigateBack(router,'/')}/><Text>Screen unavailable.</Text></View>;
  if(isLive&&!user)return <Redirect href="/account"/>;
  if(screen.role==='admin'&&(!isLive||!user||state.role!=='admin'))return <Redirect href="/admin-login"/>;if(isLive&&screen.role!==state.role)return <Redirect href="/"/>;

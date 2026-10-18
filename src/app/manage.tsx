@@ -12,19 +12,21 @@ import {WorkspaceLinks} from '../components/WorkspaceUI';
 import {linkTicket} from '../services/firebase';
 import {AppFooter} from '../components/AppFooter';
 import {LogoutButton} from '../components/LogoutButton';
+import {patientFormErrors,type FieldErrors} from '../services/patient-validation';
 
 export default function Manage(){
  const {state,isLive,user,ready,connected,execute,update}=useStore(),router=useRouter();
  const [token,setToken]=useState(''),[name,setName]=useState(''),[phone,setPhone]=useState(''),[uid,setUid]=useState(''),[caregiverUid,setCaregiverUid]=useState(''),[reason,setReason]=useState(''),[message,setMessage]=useState(''),[note,setNote]=useState(''),[feedback,setFeedback]=useState(''),[busy,setBusy]=useState(false);
  const [pending,setPending]=useState<{command:Command;fields:Record<string,string>;summary:string}|null>(null);
+ const [fieldErrors,setFieldErrors]=useState<FieldErrors>({});
  if(!ready)return <Text>Loading account…</Text>;
  if(isLive&&!user)return <Redirect href="/account"/>;
  const metrics=operationalMetrics(state),staff=state.role!=='patient';
  const textStyle={fontSize:state.largeText?19:16,lineHeight:state.largeText?29:24};
- const field=(label:string,value:string,set:(v:string)=>void,multiline=false)=><View style={s.field}><Text style={[s.label,textStyle]}>{label}</Text><TextInput accessibilityLabel={label} value={value} onChangeText={set} multiline={multiline} autoCapitalize={/account|phone/i.test(label)?'none':'sentences'} keyboardType={/phone/i.test(label)?'phone-pad':'default'} style={[s.input,textStyle]}/></View>;
+ const field=(label:string,value:string,set:(v:string)=>void,multiline=false)=>{const key=label.replace(' (optional)','').replace('Caregiver phone','Phone number'),error=fieldErrors[key];return <View style={s.field}><Text style={[s.label,textStyle]}>{label}</Text><TextInput accessibilityLabel={label} accessibilityHint={error} editable={!busy} value={value} onChangeText={next=>{set(next);setFieldErrors(e=>({...e,[key]:undefined}));}} maxLength={/name/i.test(label)?80:/phone/i.test(label)?24:/account/i.test(label)?128:/token/i.test(label)&&!multiline?7:1000} multiline={multiline} autoCapitalize={/account|phone/i.test(label)?'none':/token/i.test(label)&&!multiline?'characters':'sentences'} keyboardType={/phone/i.test(label)?'phone-pad':'default'} style={[s.input,textStyle,error&&{borderColor:'#ad3434'}]}/>{error?<Text accessibilityRole="alert" style={[s.warning,textStyle]}>{error}</Text>:null}</View>;};
  const button=(label:string,action:()=>void)=><Pressable accessibilityRole="button" disabled={busy} onPress={action} style={[s.button,busy&&{opacity:.5}]}><Text style={[s.white,textStyle]}>{label}</Text></Pressable>;
  const run=async(action:()=>Promise<unknown>)=>{setBusy(true);setFeedback('');try{await action();setFeedback('Saved successfully.');}catch(e){setFeedback(e instanceof Error?e.message:String(e));}finally{setBusy(false);}};
- const review=(command:Command,fields:Record<string,string>,summary:string)=>{setFeedback('');setPending({command,fields,summary});};
+ const review=(command:Command,fields:Record<string,string>,summary:string)=>{setFeedback('');const invalid=patientFormErrors(command,fields,isLive?user?.uid:undefined);setFieldErrors(invalid);if(Object.keys(invalid).length){setPending(null);return;}setPending({command,fields,summary});};
  const selected=state.queue.find(q=>q.token===token);
  const status=state.ticketStatus||state.queue.find(q=>q.token===state.myToken)?.status;
  return <SafeAreaView style={{flex:1,backgroundColor:'#f8fafc'}}><ScrollView contentContainerStyle={s.page} keyboardShouldPersistTaps="handled">

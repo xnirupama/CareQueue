@@ -1,0 +1,54 @@
+{
+  "verifiedAt": "2026-10-18T11:35:04.035Z",
+  "unitTests": {
+    "passed": 56,
+    "failed": 0,
+    "newPatientGroups": 12
+  },
+  "typecheck": "passed",
+  "lint": "passed, zero warnings",
+  "firebaseEmulators": {
+    "project": "demo-carequeue",
+    "authProfileGroups": 12,
+    "crudRoleGroups": 8,
+    "productionWrites": false,
+    "realEmailsSent": false
+  },
+  "exports": {
+    "android": "passed",
+    "ios": "passed",
+    "web": "passed"
+  },
+  "manualVisualVerification": "Not performed: browser runtime failed to start; physical-device review remains manual.",
+  "previewApk": "Existing APK predates these source changes; rebuild required.",
+  "sourceHashes": {
+    "README.md": "49f51ec8ae9bc2306b732d9f971fc2314d789bd9324983e189d731390d1819bc",
+    "src/app/account.tsx": "efb9ad21464db5ec069986aade891fe38f9e1cc6641412273e0fe3a3f6e7cb41",
+    "src/app/caregivers.tsx": "770f51bb77c8496b4036b7040abf2fd2ee8aedc610c95830a4068797b1c254a3",
+    "src/app/forgot-password.tsx": "0b9fe8855cdb53e4f5bb3992f5e0be95eb7a263250401a9293b416e24a96508d",
+    "src/app/manage.tsx": "a8fe88e35f55fa84afbf00afbc0853c385c526867bec3e620672c85298a0ebe5",
+    "src/app/recovery.tsx": "6d9557db62b53ca16883d1dafd04fa487783df15acfdd02f239389f49df989b1",
+    "src/app/register.tsx": "664c9fc5581b777e5686d3c699559f7fef692ffc091fe58fbcdaef7aec21bd54",
+    "src/app/screen/[id].tsx": "df0908e8fd0d24f098911187f8a495071d222da8e9054e0e3d71d1863f0100e7",
+    "src/app/support.tsx": "4ea9892f30bc2799c5b8842ac3b73092ea670d5dfaf6ae2ba8ef6849841dda17",
+    "src/components/DesignRenderer.tsx": "a2760d6e1d049c463470bdac01b7ea30857f9be4495283c690c82538c40c8c75",
+    "src/services/authentication.ts": "78f2f24b73074afc1a3f0bc086297de6bf98e549a546eae81a5a7a541a97f5c7",
+    "src/services/domain.ts": "ef0a16f61075b08f8467b25e07e801db697a861093a25364770fbcbede2a6907",
+    "src/services/password-reset.ts": "f6ffdfb2e3e2a7ab9151b073217506bdfccd1d2f1f04c27001bed1dc2b1bbbc1",
+    "src/services/patient-records.ts": "b07efab72a7c0690c0828d1ebc4c8686ceaeeccd02431ce0f4c4774064f45ceb",
+    "src/services/scan.ts": "f3d600efaab159566b83f7b6278361f6d987ae58570dbbb910a66df1b9e4355f",
+    "src/services/support.ts": "59f7abe280c662fc1c76ff2a33adce711f97e16c7e26553b1bb99f5e534b76cf",
+    "src/services/user-profile.ts": "8390ce2d3cfee7f2961001bad7af431bd3c85580b9bc69d7ad61c989222ecd8a",
+    "tests/auth-smoke.mjs": "1d80d780477301ce2bce4666f1eec18edb06a9d5b7a15e18d7d8f3ce254b684f",
+    "tests/crud-smoke.mjs": "aecf48801ea49c31e47ef6be21be1640a6f49ce04d1cf3db58f6f41d3f9b7bee",
+    "src/services/patient-validation.ts": "8a34b008bde5d63a0a34490f7cfcf63f2a4b0b17812504e52e699cd7312d3191",
+    "tests/patient-validation.test.mjs": "8826c63d03f68fac1755dc143f6ac963b5e06af688da712461843ad05d955d7e",
+    "docs/patient-validation.md": "36305f7631d23593f9372a35fba2f4eb29017677e25763d320a8e4fef595e54b",
+    "src/app/_layout.tsx": "5f2f6095ae39e31c58b5e654bcb02f14003f27dfdca9034d653a219ee5a6ad8a",
+    "src/app/index.tsx": "f7ff57a53a1bf6d5da7312317f93baf855014e4208f658638683ed260a3c9216",
+    "src/services/account-access.ts": "3b12f6def4b64a5c7514ef9f6f36fb7763a8ae3e2fd3097d2d3aafc97c48590b",
+    "src/services/firebase.ts": "ea6cc291f3a5778fd266c6a4a8f352b8ecf556374c5a748028be0a4727bda768",
+    "src/services/store.tsx": "955b12abbff559ae579f53a444331c56d1f753b8c808ca4f313e9553ee802080",
+    "src/components/WorkspaceUI.tsx": "3bd0099993e5ccde8ce19b1e110864536ee1efda7da51ef61cce3fe4c4381fb1"
+  }
+}

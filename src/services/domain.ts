@@ -1,13 +1,12 @@
 import type {AppState,Role,QueueRecord} from '../data/types';
+import {patientFormErrors,requireValidFields,normalizePersonName,normalizePhoneNumber,queueTokenError} from './patient-validation';
 export type Command='preferences'|'resetPreferences'|'caregiver'|'revokeCaregiver'|'requestRecovery'|'editRecovery'|'cancelRecovery'|'deleteRecovery'|'register'|'callNext'|'recall'|'priority'|'approveRecovery'|'rejectRecovery'|'broadcast'|'editBroadcast'|'removeBroadcast'|'serviceStatus'|'editPatient'|'deletePatient'|'markMissed'|'complete'|'cancel'|'offline'|'manualRecord'|'editManualRecord'|'deleteManualRecord'|'reconcile'|'verifyIncident';
 export const personalCommands=new Set<Command>(['preferences','resetPreferences','caregiver','revokeCaregiver','requestRecovery','editRecovery','cancelRecovery']);
 export function validate(command:Command,fields:Record<string,string>,role:Role){
  if(!personalCommands.has(command)&&role==='patient')throw Error('This action requires an authorized staff account.');
  if(['verifyIncident','serviceStatus','editBroadcast','removeBroadcast'].includes(command)&&role!=='admin')throw Error('An administrator must confirm this action.');
  if(command==='register'&&fields['Service']&&fields['Service']!=='General OPD')throw Error('This counter is configured for General OPD.');
- const name=fields['Full name']||fields['Patient name']||fields['Caregiver name'];
- if(['register','editPatient','caregiver'].includes(command)&&(!name||name.trim().length<2))throw Error('Enter the full name.');
- if(['register','editPatient','caregiver'].includes(command)){const phone=fields['Phone number']||fields['Contact number']||'';if((command==='caregiver'||phone)&&!/^(?:\+94|0)\s*[1-9][0-9\s-]{8,12}$/.test(phone))throw Error('Enter a valid Sri Lankan phone number.');}
+ requireValidFields(patientFormErrors(command,fields));
  if(command==='priority'&&!(fields['Clinical reason']||fields['Reason category']||fields['Reason']||'').trim())throw Error('Enter the clinical reason before applying priority.');
  if(command==='serviceStatus'&&!['open','delay','unavailable'].includes(fields['Status']))throw Error('Select a valid service status.');
 }
@@ -22,26 +21,30 @@ export function applyCommand(state:AppState,command:Command,fields:Record<string
  const s=structuredClone(state);const event={id:eventId,action:command,at,role:s.role,detail:''};s.audit.unshift(event);
  const selected=()=>{const q=s.queue.find(q=>q.token===(fields['Token']||s.selectedToken));if(!q)throw Error('Select a valid token.');return q;};
  switch(command){
- case 'preferences':s.preferencesSaved=true;break;
+ case 'preferences':preferenceData(s);s.preferencesSaved=true;break;
  case 'resetPreferences':Object.assign(s,{sms:true,appAlerts:true,language:'en',largeText:false,preferencesSaved:false});break;
- case 'caregiver':s.caregiver={name:fields['Caregiver name'].trim(),phone:fields['Phone number']||fields['Contact number'],...(fields['Caregiver account ID']?.trim()?{accountId:fields['Caregiver account ID'].trim()}: {})};break;
+ case 'caregiver':{
+  if(fields['Caregiver account ID']?.trim()&&(queueTokenError(s.myToken)||!['waiting','called','missed'].includes(s.ticketStatus||s.queue.find(q=>q.token===s.myToken)?.status||'')))throw Error('Link your active issued token before sharing a visit.');
+  s.caregiver={name:normalizePersonName(fields['Caregiver name']),phone:normalizePhoneNumber(fields['Phone number']||fields['Contact number']||''),...(fields['Caregiver account ID']?.trim()?{accountId:fields['Caregiver account ID'].trim()}: {})};break;
+ }
  case 'revokeCaregiver':delete s.caregiver;break;
  case 'requestRecovery':case 'editRecovery':{
-  if(s.myToken==='—')throw Error('Retrieve your hospital-issued token first.');
+  if(queueTokenError(s.myToken))throw Error('Retrieve your hospital-issued token first.');
   const status=s.ticketStatus||s.queue.find(q=>q.token===s.myToken)?.status;
   if(status!=='missed')throw Error('Recovery is available after staff mark a missed turn.');
   if(command==='requestRecovery'&&s.recovery==='pending')throw Error('Edit or withdraw your pending request.');
   if(command==='editRecovery'&&s.recovery!=='pending')throw Error('Only a pending request can be edited.');
+  if(command==='editRecovery'&&s.ownRecovery&&s.ownRecovery.token!==s.myToken)throw Error('This request belongs to a different visit. Refresh your visit before editing.');
   const reason=(fields['Reason']||'').trim();if(!reason||reason.length>500)throw Error('Enter a recovery reason between 1 and 500 characters.');
   s.recovery='pending';s.ownRecovery={patientId:s.ownRecovery?.patientId||s.queue.find(q=>q.token===s.myToken)?.patientId||'',token:s.myToken,status:'pending',reason};
   s.recoveryRequests=[...(s.recoveryRequests||[]).filter(r=>r.token!==s.myToken),s.ownRecovery];break;
  }
- case 'cancelRecovery':if(s.recovery!=='pending')throw Error('Only a pending request can be withdrawn.');s.recoveryRequests=s.recoveryRequests?.filter(r=>r.token!==s.myToken);s.recovery='none';delete s.ownRecovery;break;
+ case 'cancelRecovery':if(s.recovery!=='pending')throw Error('Only a pending request can be withdrawn.');if(s.ownRecovery&&s.ownRecovery.token!==s.myToken)throw Error('This request belongs to a different visit. Refresh your visit before withdrawing.');s.recoveryRequests=s.recoveryRequests?.filter(r=>r.token!==s.myToken);s.recovery='none';delete s.ownRecovery;break;
  case 'deleteRecovery':{const request=s.recoveryRequests?.find(r=>r.patientId===fields['Patient ID']);if(!request)throw Error('Recovery request not found.');if(request.status==='pending')throw Error('Resolve this request before deleting it.');s.recoveryRequests=s.recoveryRequests?.filter(r=>r!==request);if(s.ownRecovery?.patientId===request.patientId){delete s.ownRecovery;s.recovery='none';}event.detail=request.token+' · resolved request deleted';break;}
- case 'register':{const token=nextToken(s);s.lastIssuedNumber=Number(token.slice(1));s.queue.push({token,patientName:(fields['Full name']||fields['Patient name']).trim(),patientId:eventId,phone:fields['Phone number']||fields['Contact number']||'',status:'waiting',createdAt:at});break;}
+ case 'register':{const token=nextToken(s);s.lastIssuedNumber=Number(token.slice(1));s.queue.push({token,patientName:normalizePersonName(fields['Full name']||fields['Patient name']),patientId:eventId,phone:normalizePhoneNumber(fields['Phone number']||fields['Contact number']||''),status:'waiting',createdAt:at});break;}
  case 'callNext':{if(s.serviceStatus!=='open')throw Error('The service must be open before calling the next patient.');const next=orderedQueue(s.queue).find(q=>q.status==='waiting');if(!next)throw Error('No waiting patients.');s.queue.filter(q=>q.status==='called').forEach(q=>{q.status='completed';q.completedAt=at;});next.status='called';next.calledAt=at;s.nowServing=next.token;event.detail=next.token;break;}
  case 'recall':if(!s.queue.some(q=>q.token===s.nowServing&&q.status==='called'))throw Error('No patient is currently called.');event.detail=s.nowServing;break;
- case 'editPatient':{const q=selected();q.patientName=(fields['Full name']||fields['Patient name']).trim();q.phone=fields['Phone number']||fields['Contact number']||'';event.detail=q.token;break;}
+ case 'editPatient':{const q=selected();q.patientName=normalizePersonName(fields['Full name']||fields['Patient name']);q.phone=normalizePhoneNumber(fields['Phone number']||fields['Contact number']||'');event.detail=q.token;break;}
  case 'deletePatient':{const q=selected();if(!['completed','cancelled'].includes(q.status))throw Error('Complete or cancel this visit before deleting the registration.');if(s.recoveryRequests?.some(r=>r.token===q.token&&r.status==='pending'))throw Error('Resolve the pending recovery request before deleting this registration.');s.lastIssuedNumber=issuedSequence(s);s.queue=s.queue.filter(row=>row.token!==q.token);s.recoveryRequests=s.recoveryRequests?.filter(r=>r.token!==q.token);if(s.selectedToken===q.token)delete s.selectedToken;if(s.myToken===q.token){s.myToken='—';delete s.ticketStatus;s.recovery='none';}event.detail=q.token+' · registration deleted';break;}
  case 'markMissed':case 'complete':case 'cancel':{const q=selected();if(command==='cancel'&&!['waiting','missed'].includes(q.status))throw Error('Only a waiting or missed visit can be cancelled.');if(command!=='cancel'&&q.status!=='called')throw Error('Only a called patient can be marked missed or completed.');q.status=command==='markMissed'?'missed':command==='complete'?'completed':'cancelled';if(command==='complete')q.completedAt=at;if(s.nowServing===q.token)s.nowServing='—';event.detail=q.token;break;}
  case 'priority':{const q=selected();if(q.status!=='waiting')throw Error('Only a waiting patient can receive clinical priority.');q.priority='clinical';q.reason=fields['Clinical reason']||fields['Reason category']||fields['Reason'];event.detail=q.token+' · clinician-reviewed priority';break;}
@@ -66,4 +69,9 @@ export function operationalMetrics(state:AppState){const waits=state.queue.filte
 
 /** Project only the permitted profile fields; a TypeScript Pick does not remove
  * extra runtime keys from an AppState supplied by the caller. */
-export function preferenceData(state:Pick<AppState,'sms'|'appAlerts'|'language'|'largeText'>){const {sms,appAlerts,language,largeText}=state;return {sms,appAlerts,language,largeText};}
+export function preferenceData(state:Pick<AppState,'sms'|'appAlerts'|'language'|'largeText'>){
+ const {sms,appAlerts,language,largeText}=state;
+ if(!['en','si','ta'].includes(language))throw Error('Choose English, Sinhala or Tamil for your language.');
+ if([sms,appAlerts,largeText].some(value=>typeof value!=='boolean'))throw Error('Choose valid on or off options for alerts and text size.');
+ return {sms,appAlerts,language,largeText};
+}

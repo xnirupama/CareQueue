@@ -4,6 +4,7 @@ import {
   EmailAuthProvider, reauthenticateWithCredential, updatePassword,
   type Auth, type User,
 } from 'firebase/auth';
+import {personNameError,emailAddressError,normalizePersonName} from './patient-validation';
 
 export type RegistrationAccountType='patient'|'staff';
 export interface RegistrationFields {name: string; email: string; password: string; confirmPassword: string; accountType:RegistrationAccountType|'';}
@@ -12,13 +13,13 @@ export const normalizeEmail = (email: string) => email.trim();
 export function validateAccount(fields: RegistrationFields, registration = true): AccountErrors {
   const errors: AccountErrors = {};
   if(registration&&!['patient','staff'].includes(fields.accountType))errors.accountType='Choose Patient or Staff.';
-  if (registration && !fields.name.trim()) errors.name = 'Enter your full name.';
-  else if (registration && fields.name.trim().length > 80) errors.name = 'Use 80 characters or fewer.';
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizeEmail(fields.email))) errors.email = 'Enter a valid email address.';
+  if (registration) errors.name = personNameError(fields.name);
+  const emailError = emailAddressError(fields.email);
+  if (emailError) errors.email = emailError;
   if (!fields.password) errors.password = 'Enter your password.';
-  else if (registration && fields.password.length < 8) errors.password = 'Use at least 8 characters.';
+  else if (registration && (fields.password.length < 8 || !fields.password.trim())) errors.password = 'Use at least 8 characters, including a character other than a space.';
   if (registration && fields.password !== fields.confirmPassword) errors.confirmPassword = 'Your passwords do not match.';
-  return errors;
+  return Object.fromEntries(Object.entries(errors).filter(([,error])=>error));
 }
 export function accountError(error: unknown): string {
   const code = (error as {code?: string})?.code;
@@ -65,24 +66,24 @@ export async function registerAccount(auth: Auth, fields: RegistrationFields) {
   await checkPassword(auth, fields.password);
   const credential = await createUserWithEmailAndPassword(auth, normalizeEmail(fields.email), fields.password);
   // Roles are assigned only by the trusted administrator, never by registration.
-  try {await updateProfile(credential.user, {displayName: fields.name.trim()});}
+  try {await updateProfile(credential.user, {displayName: normalizePersonName(fields.name)});}
   catch {return {...credential, profileSaved: false};}
   return {...credential, profileSaved: true};
 }
 export async function validateNewPassword(auth:Auth,password:string,confirmation:string){
- if(password.length<8)throw Error('Use at least 8 characters for your new password.');
+ if(password.length<8||!password.trim())throw Error('Use at least 8 characters, including a character other than a space.');
  if(password!==confirmation)throw Error('Your new passwords do not match.');
  await checkPassword(auth,password);
 }
 export async function renameAccount(user: User, name: string) {
-  if (!name.trim() || name.trim().length > 80) throw Error('Enter a name between 1 and 80 characters.');
-  await updateProfile(user, {displayName: name.trim()});
+  const error=personNameError(name);if(error)throw Error(error);
+  await updateProfile(user, {displayName: normalizePersonName(name)});
 }
 export const verifyAccountEmail = (user: User) => sendEmailVerification(user);
 export const reloadAccount = (user: User) => reload(user);
 export async function changeAccountPassword(auth: Auth, user: User, currentPassword: string, password: string, confirmPassword: string) {
   if (!user.email || !currentPassword) throw Error('Enter your current password.');
-  if (password.length < 8) throw Error('Use at least 8 characters for your new password.');
+  if (password.length < 8 || !password.trim()) throw Error('Use at least 8 characters, including a character other than a space.');
   if (password !== confirmPassword) throw Error('Your new passwords do not match.');
   await checkPassword(auth, password);
   await reauthenticateWithCredential(user, EmailAuthProvider.credential(user.email, currentPassword));

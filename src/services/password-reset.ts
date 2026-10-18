@@ -1,11 +1,12 @@
 import {confirmPasswordReset,type Auth} from 'firebase/auth';
 import {httpsCallable,type Functions} from 'firebase/functions';
 import {validateNewPassword,accountError,normalizeEmail} from './authentication';
+import {emailAddressError} from './patient-validation';
 
 export interface ResetChallenge{challengeId:string;expiresAt:number;retryAfterSeconds:number;}
 export async function requestEmailResetCode(functions:Functions,email:string):Promise<ResetChallenge>{
  const normalized=normalizeEmail(email);
- if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized))throw Error('Enter a valid email address.');
+ const error=emailAddressError(normalized);if(error)throw Error(error);
  const request=httpsCallable<{email:string},ResetChallenge>(functions,'requestPasswordResetCode',{timeout:15_000});
  return (await request({email:normalized})).data;
 }

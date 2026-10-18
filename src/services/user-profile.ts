@@ -2,21 +2,25 @@ import {doc,getDoc,runTransaction,serverTimestamp,type Firestore,type Timestamp}
 import {signOut,deleteUser,EmailAuthProvider,reauthenticateWithCredential,type Auth,type User} from 'firebase/auth';
 import {registerAccount,signInAccount,renameAccount,type RegistrationFields,type RegistrationAccountType} from './authentication';
 import {claimRole,resolveAccountRole,validatePortal,type LoginPortal} from './account-access';
+import {personNameError,normalizePersonName} from './patient-validation';
 
 export interface UserProfile {
  uid:string; fullName:string; email:string; accountType?:RegistrationAccountType; createdAt:Timestamp; updatedAt:Timestamp;
 }
 function profileName(user:User,name?:string){
- const value=name===undefined?(user.displayName?.trim()||user.email?.split('@')[0]||'Patient').slice(0,80):name.trim();
+ // Existing/recoverable accounts may have an email-derived legacy display name.
+ if(name!==undefined){const error=personNameError(name);if(error)throw Error(error);}
+ const value=name===undefined?(user.displayName?.trim()||user.email?.split('@')[0]||'Patient').slice(0,80):normalizePersonName(name);
  if(!value||value.length>80)throw Error('Enter a name between 1 and 80 characters.');
  return value;
 }
 export async function ensureUserProfile(db:Firestore,user:User,name?:string,accountType?:RegistrationAccountType):Promise<UserProfile>{
  if(!user.email)throw Error('An email account is required.');
+ const requestedName=name===undefined?undefined:profileName(user,name);
  const ref=doc(db,'users',user.uid);
  if(name===undefined){const existing=await getDoc(ref);if(existing.exists()&&existing.data().accountType)return existing.data() as UserProfile;}
  const type=accountType||(claimRole((await user.getIdTokenResult()).claims)==='staff'?'staff':'patient');
- const fullName=profileName(user,name);
+ const fullName=requestedName??profileName(user);
  await runTransaction(db,async tx=>{
   const existing=await tx.get(ref);
   if(!existing.exists())tx.set(ref,{uid:user.uid,fullName,email:user.email,accountType:type,createdAt:serverTimestamp(),updatedAt:serverTimestamp()});

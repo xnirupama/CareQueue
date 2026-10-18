@@ -28,6 +28,8 @@ Registration requires choosing **Patient** or **Staff**. Patients can sign in im
 
 ## Accounts and welcome screens
 
+Patient registration, account details, caregiver consent, queue tokens, recovery, support and saved preferences share validation checks with inline feedback. See [Patient validation](docs/patient-validation.md) for the complete rules and manual test steps.
+
 The role entry pages now use three locally bundled portrait photos, a soft mint background, compact photo cards and matching login/registration styling. Patient and Staff registration choices also show the corresponding portraits. These are generated fictional role illustrations, not user profile photos. [Portrait assets and exact prompts](assets/role-portraits/README.md) are included in the source.
 
 - `/login`: mobile account-type chooser and patient/staff demo access.
