@@ -19,7 +19,9 @@ for directory,dirs,names in os.walk(root):
   files.append(p)
 pdf=root/'output/pdf/IT3060HCI2026_Milestone03_GroupWE_79.pdf'
 if pdf.exists():files.append(pdf)
+build_info=root/'artifacts/build-info.json'
+if build_info.exists():files.append(build_info)
 with zipfile.ZipFile(archive,'w',compression=zipfile.ZIP_DEFLATED,compresslevel=6) as z:
  for p in sorted(files):z.write(p,str(p.relative_to(root)).replace('\\','/'))
-manifest={'package':archive.name,'files':len(files),'bytes':archive.stat().st_size,'sha256':hashlib.file_digest(archive.open('rb'),'sha256').hexdigest(),'status':'review package; actual group/user/device evidence pending','excluded':['credentials and local .env','dependency/build caches','generated native projects','git metadata'],'report':str(pdf.relative_to(root))}
+manifest={'package':archive.name,'files':len(files),'bytes':archive.stat().st_size,'sha256':hashlib.file_digest(archive.open('rb'),'sha256').hexdigest(),'status':'review package; actual group/user/device evidence pending','excluded':['credentials and local .env','dependency/build caches','generated native projects','git metadata'],'report':str(pdf.relative_to(root)) if pdf.exists() else None,'report_status':'included review draft' if pdf.exists() else 'PDF absent; editable report content included'}
 (out/'review-package-manifest.json').write_text(json.dumps(manifest,indent=2)+'\n',encoding='utf-8');print(json.dumps(manifest,indent=2))

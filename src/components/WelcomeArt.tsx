@@ -1,13 +1,13 @@
 import Svg, {Circle, Rect, Path, G, Text as SvgText} from 'react-native-svg';
 
 export function CareQueueMark({size=38}: {size?: number}) {
- return <Svg width={size} height={size} viewBox="0 0 48 48" accessible={false}><Rect width="48" height="48" rx="15" fill="#09386b"/><Path d="M21 12h6v9h9v6h-9v9h-6v-9h-9v-6h9z" fill="#b8e5d5"/></Svg>;
+ return <Svg width={size} height={size} viewBox="0 0 48 48" aria-hidden><Rect width="48" height="48" rx="15" fill="#09386b"/><Path d="M21 12h6v9h9v6h-9v9h-6v-9h-9v-6h9z" fill="#b8e5d5"/></Svg>;
 }
 function Person({x,y,color='#88baa7'}: {x:number;y:number;color?:string}) {
  return <G transform={`translate(${x} ${y})`}><Circle cx="0" cy="0" r="16" fill="#edc6ad"/><Path d="M-17 -3q0-23 18-18q19 0 16 20l-8-12q-7 7-25 10" fill="#193952"/><Path d="M-27 35q0-20 27-20q27 0 27 20v36h-54z" fill={color}/><Path d="M-16 72v36M16 72v36" stroke="#193952" strokeWidth="10" strokeLinecap="round"/></G>;
 }
 export default function WelcomeArt({step=0}: {step?:number}) {
- return <Svg width="100%" height="100%" viewBox="0 0 360 300" accessible={false}>
+ return <Svg width="100%" height="100%" viewBox="0 0 360 300" aria-hidden>
   <Circle cx="180" cy="145" r="126" fill={step===1?'#e2effb':'#d5ece2'}/><Circle cx="300" cy="64" r="12" fill="#e6bc65"/><Circle cx="47" cy="189" r="7" fill="#9fc7b7"/>
   <Path d="M44 262h272" stroke="#b6d0c5" strokeWidth="3" strokeLinecap="round"/>
   {step===0?<>

@@ -1,7 +1,7 @@
 {
   "file": "artifacts/CareQueue-preview.apk",
-  "sha256": "0426caaf9ce81a51f426caf86ba10db19edebc62a8787f4677401ea3293b2fa5",
-  "bytes": 58711657,
+  "sha256": "88cd3260d8ceb2526184cc743db5937edc7f02ec38c1abcf72cea633db5f2ec1",
+  "bytes": 58775641,
   "package": "lk.carequeue.mobile",
   "version": "1.0.0",
   "versionCode": 1,
@@ -15,16 +15,16 @@
   "device_installation": "not verified",
   "build_result": "BUILD SUCCESSFUL",
   "source_checks": {
-    "pass": 25,
+    "pass": 33,
     "fail": 0
   },
   "rules_checks": {
     "pass": 6,
     "fail": 0
   },
-  "build_date": "2026-10-09",
+  "build_date": "2026-10-17",
   "auth_emulator_flow_groups": {
-    "pass": 8,
+    "pass": 12,
     "fail": 0
   },
   "live_account_services": "pass; temporary patient/staff accounts and own profiles removed; no real email sent",
@@ -35,7 +35,57 @@
   "staff_approval_bundle_verified": true,
   "archive_integrity_verified": true,
   "signing_certificate_sha256": "fac61745dc0903786fb9ede62a962b399f7348f0bb6f899b8332667591033b9c",
-  "build_duration": "9m 52s",
+  "build_duration": "13m 10s",
   "staff_registration": "pass; requested staff type saved and queue access denied until approved",
-  "administrator_access": "pass in emulator; real administrator account assignment still requires owner-selected UID"
+  "administrator_access": "Provisioned and Admin SDK verified for nirupama.minipa@gmail.com with explicit owner approval; user sets first password privately through Forgot password",
+  "back_navigation_bundle_verified": true,
+  "visible_account_control_bundle_verified": true,
+  "verification_date": "2026-10-17",
+  "sdk_crud_persistence_groups": {
+    "pass": 7,
+    "fail": 0
+  },
+  "current_source_files_verified": {
+    "src/services/user-profile.ts": true,
+    "src/services/firebase.ts": true,
+    "src/services/store.tsx": true,
+    "src/services/domain.ts": true,
+    "src/services/account-access.ts": true,
+    "src/app/_layout.tsx": true,
+    "src/app/account.tsx": true,
+    "src/components/RoleLogin.tsx": true,
+    "src/components/SignInChooser.tsx": true,
+    "src/components/WorkspaceUI.tsx": true,
+    "src/app/patient-records.tsx": true,
+    "src/app/recovery.tsx": true,
+    "src/app/caregivers.tsx": true,
+    "src/app/preferences.tsx": true,
+    "src/app/support.tsx": true,
+    "src/app/staff-notes.tsx": true,
+    "src/app/staff-approvals.tsx": true,
+    "src/app/announcements.tsx": true
+  },
+  "crud_feature_labels_verified": [
+    "Patient sign in",
+    "Staff sign in",
+    "Administrator sign in",
+    "Delete closed registration",
+    "Create recovery request",
+    "Delete consent and revoke sharing",
+    "Delete saved preferences and reset",
+    "Create device-local note",
+    "Create support request",
+    "Create announcement",
+    "Revoke staff access",
+    "Permanently delete my account"
+  ],
+  "account_portals": [
+    "patient",
+    "staff",
+    "admin"
+  ],
+  "crud_components": 9,
+  "general_opd": "Initialized empty and verified; no demo patients inserted",
+  "visual_testing": "browser unavailable; physical-device testing pending",
+  "shell_wrapper_note": "The outer PowerShell wrapper surfaced a JAVA_TOOL_OPTIONS stderr notice. Gradle returned 0 and the completed APK passed source, archive and signature verification."
 }

@@ -8,12 +8,13 @@ const require=createRequire(import.meta.url);
 const {initializeApp,deleteApp}=require('firebase/app');
 const {getAuth,connectAuthEmulator,signOut,deleteUser,applyActionCode,confirmPasswordReset}=require('firebase/auth');
 import {registerAccount,signInAccount,renameAccount,verifyAccountEmail,reloadAccount,resetAccountPassword,changeAccountPassword} from '../src/services/authentication.ts';
-import {registerWithProfile,signInWithProfile,ensureUserProfile,saveUserProfileName} from '../src/services/user-profile.ts';
-import {approveStaffAccount,resolveAccountRole} from '../src/services/account-access.ts';
-const {getFirestore,connectFirestoreEmulator,doc,getDoc,deleteDoc,terminate}=require('firebase/firestore');
+import {registerWithProfile,signInWithProfile,ensureUserProfile,saveUserProfileName,deletePatientAccount} from '../src/services/user-profile.ts';
+import {approveStaffAccount,resolveAccountRole,changeStaffAccess} from '../src/services/account-access.ts';
+const {getFirestore,connectFirestoreEmulator,doc,getDoc,setDoc,deleteDoc,terminate}=require('firebase/firestore');
 const project='demo-carequeue',host=process.env.FIREBASE_AUTH_EMULATOR_HOST||'127.0.0.1:9099';
 const adminSdkApp=require('firebase-admin/app'),adminSdkAuth=require('firebase-admin/auth');
 const trustedApp=adminSdkApp.initializeApp({projectId:project},'role-tests');
+const trustedDb=require('firebase-admin/firestore').getFirestore(trustedApp);
 if(!/^(127\.0\.0\.1|localhost):\d+$/.test(host))throw Error('Auth test must target the local emulator.');
 const app=initializeApp({apiKey:'fake-emulator-key',projectId:project}),auth=getAuth(app);
 connectAuthEmulator(auth,`http://${host}`,{disableWarnings:true});
@@ -22,8 +23,10 @@ if(!/^(127\.0\.0\.1|localhost):\d+$/.test(firestoreHost))throw Error('Profile te
 const db=getFirestore(app);connectFirestoreEmulator(db,firestoreHost.split(':')[0],Number(firestoreHost.split(':')[1]));
 const email=`account-check-${randomUUID()}@example.com`,password='Original pass 12!',newPassword='Changed pass 34!',reset='Reset pass 56!';
 let account;
-async function codeFor(type){const response=await fetch(`http://${host}/emulator/v1/projects/${project}/oobCodes`);assert.ok(response.ok);const codes=(await response.json()).oobCodes;const code=codes.filter(c=>c.email===email&&c.requestType===type).at(-1);assert.ok(code,`Expected ${type} email action in emulator`);return code.oobCode;}
+async function codeFor(type,recipient=email){const response=await fetch(`http://${host}/emulator/v1/projects/${project}/oobCodes`);assert.ok(response.ok);const codes=(await response.json()).oobCodes;const code=codes.filter(c=>c.email===recipient&&c.requestType===type).at(-1);assert.ok(code,`Expected ${type} email action in emulator`);return code.oobCode;}
 try{
+ // This file also runs on its own, without the rules suite's service fixture.
+ await trustedDb.doc('operations/current').set({queue:[],audit:[],broadcasts:[],offlineActions:[],lastIssuedNumber:0,incidentVerified:false,nowServing:'—',serviceStatus:'open',updatedAt:new Date().toISOString()});
  const blockedApp=initializeApp({apiKey:'fake-emulator-key',projectId:project},'profile-write-denied'),blockedDb=getFirestore(blockedApp);
  connectFirestoreEmulator(blockedDb,firestoreHost.split(':')[0],Number(firestoreHost.split(':')[1]));
  const recoverEmail=`profile-recovery-${randomUUID()}@example.com`;
@@ -34,6 +37,13 @@ try{
   assert.equal(recovered.profile.fullName,'Recoverable Patient');
   await deleteDoc(doc(db,'users',recovered.user.uid));await deleteUser(recovered.user);
   console.log('PASS: failed database save reports incomplete registration, signs out and recovers using the same credentials');
+  const recoverStaffEmail=`staff-profile-recovery-${randomUUID()}@example.com`;
+  await assert.rejects(()=>registerWithProfile(auth,blockedDb,{name:'Recoverable Staff',email:recoverStaffEmail,password,confirmPassword:password,accountType:'staff'}),/login account was created/);
+  const recoveredStaff=await signInWithProfile(auth,db,recoverStaffEmail,password,'staff');
+  assert.equal(recoveredStaff.profile.accountType,'staff');assert.equal(recoveredStaff.role,'patient');
+  await assert.rejects(()=>getDoc(doc(db,'operations','current')),e=>e.code==='permission-denied');
+  await deleteDoc(doc(db,'users',recoveredStaff.user.uid));await deleteUser(recoveredStaff.user);
+  console.log('PASS: failed Staff profile saving recovers the requested Staff type and remains pending without queue access');
  }finally{await terminate(blockedDb);await deleteApp(blockedApp);}
  const result=await registerWithProfile(auth,db,{name:'  Test Patient  ',email:` ${email} `,password,confirmPassword:password,accountType:'patient'});account=result.user;
  assert.equal(result.profileSaved,true);assert.equal(account.displayName,'Test Patient');assert.equal((await account.getIdTokenResult()).claims.role,undefined);
@@ -74,12 +84,48 @@ try{
  const adminLogin=await signInWithProfile(auth,db,email,reset,'admin');assert.equal(adminLogin.role,'admin');account=adminLogin.user;
  await approveStaffAccount(db,account,applicant.user.uid);
  await signOut(auth);
- const approved=await signInWithProfile(auth,db,applicantEmail,password);assert.equal(approved.role,'staff');
+ const approved=await signInWithProfile(auth,db,applicantEmail,password,'staff');assert.equal(approved.role,'staff');
  assert.equal((await getDoc(doc(db,'operations','current'))).exists(),true);
  await assert.rejects(()=>signInWithProfile(auth,db,applicantEmail,password,'admin'),/administrator account/);
  await signInWithProfile(auth,db,email,reset,'admin');
- await deleteDoc(doc(db,'staffAccess',applicant.user.uid));
- await signInWithProfile(auth,db,applicantEmail,password);await deleteDoc(doc(db,'users',applicant.user.uid));await deleteUser(auth.currentUser);
+ await adminSdkAuth.getAuth(trustedApp).setCustomUserClaims(applicant.user.uid,{role:'staff'});
+ await changeStaffAccess(db,auth.currentUser,applicant.user.uid,'suspended');
+ const suspended=await signInWithProfile(auth,db,applicantEmail,password,'staff');assert.equal(suspended.role,'patient');
+ await assert.rejects(()=>getDoc(doc(db,'operations','current')),e=>e.code==='permission-denied');
+ await signInWithProfile(auth,db,email,reset,'admin');await approveStaffAccount(db,auth.currentUser,applicant.user.uid);
+ assert.equal((await signInWithProfile(auth,db,applicantEmail,password,'staff')).role,'staff');
+ await signInWithProfile(auth,db,email,reset,'admin');await changeStaffAccess(db,auth.currentUser,applicant.user.uid,'revoked');
+ assert.equal((await signInWithProfile(auth,db,applicantEmail,password,'staff')).role,'patient');
+ await assert.rejects(()=>getDoc(doc(db,'operations','current')),e=>e.code==='permission-denied');
+ console.log('PASS: suspension, reactivation and revocation work, including legacy staff claims');
+ await signInWithProfile(auth,db,applicantEmail,password,'staff');await deleteDoc(doc(db,'users',applicant.user.uid));await deleteUser(auth.currentUser);
  await signInWithProfile(auth,db,email,reset,'admin');
+ await signOut(auth);
+ const deletionEmail=`account-deletion-${randomUUID()}@example.com`;
+ const deletion=await registerWithProfile(auth,db,{name:'Deletion Patient',email:deletionEmail,password,confirmPassword:password,accountType:'patient'});
+ const deletionUid=deletion.user.uid;
+ await assert.rejects(()=>signInWithProfile(auth,db,deletionEmail,password,'staff'),/Patient sign in/);
+ const patientLogin=await signInWithProfile(auth,db,deletionEmail,password,'patient');
+ await assert.rejects(()=>deletePatientAccount(db,patientLogin.user,'Wrong password 12!'));
+ await trustedDb.doc(`tickets/${deletionUid}`).set({token:'A900',status:'waiting',patientsAhead:0});
+ await assert.rejects(()=>deletePatientAccount(db,patientLogin.user,password),/active visit/);
+ assert.equal((await getDoc(doc(db,'users',deletionUid))).exists(),true);
+ await trustedDb.doc(`tickets/${deletionUid}`).update({status:'completed'});
+ await setDoc(doc(db,'patients',deletionUid),{largeText:true,language:'en'});
+ await trustedDb.doc(`caregiverShares/${deletionUid}`).set({caregiverId:'test-contact',token:'A900',status:'completed',patientsAhead:0});
+ await deletePatientAccount(db,patientLogin.user,password);assert.equal(auth.currentUser,null);
+ await assert.rejects(()=>adminSdkAuth.getAuth(trustedApp).getUser(deletionUid),e=>e.code==='auth/user-not-found');
+ for(const path of [`users/${deletionUid}`,`patients/${deletionUid}`,`caregiverShares/${deletionUid}`])assert.equal((await trustedDb.doc(path).get()).exists,false);
+ assert.equal((await trustedDb.doc(`tickets/${deletionUid}`).get()).exists,true);
+ console.log('PASS: patient account deletion checks password and active visits, removes login/private profile, and preserves hospital history');
+ const bootstrapEmail=`admin-bootstrap-${randomUUID()}@example.com`;
+ const bootstrap=await adminSdkAuth.getAuth(trustedApp).createUser({email:bootstrapEmail,displayName:'CareQueue administrator'});
+ await adminSdkAuth.getAuth(trustedApp).setCustomUserClaims(bootstrap.uid,{role:'admin'});
+ await resetAccountPassword(auth,bootstrapEmail);
+ await confirmPasswordReset(auth,await codeFor('PASSWORD_RESET',bootstrapEmail),password);
+ const bootstrapLogin=await signInWithProfile(auth,db,bootstrapEmail,password,'admin');assert.equal(bootstrapLogin.role,'admin');
+ assert.equal(bootstrapLogin.profile.uid,bootstrap.uid);
+ await deleteDoc(doc(db,'users',bootstrap.uid));await deleteUser(bootstrapLogin.user);
+ console.log('PASS: a password-free administrator can set a private password through reset and enter the admin portal with a saved profile');
  console.log('PASS: Staff selection remains pending, administrator-only login is verified, administrator approval enables staff queue access, and staff cannot enter the admin portal');
 }finally{if(!auth.currentUser&&account){try{await signInAccount(auth,email,reset);}catch{try{await signInAccount(auth,email,newPassword);}catch{await signInAccount(auth,email,password);}}}if(auth.currentUser){await deleteDoc(doc(db,'users',auth.currentUser.uid));await deleteUser(auth.currentUser);}await terminate(db);await deleteApp(app);await adminSdkApp.deleteApp(trustedApp);}

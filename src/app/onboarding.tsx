@@ -7,6 +7,8 @@ import {ActionButton,Brand,Notice,TextLink,colors} from '../components/AccountUI
 import WelcomeArt from '../components/WelcomeArt';
 import {useStore} from '../services/store';
 import {configured} from '../services/firebase';
+import {BackButton} from '../components/BackButton';
+import {navigateBack} from '../services/back-navigation';
 
 const slides=[
  {label:'A little less waiting',title:'Your queue.\nYour peace of mind.',description:'See your token and the people ahead, so you can spend less time wondering about your turn.',detail:'Queue updates, all in one place',step:0},
@@ -23,7 +25,7 @@ export default function Onboarding(){
   <View style={s.top}><Brand/><TextLink label="Skip" disabled={busy} onPress={finish}/></View>
   <Animated.View style={[s.content,{opacity:fade}]}><View style={s.art}><WelcomeArt step={slide.step}/></View><View style={s.pill}><View style={s.dot}/><Text style={s.pillText}>{slide.detail}</Text></View><Text style={s.eyebrow}>{slide.label}</Text><Text accessibilityRole="header" style={s.title}>{slide.title}</Text><Text style={s.description}>{slide.description}</Text></Animated.View>
   <Notice message={message}/><View style={s.progress}>{slides.map((_,i)=><Pressable key={i} accessibilityRole="button" accessibilityLabel={`Welcome screen ${i+1} of 3`} accessibilityState={{selected:i===page,disabled:busy}} disabled={busy} onPress={()=>setPage(i)} style={s.progressTouch}><View style={[s.progressDot,i===page&&s.activeDot]}/></Pressable>)}</View>
-  <View style={s.actions}>{page>0?<View style={s.back}><TextLink label="Back" disabled={busy} onPress={()=>setPage(p=>p-1)}/></View>:null}<View style={s.next}><ActionButton label={page===2?'Get started':'Next'} busy={busy} onPress={page===2?finish:()=>setPage(p=>p+1)}/></View></View>
+  <View style={s.actions}>{page>0||onboardingComplete?<View style={s.back}><BackButton disabled={busy} onPress={()=>page>0?setPage(p=>p-1):navigateBack(router,onboardingComplete&&(!isLive||user)?'/':'/login')}/></View>:null}<View style={s.next}><ActionButton label={page===2?'Get started':'Next'} busy={busy} onPress={page===2?finish:()=>setPage(p=>p+1)}/></View></View>
   <Text style={s.footer}>Made for a calmer hospital visit.</Text>
  </View></ScrollView></LinearGradient></SafeAreaView>;
 }

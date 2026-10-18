@@ -13,6 +13,12 @@ Deadline in the supplied Assignment 3 brief: **9 October 2026** (time not specif
 - At least two working CRUD operations per assigned interface. A navigation transition is not CRUD; a read-only screen does not demonstrate two operations. Confirm interface grouping/ownership with the coordinator where the original interface is informational.
 - At least five real/proxy participants test the **working app**. Prototype recordings or earlier discovery interviews alone do not establish this.
 
+## 17 October CRUD extension
+
+The [nine-component CRUD guide](../crud-components.md) provides three connected queue/recovery components, staff notes, admin announcements/access, support, preferences and patient account CRUD. Dedicated patient/staff/admin login pages and role-specific tools are integrated. Firestore rules are deployed; SDK persistence, role restrictions and live patient account/support checks passed. Final member/interface ownership, device usability and participant evidence remain group tasks.
+
+The generated report PDF is currently absent. The source review archive includes editable report materials; it includes a PDF only when that PDF actually exists. Reconcile the new features with the editable report before generating a final submission.
+
 ## What has been prepared here
 
 - Current app: existing 74 design screens plus account, scanner, operational management and token display. The 8 October extension adds dedicated login/registration/password reset and three illustrated welcome screens; reconcile these additions with the final report and interface allocation.
@@ -27,9 +33,9 @@ Deadline in the supplied Assignment 3 brief: **9 October 2026** (time not specif
 1. Confirm actual member contributions; M01 lists research roles and M02 lists proposed implementation roles only.
 2. Conduct/provide five working-app session records with consent, app version, tasks/outcomes, times, ease ratings and recording links when consented.
 3. Install and verify the APK on a phone, including camera permissions, font expansion, native PDF/printing and offline restart.
-4. Exercise live patient/staff/admin accounts; owner must assign claims and initialize General OPD. Do not place admin credentials in the app.
+4. Exercise live patient/staff/admin accounts on phones. The owner-approved administrator and empty General OPD service are provisioned; the administrator still verifies/approves actual staff applicants. Do not place admin credentials in the app.
 5. Publish the reviewed local changes to https://github.com/xnirupama/CareQueue and supply the build artifact link; check assessor access.
-6. Resolve remaining channels: SMS/background delivery. Caregiver account sharing is now implemented and rule-tested; its new rules and live multi-account flow still need rollout/verification. Consent-only saves do not deliver messages. Full translations, historic reports and site-confirmed directions also need evidence or explicitly agreed scope.
+6. Resolve remaining channels: SMS/background delivery. Caregiver account sharing is now implemented and rule-tested; its rules are deployed and emulator/live persistence is verified; the phone multi-account flow remains pending. Consent-only saves do not deliver messages. Full translations, historic reports and site-confirmed directions also need evidence or explicitly agreed scope.
 7. Check the CRUD coverage register with confirmed assignments. Do not claim every one of the 74 state screens has two CRUD operations.
 8. Members review and rewrite the draft in their own words, verify cited research evidence and prepare individual viva explanations. The brief permits AI assistance and requires less than 50% AI content; no detector outcome is claimed.
 
@@ -42,7 +48,7 @@ Run `python scripts/analyze-usability.py docs/testing/usability-results.json` af
 
 ## Review archive
 
-`output/CareQueue_Milestone03_review-package.zip` packages the source, public sample config, documentation, testing instruments and review PDF. It excludes credentials, local `.env`, dependency caches and generated native projects. Rebuild after edits with `python scripts/package-submission.py`. This archive is for review; it does not replace publishing reviewed source to the repository or providing a tested APK.
+`output/CareQueue_Milestone03_review-package.zip` packages the source, public sample config, documentation, testing instruments and any existing review PDF. It excludes credentials, local `.env`, dependency caches and generated native projects. Rebuild after edits with `python scripts/package-submission.py`. This archive is for review; it does not replace publishing reviewed source to the repository or providing a tested APK.
 
 
 The final preview APK is `artifacts/CareQueue-preview.apk`. Package/signature verification passed; ARM64, min API 24. The APK and source/report archive are separate review artefacts. Record actual installation/device results before marking that gate complete. Earlier native build failures were addressed; no phone testing result has been manufactured.

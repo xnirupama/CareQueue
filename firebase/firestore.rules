@@ -2,7 +2,7 @@ rules_version = '2';
 service cloud.firestore {
  match /databases/{database}/documents {
   function signedIn(){return request.auth != null;}
-  function staff(){return signedIn() && (request.auth.token.get('role','patient') in ['staff','admin'] || (exists(/databases/$(database)/documents/staffAccess/$(request.auth.uid)) && get(/databases/$(database)/documents/staffAccess/$(request.auth.uid)).data.approved == true));}
+  function staff(){return signedIn() && (admin() || (exists(/databases/$(database)/documents/staffAccess/$(request.auth.uid)) ? get(/databases/$(database)/documents/staffAccess/$(request.auth.uid)).data.approved == true : request.auth.token.get('role','patient') == 'staff'));}
   function admin(){return signedIn() && request.auth.token.get('role','patient') == 'admin';}
   function owner(uid){return signedIn() && request.auth.uid == uid;}
   match /users/{uid}{
@@ -26,15 +26,44 @@ service cloud.firestore {
    allow read: if owner(uid) || admin();
    allow create,update: if admin()
     && request.resource.data.keys().hasAll(['uid','approved','approvedBy','updatedAt'])
-    && request.resource.data.keys().hasOnly(['uid','approved','approvedBy','updatedAt'])
+    && request.resource.data.keys().hasOnly(['uid','approved','status','approvedBy','updatedAt'])
+    && (!('status' in request.resource.data) || (request.resource.data.status in ['active','suspended','revoked'] && (request.resource.data.approved == (request.resource.data.status == 'active'))))
     && request.resource.data.uid == uid && request.resource.data.approved is bool
     && request.resource.data.approvedBy == request.auth.uid && request.resource.data.updatedAt == request.time
     && get(/databases/$(database)/documents/users/$(uid)).data.accountType == 'staff';
    allow delete: if admin();
   }
-  match /services/{id}{allow read: if signedIn(); allow write: if staff() && request.resource.data.keys().hasOnly(['nowServing','serviceStatus','updatedAt','broadcasts']);}
-  match /operations/{id}{allow read: if staff();allow update: if staff() && (admin() || request.resource.data.incidentVerified == resource.data.incidentVerified);allow create: if admin();allow delete: if false;}
-  match /audit/{id}{allow read,create: if staff();allow update,delete:if false;}
+  function appendedBroadcast(){
+   let old = resource.data.broadcasts;
+   let next = request.resource.data.broadcasts;
+   return next.size() == old.size()+1 && next.removeAll([next[0]]) == old
+    && next[0].keys().hasOnly(['id','message','at']) && next[0].message is string
+    && next[0].message.size()>0 && next[0].message.size()<=500;
+  }
+  function staffOperations(){
+   return request.resource.data.incidentVerified == resource.data.incidentVerified
+    && (request.resource.data.broadcasts == resource.data.broadcasts || appendedBroadcast())
+    && (request.resource.data.serviceStatus == resource.data.serviceStatus
+     || (resource.data.serviceStatus in ['open','offline'] && request.resource.data.serviceStatus in ['open','offline'])
+     || (resource.data.serviceStatus != 'unavailable' && appendedBroadcast() && request.resource.data.serviceStatus == 'delay'));
+  }
+  match /services/{id}{
+   allow read: if signedIn();
+   allow create,update: if staff() && id == 'general-opd'
+    && request.resource.data.keys().hasOnly(['nowServing','serviceStatus','updatedAt','broadcasts'])
+    && request.resource.data.nowServing == getAfter(/databases/$(database)/documents/operations/current).data.nowServing
+    && request.resource.data.serviceStatus == getAfter(/databases/$(database)/documents/operations/current).data.serviceStatus
+    && request.resource.data.updatedAt == getAfter(/databases/$(database)/documents/operations/current).data.updatedAt
+    && request.resource.data.broadcasts == getAfter(/databases/$(database)/documents/operations/current).data.broadcasts;
+  }
+  match /operations/{id}{
+   allow read: if staff();
+   allow update: if staff() && id == 'current' && (admin() || staffOperations())
+    && request.resource.data.get('lastIssuedNumber',0) >= resource.data.get('lastIssuedNumber',0);
+   allow create: if admin() && id == 'current';
+   allow delete: if false;
+  }
+  match /audit/{id}{allow read: if staff();allow create: if staff() && request.resource.data.role == (admin() ? 'admin' : 'staff');allow update,delete:if false;}
   match /patients/{uid}{
    allow read: if owner(uid);
    allow create,update: if owner(uid) && request.resource.data.keys().hasOnly(['sms','appAlerts','language','largeText','caregiver'])
@@ -55,15 +84,37 @@ service cloud.firestore {
    allow delete: if owner(uid) || staff();
   }
   match /tickets/{uid}{allow read: if owner(uid)||staff();allow write: if staff();}
+  function ownMissedTicket(uid){return get(/databases/$(database)/documents/tickets/$(uid)).data.status == 'missed'
+   && request.resource.data.token == get(/databases/$(database)/documents/tickets/$(uid)).data.token;}
+  function recoveryData(uid){return request.resource.data.keys().hasOnly(['patientId','token','status','reason','requestedAt','updatedAt'])
+   && request.resource.data.patientId==uid && request.resource.data.status=='pending'
+   && request.resource.data.reason is string && request.resource.data.reason.size()>0 && request.resource.data.reason.size()<=500
+   && request.resource.data.requestedAt == request.time && request.resource.data.updatedAt == request.time && ownMissedTicket(uid);}
   match /recoveryRequests/{uid}{
    allow read: if owner(uid)||staff();
-   allow create: if owner(uid) && request.resource.data.keys().hasOnly(['patientId','token','status','requestedAt']) && request.resource.data.patientId==uid && request.resource.data.status=='pending' && request.resource.data.token==get(/databases/$(database)/documents/tickets/$(uid)).data.token;
-   allow update: if (staff() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']) && request.resource.data.status in ['approved','pending','rejected'])
-    || (owner(uid) && resource.data.status in ['approved','rejected'] && request.resource.data.status == 'pending'
-     && request.resource.data.keys().hasOnly(['patientId','token','status','requestedAt']) && request.resource.data.patientId == uid
-     && request.resource.data.token == get(/databases/$(database)/documents/tickets/$(uid)).data.token
-     && get(/databases/$(database)/documents/tickets/$(uid)).data.status == 'missed');
-   allow delete: if false;
+   allow create: if owner(uid) && recoveryData(uid);
+   allow update: if (staff() && resource.data.status == 'pending' && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']) && request.resource.data.status in ['approved','rejected'])
+    || (owner(uid) && resource.data.status == 'pending' && ownMissedTicket(uid)
+     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reason','updatedAt'])
+     && request.resource.data.reason is string && request.resource.data.reason.size()>0 && request.resource.data.reason.size()<=500 && request.resource.data.updatedAt==request.time)
+    || (owner(uid) && resource.data.status in ['approved','rejected'] && recoveryData(uid));
+   allow delete: if (owner(uid) && resource.data.status=='pending') || (staff() && resource.data.status in ['approved','rejected']);
+  }
+  function supportData(){return request.resource.data.keys().hasAll(['ownerId','ownerName','category','message','status','response','createdAt','updatedAt'])
+   && request.resource.data.keys().hasOnly(['ownerId','ownerName','category','message','status','response','createdAt','updatedAt'])
+   && request.resource.data.ownerName is string && request.resource.data.ownerName.size()>0 && request.resource.data.ownerName.size()<=80
+   && request.resource.data.category in ['Queue help','Directions','Accessibility','Other']
+   && request.resource.data.message is string && request.resource.data.message.size()>0 && request.resource.data.message.size()<=1000
+   && request.resource.data.response is string && request.resource.data.response.size()<=1000
+   && request.resource.data.status in ['open','resolved'] && request.resource.data.updatedAt==request.time;}
+  match /supportRequests/{id}{
+   allow read: if signedIn() && (resource.data.ownerId==request.auth.uid || staff());
+   allow create: if signedIn() && request.resource.data.ownerId==request.auth.uid && supportData()
+    && request.resource.data.status=='open' && request.resource.data.response=='' && request.resource.data.createdAt==request.time;
+   allow update: if supportData() && ((signedIn() && resource.data.ownerId==request.auth.uid && resource.data.status=='open'
+     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['category','message','updatedAt']))
+    || (staff() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['response','status','updatedAt']) && request.resource.data.response.size()>0));
+   allow delete: if signedIn() && (resource.data.ownerId==request.auth.uid || admin());
   }
   match /{document=**}{allow read,write:if false;}
  }

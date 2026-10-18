@@ -1,5 +1,5 @@
 import {doc,getDoc,runTransaction,serverTimestamp,type Firestore,type Timestamp} from 'firebase/firestore';
-import {signOut,type Auth,type User} from 'firebase/auth';
+import {signOut,deleteUser,EmailAuthProvider,reauthenticateWithCredential,type Auth,type User} from 'firebase/auth';
 import {registerAccount,signInAccount,renameAccount,type RegistrationFields,type RegistrationAccountType} from './authentication';
 import {claimRole,resolveAccountRole,validatePortal,type LoginPortal} from './account-access';
 
@@ -41,9 +41,11 @@ export async function registerWithProfile(auth:Auth,db:Firestore,fields:Registra
   throw Error('Your login account was created, but we could not save your profile. Check your connection, then sign in with the same email and password to finish setup. You can update your name from Account.');
  }
 }
-export async function signInWithProfile(auth:Auth,db:Firestore,email:string,password:string,portal:LoginPortal='standard'){
+export async function signInWithProfile(auth:Auth,db:Firestore,email:string,password:string,portal:LoginPortal='patient'){
  const result=await signInAccount(auth,email,password);
- try{const role=await resolveAccountRole(db,result.user,true);validatePortal(role,portal);return {...result,role,profile:await ensureUserProfile(db,result.user)};}
+ // A failed registration profile write can leave a recoverable Auth account.
+ // The staff portal preserves that requested type; approval is still required.
+ try{const [role,profile]=await Promise.all([resolveAccountRole(db,result.user,true),ensureUserProfile(db,result.user,undefined,portal==='staff'?'staff':undefined)]);validatePortal(role,portal,profile);return {...result,role,profile};}
  catch(error){await signOut(auth);throw error;}
 }
 export async function saveUserProfileName(db:Firestore,user:User,name:string){
@@ -52,4 +54,16 @@ export async function saveUserProfileName(db:Firestore,user:User,name:string){
  // a failed mirror update must not undo a successfully saved profile.
  try{await renameAccount(user,profile.fullName);}catch{/* Retry on a later edit. */}
  return profile;
+}
+export async function deletePatientAccount(db:Firestore,user:User,password:string){
+ if(!user.email||!password)throw Error('Enter your current password to delete your account.');
+ const profile=await ensureUserProfile(db,user),role=await resolveAccountRole(db,user,true);
+ if(role!=='patient'||profile.accountType==='staff')throw Error('Staff and administrator accounts must be managed by the hospital administrator.');
+ await reauthenticateWithCredential(user,EmailAuthProvider.credential(user.email,password));
+ await runTransaction(db,async tx=>{
+  const ticket=await tx.get(doc(db,'tickets',user.uid));
+  if(ticket.exists()&&['waiting','called','missed'].includes(ticket.data().status))throw Error('Ask staff to complete or cancel your active visit before deleting your account.');
+  tx.delete(doc(db,'users',user.uid));tx.delete(doc(db,'patients',user.uid));tx.delete(doc(db,'caregiverShares',user.uid));
+ });
+ try{await deleteUser(user);}catch{throw Error('Your private profile was removed, but your login could not be deleted. Check your connection and retry account deletion with the same credentials.');}
 }

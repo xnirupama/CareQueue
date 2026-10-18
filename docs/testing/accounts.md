@@ -1,3 +1,15 @@
+# Current account and CRUD verification ? 17 October 2026
+
+Patient, Staff and Administrator now use separate sign-in pages from the account chooser. Each portal verifies credentials and the effective account role/requested type. Staff accounts remain restricted while pending, suspended or revoked. An administrator's access changes are observed by the signed-in staff app; Firestore independently blocks revoked access, including legacy staff claims.
+
+The [CRUD inventory](../crud-components.md) covers all nine components and gives a demonstration sequence. Automated results: 33 source/domain tests, six rules groups, twelve Auth/profile groups and seven SDK CRUD persistence groups. Live temporary accounts also verified saved credentials, private profiles, caregiver consent, independent preference deletion and support create/read/edit/delete. Temporary test accounts and their own records were removed; no real email was sent.
+
+Patient account deletion requires the current password and a closed/no active visit, then removes Auth login and private profile/settings/sharing. Hospital history and support requests remain; patients can delete support requests separately. All new pages include mobile scrolling, safe areas, Back navigation and saving/error states. The database rules were deployed to carequeue-db90e on 17 October.
+
+Browser and phone interaction checks remain pending. See [current build metadata](../../artifacts/build-info.json) for the latest assembled APK rather than older hashes in the dated history below.
+
+---
+
 # Account and welcome-screen verification
 
 Implemented on 8 October 2026 as supplemental screens alongside the supplied 74 Figma states. These new illustrations and layouts are application extensions, not claimed original Figma exports.
@@ -51,4 +63,12 @@ These checks do not replace the five working-app usability sessions required by 
 
 Implementation references: [Firebase password authentication](https://firebase.google.com/docs/auth/web/password-auth), [Firebase account management](https://firebase.google.com/docs/auth/web/manage-users), [Expo Router authentication](https://docs.expo.dev/router/advanced/authentication/).
 
-Current role-enabled APK: signature, package, ARM64 runtime, archive CRC and registration/admin/approval bundle labels verified. SHA-256: `0426caaf9ce81a51f426caf86ba10db19edebc62a8787f4677401ea3293b2fa5`. Physical-device installation remains pending.
+Earlier 9 October role-enabled APK: signature, package, ARM64 runtime, archive CRC and registration/admin/approval bundle labels verified. SHA-256: `0426caaf9ce81a51f426caf86ba10db19edebc62a8787f4677401ea3293b2fa5`. Physical-device installation remains pending.
+
+## Back-navigation device checks
+
+Visible Back buttons are integrated into login, registration, password reset, administrator login, Account, staff approval status/review, all 74 reference screens, queue operations, scanner and token display. The common navigation helper returns through app history or replaces a direct link with an allowed parent. Back is disabled during page actions; it does not submit or replay a queue command. The visible Account control replaces the previous hidden header touch area. Welcome Back selects the previous slide, with a return action on the first slide when replayed.
+
+On a phone, verify login -> registration -> Back; administrator sign-in -> password reset -> Back; queue home -> Account -> operations -> Back; pending staff -> Account -> Back; administrator Account -> staff review -> Back; queue details/notifications -> Back; scanner -> Back; and token display -> Back. Open detail routes directly to check their parent fallback. After sign-out, OS Back and visible Back must not reopen protected account/admin/queue routes. Check safe-area spacing, small screens, text scaling, screen-reader announcements and the disabled Back state while saving. Physical-device results remain pending.
+
+Back-navigation APK verified on 10 October: package, ARM64 runtime, preview certificate/signature, archive CRC and the shared Back/Account bundle labels passed. SHA-256: `2f2fb3b17a11eb9aa81d3186177f53a3c8c45f03745b4279ecb7773f99961797`. Browser interaction and phone installation remain pending.

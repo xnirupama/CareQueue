@@ -6,7 +6,8 @@ import {applyCommand,patientsAhead} from '../src/services/domain.ts';
 import {commandForAction} from '../src/services/navigation.ts';
 const at='2026-10-05T12:00:00.000Z';
 test('patient recovery remains pending until an authorized staff decision',()=>{
- const pending=applyCommand(initialState(),'requestRecovery',{},at,'request');
+ const missed=initialState();missed.queue.find(q=>q.token===missed.myToken).status='missed';
+ const pending=applyCommand(missed,'requestRecovery',{'Reason':'Missed the call'},at,'request');
  assert.equal(pending.recovery,'pending');
  assert.throws(()=>applyCommand(pending,'approveRecovery'),/authorized staff/);
  const approved=applyCommand({...pending,role:'staff'},'approveRecovery',{},at,'approve');

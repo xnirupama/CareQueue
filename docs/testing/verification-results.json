@@ -2,21 +2,23 @@
   "checks": {
     "cloud_firestore_rules_deployment": {
       "outcome": "pass",
+      "execution_date": "2026-10-17",
       "project": "carequeue-db90e",
       "account": "nirupama.minipa@gmail.com",
-      "execution_date": "2026-10-09",
       "rules": "firebase/firestore.rules",
-      "evidence": "Firebase CLI compiled, uploaded and released rules including Patient/Staff account types and administrator-only staffAccess approvals; exit code 0"
+      "evidence": "Final role/CRUD and actor-role audit rules compiled/uploaded/released; Deploy complete."
     },
     "typecheck": "pass",
-    "lint": "pass",
+    "lint": "pass; no errors or warnings",
     "domain_source_tests": {
-      "pass": 25,
-      "fail": 0
+      "pass": 33,
+      "fail": 0,
+      "execution_date": "2026-10-17"
     },
     "firestore_rules_tests": {
       "pass": 6,
-      "fail": 0
+      "fail": 0,
+      "execution_date": "2026-10-17"
     },
     "platform_export": [
       "web",
@@ -25,214 +27,451 @@
     ],
     "auth_emulator": {
       "outcome": "pass",
-      "execution_date": "2026-10-09",
-      "flow_groups": 8,
+      "execution_date": "2026-10-17",
+      "flow_groups": 12,
       "source": "tests/auth-smoke.mjs",
-      "includes": "database registration, Patient/Staff selection, matching-credential login, authorized admin portal, staff approval/revocation, name synchronization, missing-profile migration and failed-write recovery"
+      "includes": "separate portals, staff approval/suspension/reactivation/revocation with legacy claims, actual password login, account/profile recovery and patient account deletion; private administrator bootstrap reset/login and Staff type recovery after a failed profile write"
     },
     "live_account_services": {
       "outcome": "pass",
-      "execution_date": "2026-10-09",
+      "execution_date": "2026-10-17",
       "project": "carequeue-db90e",
-      "registration_profile_persisted": true,
-      "matching_credentials_login": true,
       "temporary_account_profile_removed": true,
       "real_email_sent": false,
       "source": "tests/live-smoke.mjs",
-      "staff_account_type_persisted": true,
-      "pending_staff_queue_access_denied": true,
-      "self_approval_denied": true,
-      "unauthorized_admin_login_denied": true,
-      "temporary_staff_account_profile_removed": true,
-      "production_admin_created": false
+      "includes": "patient/staff registration and credential login, profile/password edits, isolated data, consent CRUD, independent preference deletion and support CRUD"
     },
     "android_account_build": {
       "outcome": "pass",
       "execution_date": "2026-10-09",
-      "sha256": "0426caaf9ce81a51f426caf86ba10db19edebc62a8787f4677401ea3293b2fa5",
+      "sha256": "2f2fb3b17a11eb9aa81d3186177f53a3c8c45f03745b4279ecb7773f99961797",
       "signature_verified": true,
       "mobile_account_profile_bundle_verified": true,
       "device_installation": "not verified",
       "patient_staff_admin_bundle_verified": true,
       "staff_approval_bundle_verified": true,
-      "archive_integrity_verified": true
+      "archive_integrity_verified": true,
+      "back_navigation_bundle_verified": true,
+      "verification_date": "2026-10-10"
+    },
+    "back_navigation": {
+      "execution_date": "2026-10-09",
+      "outcome": "typecheck, lint and existing 25 source/workflow tests passed",
+      "design_screen_count": 74,
+      "routes": [
+        "login",
+        "register",
+        "forgot-password",
+        "admin-login",
+        "account",
+        "staff-pending",
+        "staff-approvals",
+        "screen/[id]",
+        "manage",
+        "scan",
+        "display",
+        "onboarding"
+      ],
+      "history_and_parent_fallback_implemented": true,
+      "visible_account_control": true,
+      "device_interaction": "not verified",
+      "sources": [
+        "src/services/back-navigation.ts",
+        "src/components/BackButton.tsx"
+      ],
+      "android_apk_sha256": "2f2fb3b17a11eb9aa81d3186177f53a3c8c45f03745b4279ecb7773f99961797",
+      "android_bundle_verified": true,
+      "signature_verified": true,
+      "verification_date": "2026-10-10",
+      "browser_interaction": "not verified; no browser connection available"
+    },
+    "expo_go_launch": {
+      "execution_date": "2026-10-10",
+      "outcome": "pass; local manifest and Android development bundle",
+      "sdk": 57,
+      "port": 8082,
+      "launch_target": "expo",
+      "android_user_error": "Sorry about that; return to Expo home or reload the project",
+      "cause": "IPv4 port 8081 was served by EnterpriseDB HTTP while CareQueue Metro was reachable on IPv6 localhost",
+      "corrected_ipv4_manifest": true,
+      "corrected_deep_link": true,
+      "sdk_dependency_check": "pass; Dependencies are up to date",
+      "source_checks": {
+        "pass": 25,
+        "fail": 0
+      },
+      "tunnel_helper_installed_locally": true,
+      "android_bundle": {
+        "status": 200,
+        "contentType": "application/javascript; charset=UTF-8",
+        "bytes": 11026824,
+        "sha256": "014fd5ebeef53c3220d550c6bda22825529be9387a4177b93286b75691c61fff"
+      },
+      "phone_load": "user reports same generic error through corrected LAN URL; further network/Expo Go version diagnosis pending",
+      "tunnel_connection": "not started; automatic approval review requires user approval for exposing the development server through a public ngrok URL",
+      "windows_network_profile": "Public",
+      "windows_firewall_policy": "BlockInbound,AllowOutbound",
+      "node_application_firewall_rule": "none found",
+      "windows_firewall_modified": false
+    },
+    "sdk_crud_persistence": {
+      "outcome": "pass",
+      "execution_date": "2026-10-17",
+      "groups": 7,
+      "source": "tests/crud-smoke.mjs",
+      "includes": "actual application SDK queue, recovery, announcement, consent/settings and support CRUD; historical ticket deletion and immutable audit; forged administrator audit role rejected atomically",
+      "final_domain_recheck": "pass; seven groups after historical recovery and own-ticket state fixes"
+    },
+    "crud_inventory": "docs/crud-components.md",
+    "administrator_provisioning": {
+      "outcome": "pass",
+      "execution_date": "2026-10-17",
+      "selected_email": "nirupama.minipa@gmail.com",
+      "account_created": true,
+      "admin_claim_assigned": true,
+      "claim_verified_by_admin_sdk": true,
+      "explicit_user_approval": true,
+      "password_assigned": false,
+      "real_email_sent": false,
+      "first_password": "User uses Administrator sign in -> Forgot password and their private inbox"
+    },
+    "current_visual_check": "No browser connection available; physical phone/layout checks pending",
+    "platform_export_date": "2026-10-17",
+    "general_opd_initialization": {
+      "outcome": "pass",
+      "execution_date": "2026-10-17",
+      "documents": [
+        "operations/current",
+        "services/general-opd"
+      ],
+      "created_empty": true,
+      "verified_by_readback": true,
+      "demo_patients_inserted": false,
+      "source": "scripts/initialize-service.mjs"
+    },
+    "android_apk": {
+      "file": "artifacts/CareQueue-preview.apk",
+      "sha256": "88cd3260d8ceb2526184cc743db5937edc7f02ec38c1abcf72cea633db5f2ec1",
+      "bytes": 58775641,
+      "package": "lk.carequeue.mobile",
+      "version": "1.0.0",
+      "versionCode": 1,
+      "minSdk": 24,
+      "targetSdk": 36,
+      "architectures": [
+        "arm64-v8a"
+      ],
+      "signature_verified": true,
+      "signing": "Android Debug certificate; preview/test installation",
+      "device_installation": "not verified",
+      "build_result": "BUILD SUCCESSFUL",
+      "source_checks": {
+        "pass": 33,
+        "fail": 0
+      },
+      "rules_checks": {
+        "pass": 6,
+        "fail": 0
+      },
+      "build_date": "2026-10-17",
+      "auth_emulator_flow_groups": {
+        "pass": 12,
+        "fail": 0
+      },
+      "live_account_services": "pass; temporary patient/staff accounts and own profiles removed; no real email sent",
+      "new_account_and_welcome_bundle_verified": true,
+      "database_registration_login": "pass; live user profile creation and original-credential login verified; temporary records removed",
+      "mobile_account_profile_bundle_verified": true,
+      "patient_staff_admin_bundle_verified": true,
+      "staff_approval_bundle_verified": true,
+      "archive_integrity_verified": true,
+      "signing_certificate_sha256": "fac61745dc0903786fb9ede62a962b399f7348f0bb6f899b8332667591033b9c",
+      "build_duration": "13m 10s",
+      "staff_registration": "pass; requested staff type saved and queue access denied until approved",
+      "administrator_access": "Provisioned and Admin SDK verified for nirupama.minipa@gmail.com with explicit owner approval; user sets first password privately through Forgot password",
+      "back_navigation_bundle_verified": true,
+      "visible_account_control_bundle_verified": true,
+      "verification_date": "2026-10-17",
+      "sdk_crud_persistence_groups": {
+        "pass": 7,
+        "fail": 0
+      },
+      "current_source_files_verified": {
+        "src/services/user-profile.ts": true,
+        "src/services/firebase.ts": true,
+        "src/services/store.tsx": true,
+        "src/services/domain.ts": true,
+        "src/services/account-access.ts": true,
+        "src/app/_layout.tsx": true,
+        "src/app/account.tsx": true,
+        "src/components/RoleLogin.tsx": true,
+        "src/components/SignInChooser.tsx": true,
+        "src/components/WorkspaceUI.tsx": true,
+        "src/app/patient-records.tsx": true,
+        "src/app/recovery.tsx": true,
+        "src/app/caregivers.tsx": true,
+        "src/app/preferences.tsx": true,
+        "src/app/support.tsx": true,
+        "src/app/staff-notes.tsx": true,
+        "src/app/staff-approvals.tsx": true,
+        "src/app/announcements.tsx": true
+      },
+      "crud_feature_labels_verified": [
+        "Patient sign in",
+        "Staff sign in",
+        "Administrator sign in",
+        "Delete closed registration",
+        "Create recovery request",
+        "Delete consent and revoke sharing",
+        "Delete saved preferences and reset",
+        "Create device-local note",
+        "Create support request",
+        "Create announcement",
+        "Revoke staff access",
+        "Permanently delete my account"
+      ],
+      "account_portals": [
+        "patient",
+        "staff",
+        "admin"
+      ],
+      "crud_components": 9,
+      "general_opd": "Initialized empty and verified; no demo patients inserted",
+      "visual_testing": "browser unavailable; physical-device testing pending",
+      "shell_wrapper_note": "The outer PowerShell wrapper surfaced a JAVA_TOOL_OPTIONS stderr notice. Gradle returned 0 and the completed APK passed source, archive and signature verification."
     }
   },
   "test_cases": [
     {
+      "case": "account validation accepts existing sign-in passwords while requiring stronger matching registration passwords",
+      "source": "tests/authentication.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-17",
+      "kind": "domain/source automated check"
+    },
+    {
+      "case": "unknown users and wrong passwords receive the same sign-in message",
+      "source": "tests/authentication.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-17",
+      "kind": "domain/source automated check"
+    },
+    {
+      "case": "registration requires Patient or Staff and cannot request administrator access",
+      "source": "tests/authentication.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-17",
+      "kind": "domain/source automated check"
+    },
+    {
+      "case": "administrator portal rejects ordinary roles and standard portal directs administrators to their own login",
+      "source": "tests/authentication.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-17",
+      "kind": "domain/source automated check"
+    },
+    {
+      "case": "all three portals accept only their account type, including pending staff",
+      "source": "tests/authentication.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-17",
+      "kind": "domain/source automated check"
+    },
+    {
       "case": "FT01 first live registration starts at A001 and cancelled tokens are not reused",
       "source": "tests/completion.test.mjs",
       "outcome": "pass",
-      "execution_date": "2026-10-07",
+      "execution_date": "2026-10-17",
       "kind": "domain/source automated check"
     },
     {
       "case": "FT02 patients ahead follows clinical call order and excludes missed/completed/cancelled visits",
       "source": "tests/completion.test.mjs",
       "outcome": "pass",
-      "execution_date": "2026-10-07",
+      "execution_date": "2026-10-17",
       "kind": "domain/source automated check"
     },
     {
       "case": "FT03 edit changes only selected patient and retains account link and token",
       "source": "tests/completion.test.mjs",
       "outcome": "pass",
-      "execution_date": "2026-10-07",
+      "execution_date": "2026-10-17",
       "kind": "domain/source automated check"
     },
     {
       "case": "FT04 missed/completed transitions require a called visit; cancellation preserves history",
       "source": "tests/completion.test.mjs",
       "outcome": "pass",
-      "execution_date": "2026-10-07",
+      "execution_date": "2026-10-17",
       "kind": "domain/source automated check"
     },
     {
       "case": "FT05 recovery approval and rejection have distinct states and preserve terminal visits",
       "source": "tests/completion.test.mjs",
       "outcome": "pass",
-      "execution_date": "2026-10-07",
+      "execution_date": "2026-10-17",
       "kind": "domain/source automated check"
     },
     {
       "case": "FT06 service changes stop calls; only admin changes availability or withdraws messages",
       "source": "tests/completion.test.mjs",
       "outcome": "pass",
-      "execution_date": "2026-10-07",
+      "execution_date": "2026-10-17",
       "kind": "domain/source automated check"
     },
     {
       "case": "FT07 patient role cannot mutate operational records",
       "source": "tests/completion.test.mjs",
       "outcome": "pass",
-      "execution_date": "2026-10-07",
+      "execution_date": "2026-10-17",
       "kind": "domain/source automated check"
     },
     {
       "case": "FT08 wait report derives times from recorded calls and omits missing samples",
       "source": "tests/completion.test.mjs",
       "outcome": "pass",
-      "execution_date": "2026-10-07",
+      "execution_date": "2026-10-17",
       "kind": "domain/source automated check"
     },
     {
       "case": "FT09 manual notes require content, remain device pending until reconciliation, and retry is safe",
       "source": "tests/completion.test.mjs",
       "outcome": "pass",
-      "execution_date": "2026-10-07",
+      "execution_date": "2026-10-17",
       "kind": "domain/source automated check"
     },
     {
       "case": "FT10 personal preferences, consent and recovery requests do not claim a fresh staff queue update",
       "source": "tests/completion.test.mjs",
       "outcome": "pass",
-      "execution_date": "2026-10-07",
+      "execution_date": "2026-10-17",
       "kind": "domain/source automated check"
     },
     {
       "case": "FT11 full application state cannot leak role or patient queue data into preference writes",
       "source": "tests/completion.test.mjs",
       "outcome": "pass",
-      "execution_date": "2026-10-07",
+      "execution_date": "2026-10-17",
       "kind": "domain/source automated check"
     },
     {
       "case": "FT12 raster filenames match their native resource signatures",
       "source": "tests/completion.test.mjs",
       "outcome": "pass",
-      "execution_date": "2026-10-07",
+      "execution_date": "2026-10-17",
       "kind": "domain/source automated check"
     },
     {
       "case": "FT13 called and ended visits do not show a waiting estimate or ask for another call",
       "source": "tests/completion.test.mjs",
       "outcome": "pass",
-      "execution_date": "2026-10-07",
+      "execution_date": "2026-10-17",
+      "kind": "domain/source automated check"
+    },
+    {
+      "case": "deleted registration numbers stay issued and active registrations cannot be deleted",
+      "source": "tests/crud.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-17",
+      "kind": "domain/source automated check"
+    },
+    {
+      "case": "recovery CRUD requires a missed ticket and only pending requests can be changed or withdrawn",
+      "source": "tests/crud.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-17",
+      "kind": "domain/source automated check"
+    },
+    {
+      "case": "announcement editing retains identity and publication date; staff cannot edit or delete",
+      "source": "tests/crud.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-17",
+      "kind": "domain/source automated check"
+    },
+    {
+      "case": "pending staff notes support editing and deletion without changing staff queue freshness",
+      "source": "tests/crud.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-17",
+      "kind": "domain/source automated check"
+    },
+    {
+      "case": "resetting preferences preserves independent caregiver consent and staff announcements",
+      "source": "tests/crud.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-17",
+      "kind": "domain/source automated check"
+    },
+    {
+      "case": "staff publication and reconciliation cannot reopen an unavailable service",
+      "source": "tests/crud.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-17",
+      "kind": "domain/source automated check"
+    },
+    {
+      "case": "deleting an old closed visit preserves a newer recovery request for the same account",
+      "source": "tests/crud.test.mjs",
+      "outcome": "pass",
+      "execution_date": "2026-10-17",
       "kind": "domain/source automated check"
     },
     {
       "case": "patient recovery remains pending until an authorized staff decision",
       "source": "tests/workflows.test.mjs",
       "outcome": "pass",
-      "execution_date": "2026-10-07",
+      "execution_date": "2026-10-17",
       "kind": "domain/source automated check"
     },
     {
       "case": "registration is atomic, validated and retry safe",
       "source": "tests/workflows.test.mjs",
       "outcome": "pass",
-      "execution_date": "2026-10-07",
+      "execution_date": "2026-10-17",
       "kind": "domain/source automated check"
     },
     {
       "case": "clinical priority changes the next call and records its reason",
       "source": "tests/workflows.test.mjs",
       "outcome": "pass",
-      "execution_date": "2026-10-07",
+      "execution_date": "2026-10-17",
       "kind": "domain/source automated check"
     },
     {
       "case": "admin publication requires verification, navigation does not repeat mutations",
       "source": "tests/workflows.test.mjs",
       "outcome": "pass",
-      "execution_date": "2026-10-07",
+      "execution_date": "2026-10-17",
       "kind": "domain/source automated check"
     },
     {
       "case": "current patient is included in the people ahead and caregiver can be revoked",
       "source": "tests/workflows.test.mjs",
       "outcome": "pass",
-      "execution_date": "2026-10-07",
+      "execution_date": "2026-10-17",
       "kind": "domain/source automated check"
     },
     {
       "case": "all current design destinations and original assets are available locally",
       "source": "tests/workflows.test.mjs",
       "outcome": "pass",
-      "execution_date": "2026-10-07",
+      "execution_date": "2026-10-17",
       "kind": "domain/source automated check"
     },
     {
       "case": "all 474 current prototype connections resolve to rendered controls",
       "source": "tests/workflows.test.mjs",
       "outcome": "pass",
-      "execution_date": "2026-10-07",
+      "execution_date": "2026-10-17",
       "kind": "domain/source automated check"
     },
     {
       "case": "primary and secondary buttons retain their original visible label",
       "source": "tests/workflows.test.mjs",
       "outcome": "pass",
-      "execution_date": "2026-10-07",
+      "execution_date": "2026-10-17",
       "kind": "domain/source automated check"
-    },
-    {
-      "case": "account validation accepts existing sign-in passwords while requiring stronger matching registration passwords",
-      "source": "tests/authentication.test.mjs",
-      "outcome": "pass",
-      "execution_date": "2026-10-08",
-      "kind": "account validation automated check"
-    },
-    {
-      "case": "unknown users and wrong passwords receive the same sign-in message",
-      "source": "tests/authentication.test.mjs",
-      "outcome": "pass",
-      "execution_date": "2026-10-08",
-      "kind": "account validation automated check"
-    },
-    {
-      "case": "registration requires Patient or Staff and cannot request administrator access",
-      "source": "tests/authentication.test.mjs",
-      "outcome": "pass",
-      "execution_date": "2026-10-09",
-      "kind": "account validation automated check"
-    },
-    {
-      "case": "administrator portal rejects ordinary roles and standard portal directs administrators to their own login",
-      "source": "tests/authentication.test.mjs",
-      "outcome": "pass",
-      "execution_date": "2026-10-09",
-      "kind": "account validation automated check"
     }
   ],
   "limitations": [
@@ -244,34 +483,76 @@
     "main_pages": 23,
     "total_pages": 29,
     "rendered_pages": 29,
-    "visual_review": "Passed; new deviation/test/reference pages inspected after regeneration"
+    "visual_review": "Passed; new deviation/test/reference pages inspected after regeneration",
+    "current_pdf_present": false,
+    "note": "Page review above is historical; the generated PDF was removed and was not recreated for this app extension."
   },
   "source_hashes": {
-    "src/services/domain.ts": "d2b9c3f2d53d118005d0a492074a807e9a19c92dedec1584875ff98449268616",
-    "src/services/firebase.ts": "9521a8c1068703957987a264b1c0a68c0e48a5ccd94170d193470951f9380bb6",
-    "firebase/firestore.rules": "a9809f567abc4b1f98905d1e86f7c1845538c658a183005edac4586773ee4e12",
-    "tests/completion.test.mjs": "0a3f295c5600b0f8f95907de5bdb18866c0f2f7c847c3faadfeba14c6971fe63",
-    "tests/rules-smoke.mjs": "ce2d489f41299ad28a2342672445eee39287b3ceac0eed4a797cc023290575f1",
+    "src/services/domain.ts": "51d7a5012c18d7c5b26c3a6a1d7acd0a22865db3f5e5c4feec2bbcfc9c7b04ee",
+    "src/services/firebase.ts": "498dc42bab30d00fd3743683cde551035e0ca73cee9f278f3b9279ff54be9c30",
+    "firebase/firestore.rules": "8670c1f892f557598efb6d255e4511e3fa1902c3cd4d5b3c61a315183df8aa01",
+    "tests/completion.test.mjs": "a33defed42a9ded01c3feac1b3c2e8ec894df5a71422ae25b62975be24bec8e3",
+    "tests/rules-smoke.mjs": "5631740762c85da803c429230dd0b8dd4cb25f7e46bb3f3e86cbeef0b738d22c",
     "src/services/authentication.ts": "0fc5e7ba6da9c35bca76cb215fed4cd0fdd2d2b86da0f19dd002964a8a06766a",
-    "src/services/store.tsx": "541b58f9bb7c72b465903ad0736cc10bc1c79d82a76ea005fcfccc17954e457b",
-    "src/app/_layout.tsx": "c1b855f219ea66f05a58e9062ab7e121927b81400650155c49a3ad78762a514d",
-    "src/app/account.tsx": "de109d4e3756a412055a1575f9648e5b0250c9e8875779f9188143f2fec8616c",
-    "src/app/login.tsx": "a3bcce0c03cb009fd016a53e85737447e958dfe7e7062d656c13278df0424a64",
-    "src/app/register.tsx": "36eabb9d7eacbad2d041d3d0bcf8f764cc259c5a94d038ebf2d0e21e5e703d53",
-    "src/app/forgot-password.tsx": "3260601f84aaf9f29b9853a6326ba0d1699379e57417dea938ad980676810b36",
-    "src/app/onboarding.tsx": "cb5242e4a3c7b4e3bcbfa93e79503555d07765eb8bd7946db6dc81b0629ac289",
-    "src/components/AccountUI.tsx": "22eb8b25f750c64e4829b35f5b7bbd5962c7deddd925c69978f36425a9ca95cd",
+    "src/services/store.tsx": "a03e3119e264d5501c3f1f4f47f60bfa3a471103a9775fa3fb148e70afb73c42",
+    "src/app/_layout.tsx": "ce84c3efa14041f7d9a2adb4fc9bcbdea90cd2fa9b3a68598e2af7ea9a9f9940",
+    "src/app/account.tsx": "c6f0421f7c81841f1ba07fd92975eb9d0a687760e42a59d143714b0bf9c5265f",
+    "src/app/login.tsx": "ec14c569977b2d71da138339eaf062f782192973409bdb7750ec54564514a796",
+    "src/app/register.tsx": "a28180ef067363173ae9c9c28ed22dcf2719ac9bd7ec17a636224e20f01bf30e",
+    "src/app/forgot-password.tsx": "85f5ba90f90f5ac86f95e4f27c9ef7dc45ce7893128fb1f27e7bf6da8a0f6f8e",
+    "src/app/onboarding.tsx": "fe19f15fe20a9e188ef8e296fc460eaa606c65a1e43be16110e8a163e225d18b",
+    "src/components/AccountUI.tsx": "80ed8fc9cf3949867a2c2afa1dcb303906f375f28f82537824957dc5c77afe51",
     "src/components/WelcomeArt.tsx": "40f78b8b3bf4c007126681136cd1adab675f08217de686d78f8f1ad0f2d51eae",
-    "tests/authentication.test.mjs": "831e1aad115693bcf9dd6e4627d2941b3eb80ab96129f51e5e5368f9fc8a93dd",
-    "tests/auth-smoke.mjs": "75b20e5dfd9c77ca167807a4972ee30fa2b2a259882d4d3737d99e39fd698954",
-    "tests/live-smoke.mjs": "420d840e06f46e65fe38e024879b9b330f3dccca2068585e86f4b0bc8c4ece44",
-    "src/services/user-profile.ts": "e7d0f0f73723451a9bfb07a4e5ab0f6bae0cf941d10c44e972e5d9f351b8fb6e",
-    "src/services/account-access.ts": "81e220c3fd65c44a363a3405c8baa973cc145bb746f59d37c270bcbf19ad5e54",
-    "src/app/admin-login.tsx": "2004b2ca5b4e424bd2bc4801fa29cadf009157e49bef30dc36e5c7a405da5755",
-    "src/app/staff-pending.tsx": "0c3efdeb7819a72ae19d6ab18d20ee055c81d647457ee3c12c3024f57e5ac9f4",
-    "src/app/staff-approvals.tsx": "bddd3cd49698fea6fa4836aca70b8fe995323a66a52607bbf558e6c5e6e69858",
+    "tests/authentication.test.mjs": "4aaccb7acb3b3ac435e88eba84b3898904fa73d3e60b5e01d0cc67b5cd7ef9b9",
+    "tests/auth-smoke.mjs": "440c2985477f995b206bac14f3e9801a3996530b46fd8ba12c3b1bbe2ea63066",
+    "tests/live-smoke.mjs": "3990c327a59432acd4ea4661d23ce8ae67a4342dd5c7d79a9ee6933e4bfb9f59",
+    "src/services/user-profile.ts": "cbd5795236c556c45b688e8fcb09e67b553e1708e6f02060c271316969a37d8a",
+    "src/services/account-access.ts": "3b12f6def4b64a5c7514ef9f6f36fb7763a8ae3e2fd3097d2d3aafc97c48590b",
+    "src/app/admin-login.tsx": "d0bb04e79f2f1d5c34cc22781377290f0b880d7abe2ef87818707032e9fd821b",
+    "src/app/staff-pending.tsx": "4adf62ea5f5c31503ecd36b8d2a72485a4d9da3fa5475d6afde6c91c67fdb617",
+    "src/app/staff-approvals.tsx": "63f31acab383b55728d42206bde0f2d235b025e70a553e901dfa1017a7906414",
     "src/app/index.tsx": "daca14c2b02201df08015d6638c1579acd5d2afae5e66527c0d84a0ca92c0a3b",
-    "src/app/screen/[id].tsx": "d79e239b7f3623ac51ff69f2228a4a13bf83a1a0aeae1f41c7d742708b475fb8",
-    "scripts/admin.mjs": "9c589fd92846017907abb956365218c102384726556ec9175e9eb7ac78306080"
+    "src/app/screen/[id].tsx": "9089ad5a74583484c3c1e4ed39132cfbd3aab9489b84349a1e7f00b2cc437d47",
+    "scripts/admin.mjs": "a2171f5312875ff3918e2867c3afd39811a5b9e1b0db4f03e97f2361e9b4c533",
+    "src/services/back-navigation.ts": "0f489ba828b673196eda0963601b04c8dda45fffa6b128dc282e2a2219b5b479",
+    "src/components/BackButton.tsx": "cb1b4e22ba95cb05cf84966f4a646a96cf80d8857b20453b11b119b541138ebc",
+    "src/app/manage.tsx": "1781f1e361303029d3dbd6c29d6187d05489fd9d721ea9ff38ff33b93daf23f1",
+    "src/app/scan.tsx": "350be39ce2d7ad0738edbde978264f8f2a9b2dd52d63fecebcffa4e17051dac3",
+    "src/app/display.tsx": "eaf4d51250168db7ceeef7394794af5a260a442c67b0a8df646f780fa53c96cf",
+    "package.json": "fda1a414fb042c058981a0f22782371e28384c569ceba84dcb6b8110f4835ddd",
+    "package-lock.json": "cd7760e35f5b1731e24e07ae73fbbc4fcfe2da2aa458c6aada35c386898fb376",
+    "src/components/designStyles.ts": "5415da2bb45cbc043649d979f964b73bf0c42291192819e1b05357bfd52b25ab",
+    "src/data/assets.ts": "b39557bc8f6b114b0216cf11d96fe3402d851574bac86647ea6b2b05962560f5",
+    "src/data/seed.ts": "718cc87d528fc4b8fa3284b9e5318c969740cd515caae8d44fb978cffa1feed0",
+    "src/data/types.ts": "48f2237d267acb3870818edde87eb6ca0a64a39a650348e22ef7439e7370fd71",
+    "src/services/designNavigation.ts": "536d006790d5c6dae50fd6f464d7e2d7a3032d67797c5b1367ea0f27c6106708",
+    "src/services/navigation.ts": "912803dc4c8785a1ec0cf6ed2e7dd82d2b18fd5fed9f34a25f9d345fba590f44",
+    "src/services/patient-records.ts": "8c6e8c74b023bbfbb97632509a6af76573d6a8e83c29602c02736eee17930424",
+    "src/services/queue-operations.ts": "b6406626214bdd38a94ac8e9ffbcfc58f75160c49cb2d7ce10125cf93b2e9276",
+    "src/services/report.ts": "606bd5d1aa730480a647f3109a131e29a356443e3efe3b4c172ca98651d8003a",
+    "src/services/scan.ts": "2539cff51b6ef6bff65c89786448e9e411c6d7369e9db8ba2f5ab67ecb6ed1df",
+    "src/services/support.ts": "cf76a33953a8cccd38f068bc99ddc722a130fb08e0712b21caf667363f120acf",
+    "src/app/announcements.tsx": "3fcd76adb626319dd1d56525018f63ba072857652840184f4109d441cb5b0159",
+    "src/app/caregivers.tsx": "916d6791709a8668dffb9d7c1fa00e6b2185b141cec7ef411af551c3173140df",
+    "src/app/patient-login.tsx": "c2b9be18e0c4f302237f7f88860874163fa1aa91438e1c15182e63275c7b1b17",
+    "src/app/patient-records.tsx": "128a8124cf6b6e7b759f7e02bdd0267861295a497f54623e9048416cc230e2d8",
+    "src/app/preferences.tsx": "4aadfc787296bb7cafa29eff4e247f35787f5a518ed45d9ac45680e62dff3b69",
+    "src/app/recovery.tsx": "362e0915ffb6b02e639209c8fabcadf6468d9325ec793974812838bcddf33906",
+    "src/app/staff-login.tsx": "a0a047a789a43a80df0e087934bd49494ec1d1ee64ed6741b90888bbbc60089e",
+    "src/app/staff-notes.tsx": "bbdc241acd04f1ad07c43880955186e0c79a8ecd45a38c39f287bf2021a751ff",
+    "src/app/support.tsx": "a2306f1c6858a6faae38d667a1d1850e35694a76cf4f24767e4bba80e914adc0",
+    "src/components/DesignRenderer.tsx": "40f0f2f556f59eae1d99643f0ac1944f2ae7da3a0ec750f98d4e0a68f0531edb",
+    "src/components/RoleLogin.tsx": "042970abda2440f471b34b42f545100c328f30cff4c9d1caa061efc46a06a605",
+    "src/components/SignInChooser.tsx": "dba1b6e11f47abe762f9d91807a754bb36122ce168d8b71aebb625873503981f",
+    "src/components/WorkspaceUI.tsx": "3bd0099993e5ccde8ce19b1e110864536ee1efda7da51ef61cce3fe4c4381fb1",
+    "tests/crud-smoke.mjs": "d626506444bcd3012679f1835d203107cb97017219ad6762b66f532db13b0c8c",
+    "tests/crud.test.mjs": "93e87312ab62579c89f7cea612e99b5203b9397b2e46ffc58a4c40733c2a4e6a",
+    "tests/workflows.test.mjs": "4109b39986888308aa5ee131a296ef5c46c1fe9d3a9b77a9935f25ac43fc2d4a",
+    "scripts/download-assets.mjs": "a02873fe241b6c2a83921b36d8582cc6a2c852256a6ee244a2909531e9128c7c",
+    "scripts/import-design.mjs": "d5de0934a89e5d5b47217198c5fbfdaf64aa955ae171400a2ee1d57230556415",
+    "scripts/initialize-service.mjs": "5e86385c8898214a0efee72da33242b301f02578f4df670522fc19a733873c42",
+    "scripts/inline-svg.mjs": "e2df4fc806e211ec7be5c07f05753f810d778c2c046affb8abaab4c9c2f69da2",
+    "scripts/package-icon.mjs": "a7761fb723df3498edfb79dca4e49d0f41928fc33b72cb5d4ff5f97e193c3a68",
+    "scripts/package-submission.py": "356d76fe1952f17911397f07794fcbc8e1ff9018d7b15edf321be5b53c4994e7"
   }
 }

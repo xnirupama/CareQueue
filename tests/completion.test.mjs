@@ -51,8 +51,8 @@ test('FT09 manual notes require content, remain device pending until reconciliat
 });
 
 test('FT10 personal preferences, consent and recovery requests do not claim a fresh staff queue update',()=>{
- const s=initialState();
- for(const [command,fields] of [['preferences',{}],['caregiver',{'Caregiver name':'Fictional caregiver','Phone number':'0771234567'}],['revokeCaregiver',{}],['requestRecovery',{}]])assert.equal(applyCommand(s,command,fields,at,command).updatedAt,s.updatedAt);
+ const s=initialState();s.queue.find(q=>q.token===s.myToken).status='missed';
+ for(const [command,fields] of [['preferences',{}],['caregiver',{'Caregiver name':'Fictional caregiver','Phone number':'0771234567'}],['revokeCaregiver',{}],['requestRecovery',{'Reason':'Missed the call'}]])assert.equal(applyCommand(s,command,fields,at,command).updatedAt,s.updatedAt);
 });
 
 test('FT11 full application state cannot leak role or patient queue data into preference writes',()=>{

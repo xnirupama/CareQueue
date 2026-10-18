@@ -1,10 +1,14 @@
 import {useState} from 'react';
 import {View,Text,TextInput,Pressable,ScrollView,StyleSheet} from 'react-native';
 import {Redirect,useRouter} from 'expo-router';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import {BackButton} from '../components/BackButton';
+import {navigateBack} from '../services/back-navigation';
 import {useStore} from '../services/store';
 import {patientsAhead,waitEstimate,operationalMetrics,orderedQueue} from '../services/domain';
 import type {Command} from '../services/domain';
 import {exportReport,exportSlip} from '../services/report';
+import {WorkspaceLinks} from '../components/WorkspaceUI';
 import {linkTicket} from '../services/firebase';
 
 export default function Manage(){
@@ -21,11 +25,12 @@ export default function Manage(){
  const review=(command:Command,fields:Record<string,string>,summary:string)=>{setFeedback('');setPending({command,fields,summary});};
  const selected=state.queue.find(q=>q.token===token);
  const status=state.ticketStatus||state.queue.find(q=>q.token===state.myToken)?.status;
- return <ScrollView contentContainerStyle={s.page} keyboardShouldPersistTaps="handled">
+ return <SafeAreaView style={{flex:1,backgroundColor:'#f8fafc'}}><ScrollView contentContainerStyle={s.page} keyboardShouldPersistTaps="handled">
+  <BackButton onPress={()=>navigateBack(router,'/')} disabled={busy}/>
   <Text style={s.brand}>CareQueue</Text><Text style={s.heading}>{staff?'Queue operations':'My visit and settings'}</Text>
   <Text style={[s.text,textStyle]}>{isLive?'Connected Firebase account':'Demo · records saved on this device'} · {state.role}</Text>
   {button('Return to designed screens',()=>router.replace('/'))}
-  {button('Account',()=>router.push('/account'))}
+  {button('Account',()=>router.push('/account'))}<WorkspaceLinks/>
   {!connected?<Text accessibilityRole="alert" style={[s.warning,textStyle]}>Connection unavailable. Queue values are last known information. Ask the registration counter for assistance. Staff can record a manual note below.</Text>:null}
   {feedback?<Text accessibilityRole="alert" style={[s.warning,textStyle]}>{feedback}</Text>:null}
   {pending?<View style={s.card}><Text style={s.heading}>Review action</Text><Text style={[s.text,textStyle]}>{pending.summary}</Text>{button('Confirm action',()=>run(async()=>{await execute(pending.command,pending.fields);setPending(null);} ))}{button('Cancel review',()=>setPending(null))}</View>:null}
@@ -37,7 +42,7 @@ export default function Manage(){
    {status==='called'?<Text accessibilityRole="alert" style={[s.warning,textStyle]}>Your turn. Follow staff instructions at Room 04.</Text>:null}
    {status==='cancelled'?<Text accessibilityRole="alert" style={[s.warning,textStyle]}>Your visit was cancelled. Ask the registration counter for the next step.</Text>:null}
    <Text style={[s.text,textStyle]}>Recovery: {state.recovery}</Text>
-   {button('Request staff recovery review',()=>review('requestRecovery',{},'Request staff review. This does not restore a queue position automatically.'))}
+   {button('Request staff recovery review',()=>router.push('/recovery'))}
    </View>
    <View style={s.card}><Text style={s.title}>Preferences</Text>{button(`Large text: ${state.largeText?'on':'off'}`,()=>update({largeText:!state.largeText}))}{button(`App alerts: ${state.appAlerts?'on':'off'}`,()=>update({appAlerts:!state.appAlerts}))}{button(`SMS preference: ${state.sms?'on':'off'}`,()=>update({sms:!state.sms}))}<Text style={[s.text,textStyle]}>In-app queue messages work while connected. SMS and background push delivery are not connected.</Text>{button('Save preferences',()=>run(()=>execute('preferences')))}</View>
    <View style={s.card}><Text style={s.title}>Caregiver consent</Text><Text style={[s.text,textStyle]}>{state.caregiver?`Saved recipient: ${state.caregiver.name}`:'No caregiver consent saved'}. Consent covers queue/service updates only. A caregiver with a CareQueue account can view token, visit status and position only after you link their account ID. Confirm sharing again for each newly issued visit.</Text>{field('Caregiver name',name,setName)}{field('Caregiver phone',phone,setPhone)}{field('Caregiver account ID (optional)',caregiverUid,setCaregiverUid)}{button('Review caregiver consent',()=>review('caregiver',{'Caregiver name':name,'Phone number':phone,'Caregiver account ID':caregiverUid},`Save consent for ${name}, ${phone}, for queue and service updates. Account: ${caregiverUid||'consent only'}.`))}{state.caregiver?button('Revoke caregiver consent',()=>review('revokeCaregiver',{},'Remove the saved caregiver consent.')):null}</View>
@@ -57,6 +62,6 @@ export default function Manage(){
    <View style={s.card}><Text style={s.title}>Audit history</Text>{state.audit.slice(0,30).map(e=><Text key={e.id} style={[s.text,textStyle]}>{e.at} · {e.role} · {e.action} {e.detail||''}</Text>)}</View>
   </>}
   {button('Open token display',()=>router.push('/display'))}
- </ScrollView>;
+ </ScrollView></SafeAreaView>;
 }
-const s=StyleSheet.create({page:{padding:24,paddingTop:60,paddingBottom:60,gap:16,backgroundColor:'#f8fafc',maxWidth:800,width:'100%',alignSelf:'center'},brand:{fontFamily:'Inter_700Bold',color:'#09386b',fontSize:22},heading:{fontFamily:'Inter_700Bold',fontSize:26,color:'#141f2b'},title:{fontFamily:'Inter_700Bold',fontSize:21,color:'#09386b'},card:{backgroundColor:'white',padding:20,borderRadius:16,borderWidth:1,borderColor:'#d3e1eb',gap:14},text:{fontFamily:'Inter_400Regular',color:'#141f2b'},label:{fontFamily:'Inter_600SemiBold',color:'#52697a'},field:{gap:8},input:{borderWidth:1,borderColor:'#d3e1eb',borderRadius:12,padding:14,backgroundColor:'#f8fafc',color:'#141f2b',minHeight:52},button:{padding:16,minHeight:52,backgroundColor:'#09386b',borderRadius:12,alignItems:'center'},white:{fontFamily:'Inter_600SemiBold',color:'white'},warning:{backgroundColor:'#fff7e2',color:'#7a4300',padding:16,borderRadius:12},record:{padding:16,borderWidth:1,borderColor:'#d3e1eb',borderRadius:12,minHeight:52}});
+const s=StyleSheet.create({page:{padding:24,paddingBottom:60,gap:16,backgroundColor:'#f8fafc',maxWidth:800,width:'100%',alignSelf:'center'},brand:{fontFamily:'Inter_700Bold',color:'#09386b',fontSize:22},heading:{fontFamily:'Inter_700Bold',fontSize:26,color:'#141f2b'},title:{fontFamily:'Inter_700Bold',fontSize:21,color:'#09386b'},card:{backgroundColor:'white',padding:20,borderRadius:16,borderWidth:1,borderColor:'#d3e1eb',gap:14},text:{fontFamily:'Inter_400Regular',color:'#141f2b'},label:{fontFamily:'Inter_600SemiBold',color:'#52697a'},field:{gap:8},input:{borderWidth:1,borderColor:'#d3e1eb',borderRadius:12,padding:14,backgroundColor:'#f8fafc',color:'#141f2b',minHeight:52},button:{padding:16,minHeight:52,backgroundColor:'#09386b',borderRadius:12,alignItems:'center'},white:{fontFamily:'Inter_600SemiBold',color:'white'},warning:{backgroundColor:'#fff7e2',color:'#7a4300',padding:16,borderRadius:12},record:{padding:16,borderWidth:1,borderColor:'#d3e1eb',borderRadius:12,minHeight:52}});

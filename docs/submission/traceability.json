@@ -50,18 +50,18 @@
       "requirement": "Limited authorized caregiver updates",
       "prototype": "P07/P08; shared visit extension",
       "nodes": "16:122;16:154;153:919",
-      "implementation": "caregiverShares grant/read/revoke; manage.tsx",
+      "implementation": "patient-records.ts caregiver CRUD; /caregivers and shared visit listeners",
       "tests": "W05; caregiver rules case; MT05",
-      "status": "Implemented in source; rule rollout and multi-account test pending"
+      "status": "Implemented; rules deployed and emulator/live persistence verified; physical multi-account device check pending"
     },
     {
       "id": "FR07",
       "requirement": "Walk-in registration and queue control",
       "prototype": "S01/S02/S03",
       "nodes": "138:4;139:223;139:297",
-      "implementation": "register/editPatient/callNext/cancel; manage.tsx",
+      "implementation": "queue-operations.ts registration CRUD; /patient-records and /manage",
       "tests": "FT01; FT03; FT04; W02; MT06",
-      "status": "Implemented; concurrent live-device test pending"
+      "status": "Implemented; SDK/emulator persistence verified; concurrent phone checks pending"
     },
     {
       "id": "FR08",
@@ -77,9 +77,9 @@
       "requirement": "Missed-turn recovery and decision",
       "prototype": "P13/P14; S05",
       "nodes": "16:227;18:648;139:445",
-      "implementation": "requestRecovery; approve/reject transaction",
+      "implementation": "patient-records.ts request/edit/withdraw; queue-operations.ts approve/reject/delete; /recovery",
       "tests": "FT05; W01; recovery rules case; MT07",
-      "status": "Implemented; real multi-account flow pending"
+      "status": "Full recovery request CRUD verified in emulator; real-device multi-account flow pending"
     },
     {
       "id": "FR10",
@@ -209,7 +209,7 @@
       "node": "16:122",
       "screen": "P07 — Notification Preferences",
       "role": "patient",
-      "flow_operations": "R/U: preferences saved",
+      "flow_operations": "C/R/U/D: saved accessibility preferences in /preferences",
       "per_screen_crud_verified": false,
       "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
     },
@@ -241,7 +241,7 @@
       "node": "16:227",
       "screen": "P13 — Missed Turn",
       "role": "patient",
-      "flow_operations": "C/R: recovery request",
+      "flow_operations": "C/R/U/D: own missed-turn request in /recovery",
       "per_screen_crud_verified": false,
       "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
     },
@@ -289,7 +289,7 @@
       "node": "18:648",
       "screen": "P14 — Recovery Confirmation",
       "role": "patient",
-      "flow_operations": "R: recovery outcome",
+      "flow_operations": "R: recovery outcome; connected request CRUD in /recovery",
       "per_screen_crud_verified": false,
       "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
     },
@@ -313,7 +313,7 @@
       "node": "151:835",
       "screen": "P07SAVED — Preferences saved",
       "role": "patient",
-      "flow_operations": "R/U: preferences saved",
+      "flow_operations": "C/R/U/D: saved accessibility preferences in /preferences",
       "per_screen_crud_verified": false,
       "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
     },
@@ -393,7 +393,7 @@
       "node": "159:1248",
       "screen": "P07OFF — Notification choices",
       "role": "patient",
-      "flow_operations": "R/U: preferences saved",
+      "flow_operations": "C/R/U/D: saved accessibility preferences in /preferences",
       "per_screen_crud_verified": false,
       "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
     },
@@ -401,7 +401,7 @@
       "node": "159:1314",
       "screen": "P07APPOFF — Notification choices",
       "role": "patient",
-      "flow_operations": "R/U: preferences saved",
+      "flow_operations": "C/R/U/D: saved accessibility preferences in /preferences",
       "per_screen_crud_verified": false,
       "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
     },
@@ -409,7 +409,7 @@
       "node": "159:1380",
       "screen": "P07BOTHOFF — Notification choices",
       "role": "patient",
-      "flow_operations": "R/U: preferences saved",
+      "flow_operations": "C/R/U/D: saved accessibility preferences in /preferences",
       "per_screen_crud_verified": false,
       "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
     },
@@ -417,7 +417,7 @@
       "node": "159:1446",
       "screen": "P07REVOKED — Notification choices",
       "role": "patient",
-      "flow_operations": "R/U: preferences saved",
+      "flow_operations": "C/R/U/D: saved accessibility preferences in /preferences",
       "per_screen_crud_verified": false,
       "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
     },
@@ -441,7 +441,7 @@
       "node": "139:223",
       "screen": "S02 — Register a walk-in",
       "role": "staff",
-      "flow_operations": "C/R/U: registration and review; edit in /manage",
+      "flow_operations": "C/R/U/D: visit registrations in /patient-records; closed visits only for delete",
       "per_screen_crud_verified": false,
       "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
     },
@@ -465,7 +465,7 @@
       "node": "139:445",
       "screen": "S05 — Missed-turn requests",
       "role": "staff",
-      "flow_operations": "R/U: recovery decision",
+      "flow_operations": "R/U/D: staff recovery decisions and resolved-request deletion in /recovery",
       "per_screen_crud_verified": false,
       "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
     },
@@ -473,7 +473,7 @@
       "node": "140:243",
       "screen": "S06 — Service broadcast",
       "role": "staff",
-      "flow_operations": "C/R: broadcast",
+      "flow_operations": "C/R/U/D: /announcements (admin); staff append/read in /manage",
       "per_screen_crud_verified": false,
       "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
     },
@@ -481,7 +481,7 @@
       "node": "140:1066",
       "screen": "S07 — Offline mode",
       "role": "staff",
-      "flow_operations": "C/R: manual note extension",
+      "flow_operations": "C/R/U/D: pending continuity notes in /staff-notes",
       "per_screen_crud_verified": false,
       "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
     },
@@ -505,7 +505,7 @@
       "node": "154:453",
       "screen": "S02REVIEW — Review registration",
       "role": "staff",
-      "flow_operations": "C/R/U: registration and review; edit in /manage",
+      "flow_operations": "C/R/U/D: visit registrations in /patient-records; closed visits only for delete",
       "per_screen_crud_verified": false,
       "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
     },
@@ -513,7 +513,7 @@
       "node": "154:528",
       "screen": "S02DONE — Patient registered",
       "role": "staff",
-      "flow_operations": "C/R/U: registration and review; edit in /manage",
+      "flow_operations": "C/R/U/D: visit registrations in /patient-records; closed visits only for delete",
       "per_screen_crud_verified": false,
       "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
     },
@@ -561,7 +561,7 @@
       "node": "154:957",
       "screen": "S05REVIEW — Confirm recovery",
       "role": "staff",
-      "flow_operations": "R/U: recovery decision",
+      "flow_operations": "R/U/D: staff recovery decisions and resolved-request deletion in /recovery",
       "per_screen_crud_verified": false,
       "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
     },
@@ -569,7 +569,7 @@
       "node": "154:1025",
       "screen": "S05DONE — Recovery recorded",
       "role": "staff",
-      "flow_operations": "R/U: recovery decision",
+      "flow_operations": "R/U/D: staff recovery decisions and resolved-request deletion in /recovery",
       "per_screen_crud_verified": false,
       "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
     },
@@ -577,7 +577,7 @@
       "node": "154:1087",
       "screen": "S06REVIEW — Confirm broadcast",
       "role": "staff",
-      "flow_operations": "C/R: broadcast",
+      "flow_operations": "C/R/U/D: /announcements (admin); staff append/read in /manage",
       "per_screen_crud_verified": false,
       "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
     },
@@ -585,7 +585,7 @@
       "node": "154:1166",
       "screen": "S06DONE — Update published",
       "role": "staff",
-      "flow_operations": "C/R: broadcast",
+      "flow_operations": "C/R/U/D: /announcements (admin); staff append/read in /manage",
       "per_screen_crud_verified": false,
       "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
     },
@@ -593,7 +593,7 @@
       "node": "154:1237",
       "screen": "S07ACTIVE — Manual fallback active",
       "role": "staff",
-      "flow_operations": "C/R: manual note extension",
+      "flow_operations": "C/R/U/D: pending continuity notes in /staff-notes",
       "per_screen_crud_verified": false,
       "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
     },
@@ -649,7 +649,7 @@
       "node": "35:374",
       "screen": "A05 — Broadcast centre · Mobile",
       "role": "admin",
-      "flow_operations": "C/R/D: message publication/withdrawal extension",
+      "flow_operations": "C/R/U/D: announcement create/edit/delete in /announcements (admin)",
       "per_screen_crud_verified": false,
       "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
     },
@@ -697,7 +697,7 @@
       "node": "156:3305",
       "screen": "A05REVIEW — Review broadcast · Mobile",
       "role": "admin",
-      "flow_operations": "C/R/D: message publication/withdrawal extension",
+      "flow_operations": "C/R/U/D: announcement create/edit/delete in /announcements (admin)",
       "per_screen_crud_verified": false,
       "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
     },
@@ -705,7 +705,7 @@
       "node": "156:3432",
       "screen": "A05DONE — Broadcast published · Mobile",
       "role": "admin",
-      "flow_operations": "C/R/D: message publication/withdrawal extension",
+      "flow_operations": "C/R/U/D: announcement create/edit/delete in /announcements (admin)",
       "per_screen_crud_verified": false,
       "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
     },
@@ -753,7 +753,7 @@
       "node": "405:2124",
       "screen": "A05LOCKED — Broadcast centre · Mobile",
       "role": "admin",
-      "flow_operations": "C/R/D: message publication/withdrawal extension",
+      "flow_operations": "C/R/U/D: announcement create/edit/delete in /announcements (admin)",
       "per_screen_crud_verified": false,
       "note": "Flow-level mapping only. Confirm assigned interface scope; success/navigation screens are not separately certified CRUD."
     },
@@ -773,11 +773,11 @@
     "typecheck": "pass",
     "lint": "pass",
     "domain_source_tests": {
-      "pass": 21,
+      "pass": 33,
       "fail": 0
     },
     "firestore_rules_tests": {
-      "pass": 4,
+      "pass": 6,
       "fail": 0
     },
     "platform_export": [
@@ -787,11 +787,11 @@
     ],
     "device_installation": "pending",
     "usability_sessions": 0,
-    "cloud_rule_rollout": "pending",
+    "cloud_rule_rollout": "Deployed 2026-10-17; carequeue-db90e",
     "android_apk": {
       "file": "artifacts/CareQueue-preview.apk",
-      "sha256": "edb75e8443d002f7786e61708acc90a77c4764530e45b89de93fd506c7a01dfd",
-      "bytes": 58641113,
+      "sha256": "88cd3260d8ceb2526184cc743db5937edc7f02ec38c1abcf72cea633db5f2ec1",
+      "bytes": 58775641,
       "package": "lk.carequeue.mobile",
       "version": "1.0.0",
       "versionCode": 1,
@@ -805,13 +805,103 @@
       "device_installation": "not verified",
       "build_result": "BUILD SUCCESSFUL",
       "source_checks": {
-        "pass": 21,
+        "pass": 33,
         "fail": 0
       },
       "rules_checks": {
-        "pass": 4,
+        "pass": 6,
         "fail": 0
-      }
+      },
+      "build_date": "2026-10-17",
+      "auth_emulator_flow_groups": {
+        "pass": 12,
+        "fail": 0
+      },
+      "live_account_services": "pass; temporary patient/staff accounts and own profiles removed; no real email sent",
+      "new_account_and_welcome_bundle_verified": true,
+      "database_registration_login": "pass; live user profile creation and original-credential login verified; temporary records removed",
+      "mobile_account_profile_bundle_verified": true,
+      "patient_staff_admin_bundle_verified": true,
+      "staff_approval_bundle_verified": true,
+      "archive_integrity_verified": true,
+      "signing_certificate_sha256": "fac61745dc0903786fb9ede62a962b399f7348f0bb6f899b8332667591033b9c",
+      "build_duration": "13m 10s",
+      "staff_registration": "pass; requested staff type saved and queue access denied until approved",
+      "administrator_access": "Provisioned and Admin SDK verified for nirupama.minipa@gmail.com with explicit owner approval; user sets first password privately through Forgot password",
+      "back_navigation_bundle_verified": true,
+      "visible_account_control_bundle_verified": true,
+      "verification_date": "2026-10-17",
+      "sdk_crud_persistence_groups": {
+        "pass": 7,
+        "fail": 0
+      },
+      "current_source_files_verified": {
+        "src/services/user-profile.ts": true,
+        "src/services/firebase.ts": true,
+        "src/services/store.tsx": true,
+        "src/services/domain.ts": true,
+        "src/services/account-access.ts": true,
+        "src/app/_layout.tsx": true,
+        "src/app/account.tsx": true,
+        "src/components/RoleLogin.tsx": true,
+        "src/components/SignInChooser.tsx": true,
+        "src/components/WorkspaceUI.tsx": true,
+        "src/app/patient-records.tsx": true,
+        "src/app/recovery.tsx": true,
+        "src/app/caregivers.tsx": true,
+        "src/app/preferences.tsx": true,
+        "src/app/support.tsx": true,
+        "src/app/staff-notes.tsx": true,
+        "src/app/staff-approvals.tsx": true,
+        "src/app/announcements.tsx": true
+      },
+      "crud_feature_labels_verified": [
+        "Patient sign in",
+        "Staff sign in",
+        "Administrator sign in",
+        "Delete closed registration",
+        "Create recovery request",
+        "Delete consent and revoke sharing",
+        "Delete saved preferences and reset",
+        "Create device-local note",
+        "Create support request",
+        "Create announcement",
+        "Revoke staff access",
+        "Permanently delete my account"
+      ],
+      "account_portals": [
+        "patient",
+        "staff",
+        "admin"
+      ],
+      "crud_components": 9,
+      "general_opd": "Initialized empty and verified; no demo patients inserted",
+      "visual_testing": "browser unavailable; physical-device testing pending",
+      "shell_wrapper_note": "The outer PowerShell wrapper surfaced a JAVA_TOOL_OPTIONS stderr notice. Gradle returned 0 and the completed APK passed source, archive and signature verification."
+    },
+    "auth_emulator_flow_groups": {
+      "pass": 12,
+      "fail": 0
+    },
+    "sdk_crud_emulator_groups": {
+      "pass": 7,
+      "fail": 0
     }
+  },
+  "crud_extensions": {
+    "date": "2026-10-17",
+    "inventory": "docs/crud-components.md",
+    "components": [
+      "visit registrations",
+      "missed-turn recovery requests",
+      "caregiver consent and sharing",
+      "staff continuity notes",
+      "service announcements",
+      "staff access grants/revocation",
+      "patient support requests",
+      "accessibility preferences",
+      "patient accounts"
+    ],
+    "per_member_assignment": "Pending member confirmation; extension CRUD does not certify every informational Figma state."
   }
 }

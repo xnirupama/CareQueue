@@ -1,8 +1,8 @@
 {
   "package": "CareQueue_Milestone03_review-package.zip",
-  "files": 532,
-  "bytes": 1762962,
-  "sha256": "2ad07f8ec6e8fe6f6eec5a7cabe38036a615b5a95719ebbc27c4c7724a8ca813",
+  "files": 555,
+  "bytes": 1673783,
+  "sha256": "b91bd0b7304a62597c2937ce9ba95447e70faadafa464ab9d694bfd92d420ece",
   "status": "review package; actual group/user/device evidence pending",
   "excluded": [
     "credentials and local .env",
@@ -10,5 +10,6 @@
     "generated native projects",
     "git metadata"
   ],
-  "report": "output\\pdf\\IT3060HCI2026_Milestone03_GroupWE_79.pdf"
+  "report": null,
+  "report_status": "PDF absent; editable report content included"
 }

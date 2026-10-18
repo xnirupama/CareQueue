@@ -11,12 +11,14 @@ function Navigation(){const {booted,onboardingComplete,ready,isLive,user,authPen
   <Stack.Screen name="index"/><Stack.Screen name="account"/>
  </Stack.Protected>
  <Stack.Protected guard={base&&!pending}>
-  <Stack.Screen name="manage"/><Stack.Screen name="display"/><Stack.Screen name="screen/[id]"/><Stack.Screen name="scan"/>
+  <Stack.Screen name="manage"/><Stack.Screen name="recovery"/><Stack.Screen name="support"/><Stack.Screen name="display"/><Stack.Screen name="screen/[id]"/><Stack.Screen name="scan"/>
  </Stack.Protected>
+ <Stack.Protected guard={base&&!pending&&state.role==='patient'}><Stack.Screen name="caregivers"/><Stack.Screen name="preferences"/></Stack.Protected>
+ <Stack.Protected guard={base&&!pending&&state.role!=='patient'}><Stack.Screen name="patient-records"/><Stack.Screen name="staff-notes"/></Stack.Protected>
  <Stack.Protected guard={base&&pending}><Stack.Screen name="staff-pending"/></Stack.Protected>
- <Stack.Protected guard={base&&admin}><Stack.Screen name="staff-approvals"/></Stack.Protected>
+ <Stack.Protected guard={base&&admin}><Stack.Screen name="staff-approvals"/><Stack.Screen name="announcements"/></Stack.Protected>
  <Stack.Protected guard={onboardingComplete&&(!ready||!isLive||!user||authPending)}>
-  <Stack.Screen name="login"/><Stack.Screen name="register"/><Stack.Screen name="forgot-password"/><Stack.Screen name="admin-login"/>
+  <Stack.Screen name="login"/><Stack.Screen name="patient-login"/><Stack.Screen name="staff-login"/><Stack.Screen name="register"/><Stack.Screen name="forgot-password"/><Stack.Screen name="admin-login"/>
  </Stack.Protected>
  <Stack.Screen name="onboarding"/>
  </Stack>{!ready&&!authPending?<View style={{position:'absolute',top:0,left:0,right:0,bottom:0}}><Loading/></View>:null}</View>;}

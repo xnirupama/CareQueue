@@ -26,7 +26,16 @@ test('registration requires Patient or Staff and cannot request administrator ac
 });
 test('administrator portal rejects ordinary roles and standard portal directs administrators to their own login',()=>{
  for(const role of ['patient','staff'])assert.throws(()=>validatePortal(role,'admin'),/administrator account/);
- assert.throws(()=>validatePortal('admin','standard'),/Administrator sign in/);
+ assert.throws(()=>validatePortal('admin','patient'),/Administrator sign in/);
  assert.doesNotThrow(()=>validatePortal('admin','admin'));
  assert.equal(claimRole({accountType:'admin',role:'unexpected'}),'patient');
+});
+
+test('all three portals accept only their account type, including pending staff',()=>{
+ for(const role of ['patient','staff','admin'])for(const portal of ['patient','staff','admin']){
+  if(role===portal)assert.doesNotThrow(()=>validatePortal(role,portal));
+  else assert.throws(()=>validatePortal(role,portal));
+ }
+ assert.doesNotThrow(()=>validatePortal('patient','staff',{accountType:'staff'}));
+ assert.throws(()=>validatePortal('patient','patient',{accountType:'staff'}),/Staff sign in/);
 });

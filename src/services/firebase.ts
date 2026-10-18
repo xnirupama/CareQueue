@@ -4,11 +4,14 @@ import {getAuth,initializeAuth,signOut,onAuthStateChanged,type User,type Persist
 import {resetAccountPassword,changeAccountPassword,type RegistrationFields} from './authentication';
 import {registerWithProfile,signInWithProfile,ensureUserProfile,saveUserProfileName} from './user-profile';
 import {resolveAccountRole,type LoginPortal} from './account-access';
-import {getFirestore,doc,onSnapshot,runTransaction,setDoc,serverTimestamp,collection,query,where} from 'firebase/firestore';
+import {getFirestore,doc,onSnapshot,runTransaction,collection,query,where} from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Platform} from 'react-native';
-import type {AppState,Role} from '../data/types';
-import {applyCommand,aheadOf,validate,preferenceData,type Command} from './domain';
+import type {AppState,Role,RecoveryRequest} from '../data/types';
+import {aheadOf,validate,personalCommands,type Command} from './domain';
+import {runPatientCommand,savePatientSettings} from './patient-records';
+import {runOperationalCommand} from './queue-operations';
+export {deletePatientAccount} from './user-profile';
 export {accountError,verifyAccountEmail,reloadAccount} from './authentication';
 const config={apiKey:process.env.EXPO_PUBLIC_FIREBASE_API_KEY,authDomain:process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,projectId:process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,storageBucket:process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,messagingSenderId:process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,appId:process.env.EXPO_PUBLIC_FIREBASE_APP_ID};
 export const liveMode=process.env.EXPO_PUBLIC_DATA_MODE==='firebase';
@@ -23,9 +26,9 @@ export const db=app?getFirestore(app):null;
 export function watchAuth(callback:(user:User|null)=>void){if(auth)return onAuthStateChanged(auth,callback);callback(null);return ()=>{};}
 function requireAccountAuth(){if(!auth)throw Error('Firebase configuration is missing.');return auth;}
 function requireDatabase(){if(!db)throw Error('Database unavailable.');return db;}
-export const login=(email:string,password:string,portal:LoginPortal='standard')=>signInWithProfile(requireAccountAuth(),requireDatabase(),email,password,portal);
+export const login=(email:string,password:string,portal:LoginPortal='patient')=>signInWithProfile(requireAccountAuth(),requireDatabase(),email,password,portal);
 export const register=(fields:RegistrationFields)=>registerWithProfile(requireAccountAuth(),requireDatabase(),fields);
-export const loadUserProfile=(user:User)=>ensureUserProfile(requireDatabase(),user);
+export const loadUserProfile=(user:User,portal?:LoginPortal)=>ensureUserProfile(requireDatabase(),user,undefined,portal==='staff'?'staff':undefined);
 export const renameAccount=(user:User,name:string)=>saveUserProfileName(requireDatabase(),user,name);
 export const resetPassword=(email:string)=>resetAccountPassword(requireAccountAuth(),email);
 export const changePassword=(user:User,current:string,password:string,confirm:string)=>changeAccountPassword(requireAccountAuth(),user,current,password,confirm);
@@ -34,57 +37,21 @@ export async function accountRole(user:User):Promise<Role>{return resolveAccount
 export function subscribeLive(user:User,role:Role,callback:(data:Partial<AppState>)=>void,error:(message:string)=>void){
  if(!db)return ()=>{};const unsubs:(()=>void)[]=[];
  unsubs.push(onSnapshot(doc(db,'services','general-opd'),s=>{if(s.exists())callback(s.data() as Partial<AppState>);},e=>error(e.message)));
- unsubs.push(onSnapshot(doc(db,'patients',user.uid),s=>{if(s.exists())callback(s.data() as Partial<AppState>);},e=>error(e.message)));
- unsubs.push(onSnapshot(doc(db,'recoveryRequests',user.uid),s=>{if(s.exists())callback({recovery:s.data().status==='pending'?'pending':s.data().status==='approved'?'approved':s.data().status==='rejected'?'rejected':'none'});},e=>error(e.message)));
- unsubs.push(onSnapshot(doc(db,'tickets',user.uid),s=>{if(s.exists())callback({myToken:s.data().token,recovery:s.data().recovery||'none',patientsAhead:s.data().patientsAhead,patientName:s.data().patientName,ticketStatus:s.data().status});},e=>error(e.message)));
+ unsubs.push(onSnapshot(doc(db,'patients',user.uid),s=>{const data=s.data()||{};callback({sms:data.sms??true,appAlerts:data.appAlerts??true,language:data.language||'en',largeText:data.largeText??false,caregiver:data.caregiver||undefined,preferencesSaved:['sms','appAlerts','language','largeText'].some(k=>k in data)});},e=>error(e.message)));
+ unsubs.push(onSnapshot(doc(db,'recoveryRequests',user.uid),s=>{const item=s.exists()?s.data() as RecoveryRequest:undefined;callback({ownRecovery:item,recovery:item?.status||'none'});},e=>error(e.message)));
+ unsubs.push(onSnapshot(doc(db,'tickets',user.uid),s=>{if(s.exists())callback({myToken:s.data().token,patientsAhead:s.data().patientsAhead,patientName:s.data().patientName,ticketStatus:s.data().status});else callback({myToken:'?',patientsAhead:0,ticketStatus:undefined});},e=>error(e.message)));
  unsubs.push(onSnapshot(query(collection(db,'caregiverShares'),where('caregiverId','==',user.uid)),s=>callback({sharedVisits:s.docs.map(d=>({id:d.id,token:d.data().token,status:d.data().status,patientsAhead:d.data().patientsAhead}))}),e=>error(e.message)));
  if(role!=='patient'){unsubs.push(onSnapshot(collection(db,'recoveryRequests'),s=>callback({recoveryRequests:s.docs.map(d=>({...d.data(),patientId:d.id}))} as Partial<AppState>),e=>error(e.message)));}
  if(role!=='patient')unsubs.push(onSnapshot(doc(db,'operations','current'),s=>{if(s.exists())callback(s.data() as Partial<AppState>);},e=>error(e.message)));
  return ()=>unsubs.forEach(u=>u());
 }
-export async function savePreferences(user:User,data:Pick<AppState,'sms'|'appAlerts'|'language'|'largeText'>){if(!db)throw Error('Database unavailable.');await setDoc(doc(db,'patients',user.uid),preferenceData(data),{merge:true});}
+export async function savePreferences(user:User,data:AppState){await savePatientSettings(requireDatabase(),user.uid,data);}
 export async function liveCommand(user:User,state:AppState,command:Command,fields:Record<string,string>,eventId:string):Promise<void>{
- if(!db)throw Error('Database unavailable.');const database=db;validate(command,fields,state.role);
- if(command==='preferences'){await savePreferences(user,state);return;}
- if(command==='caregiver'||command==='revokeCaregiver'){
-  const next=applyCommand(state,command,fields),accountId=next.caregiver?.accountId;
-  if(accountId&&(accountId.includes('/')||accountId===user.uid))throw Error('Enter a different caregiver account ID.');
-  await runTransaction(database,async tx=>{
-   const shareRef=doc(database,'caregiverShares',user.uid),ticket=await tx.get(doc(database,'tickets',user.uid));
-   if(accountId&&!ticket.exists())throw Error('Link your issued token before sharing a visit.');
-   tx.set(doc(database,'patients',user.uid),{caregiver:next.caregiver||null},{merge:true});
-   if(accountId&&ticket.exists())tx.set(shareRef,{caregiverId:accountId,token:ticket.data().token,status:ticket.data().status||'waiting',patientsAhead:ticket.data().patientsAhead||0});
-   else tx.delete(shareRef);
-  });return;
- }
- if(command==='requestRecovery'){if(state.myToken==='—')throw Error('Ask the registration counter to link your issued token to your account.');await setDoc(doc(database,'recoveryRequests',user.uid),{patientId:user.uid,token:state.myToken,status:'pending',requestedAt:serverTimestamp()});return;}
- if(state.role==='patient')throw Error('An authorized staff account is required.');
- await runTransaction(database,async tx=>{
-  const opRef=doc(database,'operations','current'),op=await tx.get(opRef);
-  if(!op.exists())throw Error('An administrator must initialize the service before staff can make changes.');
-  const current={...state,...op.data(),offlineActions:state.offlineActions,role:state.role} as AppState;
-  const deciding=command==='approveRecovery'||command==='rejectRecovery';
-  const patientId=deciding?(fields['Patient ID']||state.recoveryRequests?.find(r=>r.status==='pending')?.patientId):undefined;
-  let commandFields=fields;
-  if(deciding){
-   if(!patientId)throw Error('Select the verified recovery request first.');
-   const request=await tx.get(doc(database,'recoveryRequests',patientId));
-   if(!request.exists()||request.data().status!=='pending')throw Error('This request is no longer pending.');
-   commandFields={...fields,'Token':request.data().token,'Patient ID':patientId};
-  }
-  const shares=new Map<string,string>();
-  for(const record of current.queue.filter(q=>q.accountLinked)){const share=await tx.get(doc(database,'caregiverShares',record.patientId));if(share.exists())shares.set(record.patientId,share.data().caregiverId);}
-  if(command==='reconcile')for(const pending of state.offlineActions){if(!current.audit.some(e=>e.id===pending.id)){current.audit.unshift({id:pending.id,action:'manualRecord',detail:pending.action,at:pending.at,role:state.role});tx.set(doc(database,'audit',pending.id),{id:pending.id,action:'manualRecord',detail:pending.action,at:pending.at,role:state.role});}}
-  const next=applyCommand(current,command,commandFields,new Date().toISOString(),eventId);
-  const operations={queue:next.queue,audit:next.audit.slice(0,100),broadcasts:next.broadcasts,offlineActions:next.offlineActions,incidentVerified:next.incidentVerified,nowServing:next.nowServing,serviceStatus:next.serviceStatus,updatedAt:next.updatedAt};
-  tx.set(opRef,operations);
-  const event=next.audit.find(e=>e.id===eventId);if(event&&!current.audit.some(e=>e.id===eventId))tx.set(doc(database,'audit',eventId),event);
-  for(const q of next.queue){if(q.accountLinked)tx.set(doc(database,'tickets',q.patientId),{token:q.token,patientName:q.patientName,patientsAhead:aheadOf(next.queue,q.token),status:q.status},{merge:true});}
-  for(const record of next.queue){const caregiverId=shares.get(record.patientId);if(caregiverId)tx.set(doc(database,'caregiverShares',record.patientId),{caregiverId,token:record.token,status:record.status,patientsAhead:aheadOf(next.queue,record.token)});}
-  tx.set(doc(database,'services','general-opd'),{nowServing:next.nowServing,serviceStatus:next.serviceStatus,updatedAt:next.updatedAt,broadcasts:next.broadcasts});
-  if(deciding&&patientId){const status=command==='approveRecovery'?'approved':'rejected';tx.update(doc(database,'recoveryRequests',patientId),{status});tx.set(doc(database,'tickets',patientId),{recovery:status},{merge:true});}
- });
+ const database=requireDatabase();validate(command,fields,state.role);
+ if(personalCommands.has(command))return runPatientCommand(database,user.uid,state,command,fields);
+ return runOperationalCommand(database,state,command,fields,eventId);
 }
+export function watchOwnStaffAccess(user:User,callback:()=>void){if(!db)return()=>{};return onSnapshot(doc(db,'staffAccess',user.uid),callback);}
 
 export async function initializeService(){if(!db)throw Error('Database unavailable.');await runTransaction(db,async tx=>{const ref=doc(db!,'operations','current');const existing=await tx.get(ref);if(existing.exists())return;const data={queue:[],audit:[],broadcasts:[],offlineActions:[],incidentVerified:false,nowServing:'—',serviceStatus:'open',updatedAt:new Date().toISOString()};tx.set(ref,data);tx.set(doc(db!,'services','general-opd'),{nowServing:'—',serviceStatus:'open',updatedAt:data.updatedAt,broadcasts:[]});});}
 export async function linkTicket(uid:string,token:string){

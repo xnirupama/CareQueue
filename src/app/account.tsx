@@ -2,19 +2,22 @@ import {useEffect,useState} from 'react';
 import {Text,View} from 'react-native';
 import {Redirect,useRouter} from 'expo-router';
 import {AccountShell,AccountField,ActionButton,TextLink,Notice,styles,colors} from '../components/AccountUI';
-import {accountError,logout,renameAccount,verifyAccountEmail,changePassword,initializeService,linkTicket} from '../services/firebase';
+import {accountError,logout,renameAccount,verifyAccountEmail,changePassword,initializeService,linkTicket,db,deletePatientAccount} from '../services/firebase';
 import {useStore} from '../services/store';
+import {WorkspaceLinks} from '../components/WorkspaceUI';
+import {navigateBack} from '../services/back-navigation';
 
 export default function Account(){
  const router=useRouter(),{isLive,state,user,accountProfile,setDataMode,setRole,reset,refreshAccount,error,setError}=useStore();
  const [name,setName]=useState(accountProfile?.fullName||user?.displayName||''),[busy,setBusy]=useState(false),[feedback,setFeedback]=useState(''),[success,setSuccess]=useState(false),[cooldown,setCooldown]=useState(0);
  const [current,setCurrent]=useState(''),[password,setPassword]=useState(''),[confirm,setConfirm]=useState(''),[showPassword,setShowPassword]=useState(false);
  const [patientId,setPatientId]=useState(''),[token,setToken]=useState('');
+ const [deleting,setDeleting]=useState(false),[deletePassword,setDeletePassword]=useState('');
  useEffect(()=>{if(cooldown<=0)return;const timer=setTimeout(()=>setCooldown(c=>c-1),1000);return()=>clearTimeout(timer);},[cooldown]);
  if(isLive&&!user)return <Redirect href="/login"/>;
  async function run(action:()=>Promise<unknown>,message:string){if(busy)return;setBusy(true);setFeedback('');setSuccess(false);setError('');try{await action();setFeedback(message);setSuccess(true);}catch(e){setFeedback(accountError(e));}finally{setBusy(false);}}
- return <AccountShell title={isLive?'Your account.':'Explore CareQueue.'} subtitle={isLive?'Manage your details and stay connected to your visit.':'Try the patient, staff and administrator experiences with sample visits.'} eyebrow={isLive?'A space that’s yours.':'Sample data · saved on this device.'}>
-  <Notice message={feedback} success={success}/><Notice message={error}/>
+ return <AccountShell onBack={()=>navigateBack(router,'/')} backDisabled={busy} title={isLive?'Your account.':'Explore CareQueue.'} subtitle={isLive?'Manage your details and stay connected to your visit.':'Try the patient and staff experiences with sample visits.'} eyebrow={isLive?'A space that’s yours.':'Sample data · saved on this device.'}>
+  <Notice message={feedback} success={success}/><Notice message={error}/>{!(isLive&&accountProfile?.accountType==='staff'&&state.role==='patient')?<WorkspaceLinks/>:null}
   <ActionButton label={isLive&&accountProfile?.accountType==='staff'&&state.role==='patient'?'Staff approval status':state.role==='patient'?'My visit and settings':'Queue operations'} disabled={busy} onPress={()=>router.push(isLive&&accountProfile?.accountType==='staff'&&state.role==='patient'?'/staff-pending':'/manage')}/>
   {isLive&&state.role==='admin'?<ActionButton label="Review staff registrations" secondary disabled={busy} onPress={()=>router.push('/staff-approvals')}/>:null}
   <TextLink label={isLive&&accountProfile?.accountType==='staff'&&state.role==='patient'?'Return to staff approval':'Return to queue'} disabled={busy} onPress={()=>router.replace('/')}/>
@@ -39,6 +42,7 @@ export default function Account(){
     <ActionButton label="Link issued token" secondary disabled={busy} onPress={()=>run(async()=>{await linkTicket(patientId,token);setPatientId('');setToken('');},'Patient token linked.')}/>
     {state.role==='admin'?<ActionButton label="Initialize General OPD" secondary disabled={busy} onPress={()=>run(()=>initializeService(),'General OPD is initialized. Any existing queue was preserved.')}/>:null}
    </>:null}
+   {state.role==='patient'&&accountProfile?.accountType!=='staff'?<><View style={styles.divider}/><TextLink label={deleting?'Cancel account deletion':'Delete my patient account'} disabled={busy} onPress={()=>{setDeleting(v=>!v);setDeletePassword('');}}/>{deleting?<><Text style={styles.helper}>This deletes your login, private profile, preferences and caregiver consent. Hospital visit records and audit history are retained. Staff must complete or cancel your active visit first.</Text><AccountField label="Current password to confirm deletion" value={deletePassword} onChangeText={setDeletePassword} password autoCapitalize="none" autoCorrect={false} editable={!busy}/><ActionButton label="Permanently delete my account" secondary disabled={busy} onPress={()=>run(async()=>{if(!db)throw Error('Database unavailable.');await deletePatientAccount(db,user,deletePassword);setDeletePassword('');},'Your account was deleted.')}/></>:null}</>:null}
    <View style={styles.divider}/><ActionButton label="Sign out" secondary disabled={busy} onPress={()=>run(()=>logout(),'Signed out.')}/>
    <TextLink label="Explore with sample data" disabled={busy} onPress={()=>{setDataMode(false);router.replace('/account');}}/>
   </>:<>

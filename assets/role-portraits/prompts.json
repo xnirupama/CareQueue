@@ -1,0 +1,19 @@
+{
+  "tool": "Built-in image_gen",
+  "date": "2026-10-18",
+  "description": "Generated fictional people used as decorative role avatars; not actual patient, staff, or administrator identities.",
+  "prompts": [
+    {
+      "key": "patient",
+      "prompt": "Use case: photorealistic-natural\nAsset type: square patient role avatar for CareQueue, a Sri Lankan hospital mobile app.\nPrimary request: A natural photographic head-and-shoulders portrait of a fictional Sri Lankan woman in her early thirties, wearing a simple sage green casual blouse, a small warm relaxed smile, looking toward the camera. She is a patient attending an ordinary outpatient appointment, healthy everyday appearance.\nScene/backdrop: softly out-of-focus bright outpatient waiting area, pale sage and warm ivory tones, no people behind her.\nStyle/medium: realistic editorial portrait photography, natural skin texture, a few flyaway dark hairs, soft window daylight, understated and approachable.\nComposition/framing: one person only, centered full head with generous clearance above hair, face in upper middle, shoulders visible, square composition suitable for circular avatar crop.\nConstraints: fictional adult; no text, no logos, no watermark, no medical props or bandages, no glamour retouching, no plastic skin."
+    },
+    {
+      "key": "staff",
+      "prompt": "Use case: photorealistic-natural\nAsset type: square hospital staff role avatar for CareQueue, a Sri Lankan hospital mobile app.\nPrimary request: A natural photographic head-and-shoulders portrait of a fictional Sri Lankan male nurse in his early thirties, wearing neat muted blue medical scrubs and a simple stethoscope around his neck, short dark hair, slight friendly smile, looking toward the camera.\nScene/backdrop: softly out-of-focus bright hospital corridor in pale blue and warm ivory tones, no other people.\nStyle/medium: realistic editorial portrait photography, natural skin texture, soft window daylight, calm and professional.\nComposition/framing: one person only, centered full head with generous clearance above hair, face in upper middle, shoulders visible, square composition suitable for circular avatar crop.\nConstraints: fictional adult; no text, no name badge lettering, no logos, no watermark, no glamour retouching, no plastic skin."
+    },
+    {
+      "key": "admin",
+      "prompt": "Use case: photorealistic-natural\nAsset type: square hospital administrator role avatar for CareQueue, a Sri Lankan hospital mobile app.\nPrimary request: A natural photographic head-and-shoulders portrait of a fictional Sri Lankan woman in her mid forties, wearing a smart navy blazer over an ivory blouse, dark hair loosely tied back, a small confident welcoming smile, looking toward the camera. She is a hospital administrator in an office setting, no clinical clothing.\nScene/backdrop: softly out-of-focus bright hospital administration office, warm stone and muted cream tones, no other people.\nStyle/medium: realistic editorial portrait photography, natural skin texture and subtle age lines, soft window daylight, calm and approachable.\nComposition/framing: one person only, centered full head with generous clearance above hair, face in upper middle, shoulders visible, square composition suitable for circular avatar crop.\nConstraints: fictional adult; no text, no logos, no watermark, no glamour retouching, no plastic skin."
+    }
+  ]
+}

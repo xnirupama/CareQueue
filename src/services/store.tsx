@@ -5,10 +5,10 @@ import type {User} from 'firebase/auth';
 import {initialState} from '../data/seed';
 import type {AppState, Role} from '../data/types';
 import {applyCommand, type Command} from './domain';
-import {liveMode, configured, auth, watchAuth, accountRole, subscribeLive, liveCommand, login, register, reloadAccount,loadUserProfile,logout} from './firebase';
+import {liveMode, configured, auth, watchAuth, accountRole, subscribeLive, liveCommand, login, register, reloadAccount,loadUserProfile,logout,watchOwnStaffAccess} from './firebase';
 import type {RegistrationFields} from './authentication';
 import type {UserProfile} from './user-profile';
-import {validatePortal,type LoginPortal} from './account-access';
+import {accountPortal,validatePortal,type LoginPortal} from './account-access';
 const storageKey = 'carequeue.demo.v1';
 const modeKey = 'carequeue.mode.v1';
 const welcomeKey = 'carequeue.welcome.v1';
@@ -18,7 +18,7 @@ function emptyState(): AppState {
  return {...initialState(), queue: [], nowServing: '—', myToken: '—', updatedAt: '', audit: [], broadcasts: [], offlineActions: [], patientName: 'Patient'};
 }
 interface Store {
- isLive: boolean; setDataMode: (live: boolean) => void;
+ isLive: boolean; setDataMode: (live: boolean,demoRole?:'patient'|'staff') => void;
  booted: boolean; onboardingComplete: boolean; completeOnboarding: () => Promise<void>;
  authPending: boolean; adminSession:boolean; signIn: (email: string, password: string,portal?:LoginPortal) => Promise<void>;
  signUp: (fields: RegistrationFields) => Promise<void>; refreshAccount: () => Promise<void>;
@@ -38,7 +38,7 @@ export function StoreProvider({children}: {children: React.ReactNode}) {
  const [onboardingComplete,setOnboardingComplete] = useState(false);
  const [authPending,setAuthPending] = useState(false);
  const [adminSession,setAdminSession]=useState(false);
- const portalRef=useRef<LoginPortal>('standard');
+ const portalRef=useRef<LoginPortal|null>(null);
  const [state, setState] = useState(() => liveMode ? emptyState() : initialState());
  const [ready, setReady] = useState(false);
  const [user, setUser] = useState<User | null>(null);
@@ -46,14 +46,19 @@ export function StoreProvider({children}: {children: React.ReactNode}) {
  const [error, setError] = useState('');
  const current = useRef(state);
  const accountUid = useRef<string|null>(null);
+ const requestedDemoRole=useRef<'patient'|'staff'|null>(null);
  const sessionEpoch=useRef(0),authAction=useRef(false);
+ const invalidateSession=useCallback(()=>{++sessionEpoch.current;},[]);
  const chain = useRef(Promise.resolve());
  const replaceState = useCallback((next: AppState) => {current.current = next; setState(next);}, []);
  const update = useCallback((patch: Partial<AppState>) => replaceState({...current.current, ...patch}), [replaceState]);
  const hydrateAccount=useCallback(async(account:User)=>{
   const version=++sessionEpoch.current;accountUid.current=account.uid;
-  const [role,profile,saved]=await Promise.all([accountRole(account),loadUserProfile(account),AsyncStorage.getItem(offlineKey(account.uid))]);
-  validatePortal(role,portalRef.current);
+  const [role,profile,saved]=await Promise.all([accountRole(account),loadUserProfile(account,portalRef.current||undefined),AsyncStorage.getItem(offlineKey(account.uid))]);
+  const portal=portalRef.current||accountPortal(role,profile);validatePortal(role,portal,profile);
+  if(version!==sessionEpoch.current||auth?.currentUser?.uid!==account.uid)return;
+  portalRef.current=portal;setAdminSession(portal==='admin');
+  await AsyncStorage.setItem(portalKey,portal);
   if(version!==sessionEpoch.current||auth?.currentUser?.uid!==account.uid)return;
   let pending=[];
   try{pending=saved?JSON.parse(saved):[];}catch{setError('Saved offline notes could not be read. They were kept on this device for recovery.');}
@@ -68,7 +73,7 @@ export function StoreProvider({children}: {children: React.ReactNode}) {
    const enabled = savedMode ? savedMode === 'firebase' && configured : liveMode;
    setIsLive(enabled); replaceState(enabled ? emptyState() : initialState());
    setOnboardingComplete(values[1][1] === 'complete');
-   portalRef.current=values[2][1]==='admin'?'admin':'standard';setAdminSession(portalRef.current==='admin');
+   const savedPortal=values[2][1];portalRef.current=savedPortal==='patient'||savedPortal==='staff'||savedPortal==='admin'?savedPortal:null;setAdminSession(portalRef.current==='admin');
   }).catch(() => {if(active)setError('Your saved welcome settings could not be read.');})
    .finally(() => {if(active)setBooted(true);});
   return () => {active=false;};
@@ -84,21 +89,21 @@ export function StoreProvider({children}: {children: React.ReactNode}) {
     if (!active) return;
     ++sessionEpoch.current;accountUid.current = account?.uid || null;
     setUser(null);setAccountProfile(null);replaceState(emptyState());setReady(!account);
-    if(!account&&!authAction.current){portalRef.current='standard';setAdminSession(false);AsyncStorage.removeItem(portalKey).catch(()=>{});}
+    if(!account&&!authAction.current){portalRef.current=null;setAdminSession(false);AsyncStorage.removeItem(portalKey).catch(()=>{});}
     if (account&&!authAction.current) {
      try {
       await hydrateAccount(account);
      } catch(e) {if (active&&accountUid.current===account.uid) {await logout();setError(e instanceof Error?e.message:'Your account profile could not be loaded. Check your connection and sign in again.');setReady(true);}}
     }
    });
-   return () => {active = false;++sessionEpoch.current;stop();};
+   return () => {active = false;invalidateSession();stop();};
   }
   AsyncStorage.getItem(storageKey).then(raw => {
    if (!active) return;
-   if (raw) {const data = JSON.parse(raw); if (data.version === 1) replaceState({...data,role:data.role==='staff'?'staff':'patient'});}
-  }).catch(() => setError('Saved sample data could not be read.')).finally(() => {if (active) setReady(true);});
+   if (raw) {const data = JSON.parse(raw); if (data.version === 1) replaceState({...data,role:requestedDemoRole.current||(data.role==='staff'?'staff':'patient')});}
+  }).catch(() => setError('Saved sample data could not be read.')).finally(() => {if (active) {requestedDemoRole.current=null;setReady(true);}});
   return () => {active = false;};
- }, [booted, isLive, replaceState, hydrateAccount]);
+ }, [booted, isLive, replaceState, hydrateAccount,invalidateSession]);
  useEffect(() => {
   if (isLive && user) return subscribeLive(user, state.role, patch => {
    // Unreconciled notes belong to this device, not the server's current snapshot.
@@ -115,7 +120,7 @@ export function StoreProvider({children}: {children: React.ReactNode}) {
    const snapshot = current.current;
    if (isLive) {
     if (!user || accountUid.current !== user.uid) throw Error('Sign in to continue.');
-    if (command === 'offline' || command === 'manualRecord') {
+    if (['offline','manualRecord','editManualRecord','deleteManualRecord'].includes(command)) {
      const next = applyCommand(snapshot, command, fields);
      await AsyncStorage.setItem(offlineKey(user.uid), JSON.stringify(next.offlineActions));
      if(accountUid.current!==user.uid)return;
@@ -126,39 +131,44 @@ export function StoreProvider({children}: {children: React.ReactNode}) {
     if (command === 'reconcile') {
      await AsyncStorage.setItem(offlineKey(user.uid), '[]'); update({offlineActions: []});
     }
-    if (['caregiver', 'revokeCaregiver', 'requestRecovery', 'preferences'].includes(command)) replaceState(applyCommand(current.current, command, fields));
+
    } else replaceState(applyCommand(snapshot, command, fields));
   };
   const result = chain.current.then(task); chain.current = result.catch(() => {}); await result;
  }, [user, isLive, replaceState, update]);
  const setRole = useCallback((role: Role) => {if (!isLive&&role!=='admin')update({role});}, [isLive, update]);
  const reset = useCallback(async () => {if (!isLive) {await AsyncStorage.removeItem(storageKey); replaceState(initialState());}}, [isLive, replaceState]);
- const setDataMode = useCallback((enabled: boolean) => {
+ const setDataMode = useCallback((enabled: boolean,demoRole?:'patient'|'staff') => {
   if(enabled&&!configured){setError('Firebase configuration is missing. Copy the app configuration before starting the app.');return;}
-  if(enabled===isLive)return;
-  ++sessionEpoch.current;accountUid.current=null;setIsLive(enabled);setReady(false);setUser(null);setAccountProfile(null);setError('');replaceState(enabled?emptyState():initialState());
+  if(enabled===isLive){if(!enabled&&demoRole)update({role:demoRole});return;}
+  requestedDemoRole.current=enabled?null:demoRole||null;
+  ++sessionEpoch.current;accountUid.current=null;setIsLive(enabled);setReady(false);setUser(null);setAccountProfile(null);setError('');replaceState(enabled?emptyState():{...initialState(),role:demoRole||'patient'});
   AsyncStorage.setItem(modeKey,enabled?'firebase':'demo').catch(()=>setError('Your account mode could not be saved on this device.'));
- },[isLive,replaceState]);
+ },[isLive,replaceState,update]);
  const refreshAccount = useCallback(async () => {
   const account=auth?.currentUser;
   if(!account)throw Error('Sign in to continue.');
-  await reloadAccount(account);await account.getIdTokenResult(true);const [role,profile]=await Promise.all([accountRole(account),loadUserProfile(account)]);
-  validatePortal(role,portalRef.current);
+  await reloadAccount(account);await account.getIdTokenResult(true);const [role,profile]=await Promise.all([accountRole(account),loadUserProfile(account,portalRef.current||undefined)]);
+  validatePortal(role,portalRef.current||accountPortal(role,profile),profile);
   if(accountUid.current!==account.uid)return;
   setAccountProfile(profile);setUser(account);update({role,...(current.current.myToken==='—'?{patientName:profile.fullName}:{})});
  },[update]);
- const signIn=useCallback(async(email:string,password:string,portal:LoginPortal='standard')=>{
+ useEffect(()=>{
+  if(!isLive||!user)return;
+  return watchOwnStaffAccess(user,()=>{refreshAccount().catch(e=>setError(e instanceof Error?e.message:'Access could not be refreshed.'));});
+ },[isLive,user,refreshAccount]);
+ const signIn=useCallback(async(email:string,password:string,portal:LoginPortal='patient')=>{
   if(authAction.current)throw Error('Please wait for the current account action to finish.');
   authAction.current=true;setAuthPending(true);setError('');setDataMode(true);
   portalRef.current=portal;setAdminSession(portal==='admin');
   try{const result=await login(email,password,portal);await hydrateAccount(result.user);await AsyncStorage.setItem(portalKey,portal);}
-  catch(e){await logout();portalRef.current='standard';setAdminSession(false);setReady(true);throw e;}
+  catch(e){await logout();portalRef.current=null;setAdminSession(false);setReady(true);throw e;}
   finally{authAction.current=false;setAuthPending(false);}
  },[hydrateAccount,setDataMode]);
  const signUp=useCallback(async(fields:RegistrationFields)=>{
   if(authAction.current)throw Error('Please wait for the current account action to finish.');
   authAction.current=true;setAuthPending(true);setError('');setDataMode(true);
-  portalRef.current='standard';setAdminSession(false);
+  portalRef.current=fields.accountType==='staff'?'staff':'patient';setAdminSession(false);
   try{await register(fields);await logout();}
   catch(e){await logout();setReady(true);throw e;}
   finally{authAction.current=false;setAuthPending(false);}
