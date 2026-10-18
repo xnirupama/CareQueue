@@ -26,3 +26,6 @@ service-account*.json
 tmp/
 
 output/*.zip
+
+# Firebase Functions local secrets
+.secret.local

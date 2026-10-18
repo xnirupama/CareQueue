@@ -1,6 +1,6 @@
 import {
   createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile,
-  sendPasswordResetEmail, sendEmailVerification, reload, validatePassword,
+  sendEmailVerification, reload, validatePassword,
   EmailAuthProvider, reauthenticateWithCredential, updatePassword,
   type Auth, type User,
 } from 'firebase/auth';
@@ -69,10 +69,10 @@ export async function registerAccount(auth: Auth, fields: RegistrationFields) {
   catch {return {...credential, profileSaved: false};}
   return {...credential, profileSaved: true};
 }
-export async function resetAccountPassword(auth: Auth, email: string) {
-  if (validateAccount({name: '', email, password: 'unused', confirmPassword: '',accountType:''}, false).email) throw Error('Enter a valid email address.');
-  try {await sendPasswordResetEmail(auth, normalizeEmail(email));}
-  catch (error) {if ((error as {code?: string}).code !== 'auth/user-not-found') throw error;}
+export async function validateNewPassword(auth:Auth,password:string,confirmation:string){
+ if(password.length<8)throw Error('Use at least 8 characters for your new password.');
+ if(password!==confirmation)throw Error('Your new passwords do not match.');
+ await checkPassword(auth,password);
 }
 export async function renameAccount(user: User, name: string) {
   if (!name.trim() || name.trim().length > 80) throw Error('Enter a name between 1 and 80 characters.');

@@ -36,9 +36,13 @@ The role entry pages now use three locally bundled portrait photos, a soft mint 
 - `/staff-pending`: signed-in staff applicants see their saved request, account ID and **Check approval status**. Queue operations remain unavailable until approved.
 - `/admin-login`: separate administrator sign-in; Firebase must verify an administrator custom claim. Patient/staff credentials cannot open the admin view, and admins use this portal rather than ordinary sign-in.
 - `/staff-approvals`: from administrator Account, choose **Review staff registrations**, verify an applicant's hospital identity, approve, suspend, reactivate or revoke staff access. Approval is protected by Firestore rules; selecting Staff at registration does not grant permission.
-- `/forgot-password`: request a reset email without disclosing whether an account exists.
+- `/forgot-password`: request a six-digit email code, verify it, and choose a new password inside the app. Live delivery requires the [Resend backend setup](docs/email-code-reset.md).
 - `/account`: view/copy the account ID, save a name, send/check email verification, change password after confirming current credentials, and sign out. Authorized staff/admin retain token linking and service initialization.
 - `/onboarding`: three illustrated screens with Skip, Back, Next, page indicators and reduced-motion support. Completed welcome screens and selected live/demo mode persist on this device; replay from Account. Firebase handles the signed-in session without storing passwords in app state or preferences.
+
+**Log Out** is available in the mobile header and Account for Patient, Staff, and Administrator accounts, including pending staff. It signs out of Firebase, clears private state, form drafts and the saved portal, and returns to the sign-in chooser. Device-local continuity notes remain scoped to their owner for later reconciliation.
+
+The active footer tab follows the actual screen/feature rather than the original prototype selection. Patient, staff, and admin have different tab sets; the selected tab has a mint background, bold label, top indicator and selected accessibility state. Page changes use a brief fade and disable animation when the device requests reduced motion.
 
 Protected routes require a signed-in account with a loaded database profile in live mode. Sign-out removes them from navigation history. Firestore stores `uid`, `fullName`, `email`, `accountType`, `createdAt` and `updatedAt` in `users/{uid}`. Firebase Authentication manages credentials; passwords and client-assigned roles are rejected by the profile rules. The registration choice is immutable after it is saved. Administrator-approved `staffAccess/{uid}` documents grant staff access; trusted legacy staff claims remain supported unless an explicit suspension/revocation denies access. Account name edits update Firestore and mirror the name to Authentication without altering a hospital registration record. Existing Authentication accounts receive a missing profile/account type at sign-in. See [account verification notes](docs/testing/accounts.md) for tested flows and remaining device checks.
 
@@ -75,7 +79,7 @@ npm run test:accounts
 npm run test:firebase  
 ```
 
-The rules and account tests run local emulators under the isolated `demo-carequeue` project. They include six rule groups, twelve Auth/profile flow groups and seven SDK CRUD persistence groups, covering all three portals, staff access changes, account deletion, database ownership, actual create/read/update/delete operations and linked historical tickets. `npm test` runs 33 source/domain checks. The Auth emulator tests verification and reset links without sending real email. The live smoke test creates temporary patient and staff accounts, checks persistence and access restrictions, then removes its own accounts/documents. It never prints real credentials or sends real email.
+The rules and account tests run local emulators under the isolated `demo-carequeue` project. They include six rule groups, twelve Auth/profile flow groups and seven SDK CRUD persistence groups, covering all three portals, staff access changes, account deletion, database ownership, actual create/read/update/delete operations and linked historical tickets. `npm test` runs 44 source/domain/security checks. The Auth emulator tests verification and reset links without sending real email. The live smoke test creates temporary patient and staff accounts, checks persistence and access restrictions, then removes its own accounts/documents. It never prints real credentials or sends real email.
 
 See [design provenance](docs/design-source.md) and [verification and remaining setup](docs/verification.md).
 
@@ -83,7 +87,7 @@ See [design provenance](docs/design-source.md) and [verification and remaining s
 
 `eas.json` includes development, preview and production profiles. EAS builds require your Expo account; App Store distribution also requires Apple signing credentials. Generated native projects and signing files are excluded from the repository.
 
-The current [CareQueue-preview.apk](artifacts/CareQueue-preview.apk) was rebuilt on 17 October with separate Patient/Staff/Administrator sign-in, all nine CRUD components, protected role-based tools, Back navigation and the three welcome screens. APK signature, package/ARM64 compatibility, archive integrity and its 17 October source bundle were verified. [build-info.json](artifacts/build-info.json) records its hash and checks. The 18 October portrait and entry-page visual updates are in the source and Expo preview; rebuild the APK to include those changes in a standalone installation. Phone installation and visual testing remain pending. No signed iOS binary is claimed.
+The current [CareQueue-preview.apk](artifacts/CareQueue-preview.apk) was rebuilt on 17 October with separate Patient/Staff/Administrator sign-in, all nine CRUD components, protected role-based tools, Back navigation and the three welcome screens. APK signature, package/ARM64 compatibility, archive integrity and its 17 October source bundle were verified. [build-info.json](artifacts/build-info.json) records its hash and checks. The 18 October portrait, Log Out, footer, fade-transition and email-code reset updates are in the source and Expo preview; rebuild the APK to include them in a standalone installation. Email delivery also requires the server setup above. Phone installation and visual testing remain pending. No signed iOS binary is claimed.
 
 ## Service boundaries
 

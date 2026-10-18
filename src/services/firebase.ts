@@ -1,7 +1,9 @@
 import {initializeApp,getApps} from 'firebase/app';
 import * as FirebaseAuth from 'firebase/auth';
 import {getAuth,initializeAuth,signOut,onAuthStateChanged,type User,type Persistence} from 'firebase/auth';
-import {resetAccountPassword,changeAccountPassword,type RegistrationFields} from './authentication';
+import {changeAccountPassword,type RegistrationFields} from './authentication';
+import {getFunctions} from 'firebase/functions';
+import {requestEmailResetCode,verifyEmailResetCode,finishEmailPasswordReset} from './password-reset';
 import {registerWithProfile,signInWithProfile,ensureUserProfile,saveUserProfileName} from './user-profile';
 import {resolveAccountRole,type LoginPortal} from './account-access';
 import {getFirestore,doc,onSnapshot,runTransaction,collection,query,where} from 'firebase/firestore';
@@ -30,7 +32,10 @@ export const login=(email:string,password:string,portal:LoginPortal='patient')=>
 export const register=(fields:RegistrationFields)=>registerWithProfile(requireAccountAuth(),requireDatabase(),fields);
 export const loadUserProfile=(user:User,portal?:LoginPortal)=>ensureUserProfile(requireDatabase(),user,undefined,portal==='staff'?'staff':undefined);
 export const renameAccount=(user:User,name:string)=>saveUserProfileName(requireDatabase(),user,name);
-export const resetPassword=(email:string)=>resetAccountPassword(requireAccountAuth(),email);
+function requireResetFunctions(){if(!app)throw Error('Password reset is temporarily unavailable.');return getFunctions(app,'asia-south1');}
+export const requestResetCode=(email:string)=>requestEmailResetCode(requireResetFunctions(),email);
+export const verifyResetCode=(challengeId:string,code:string)=>verifyEmailResetCode(requireResetFunctions(),challengeId,code);
+export const completePasswordReset=(resetToken:string,password:string,confirmation:string)=>finishEmailPasswordReset(requireAccountAuth(),resetToken,password,confirmation);
 export const changePassword=(user:User,current:string,password:string,confirm:string)=>changeAccountPassword(requireAccountAuth(),user,current,password,confirm);
 export async function logout(){if(auth)await signOut(auth);}
 export async function accountRole(user:User):Promise<Role>{return resolveAccountRole(requireDatabase(),user);}

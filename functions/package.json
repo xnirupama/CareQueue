@@ -1,0 +1,16 @@
+{
+  "name": "carequeue-account-functions",
+  "private": true,
+  "type": "module",
+  "main": "index.mjs",
+  "engines": {
+    "node": "22"
+  },
+  "scripts": {
+    "check": "node --check index.mjs && node --check reset-service.mjs && node --check resend-mailer.mjs"
+  },
+  "dependencies": {
+    "firebase-admin": "13.10.0",
+    "firebase-functions": "7.2.5"
+  }
+}

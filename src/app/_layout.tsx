@@ -5,8 +5,9 @@ import {ActivityIndicator,View,Text} from 'react-native';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {StoreProvider,useStore} from '../services/store';
 import {CareQueueMark} from '../components/WelcomeArt';
+import {useReducedMotion} from '../hooks/useReducedMotion';
 function Loading(){return <View style={{flex:1,justifyContent:'center',alignItems:'center',gap:18,backgroundColor:'#f5f9f7'}}><CareQueueMark size={64}/><Text style={{fontFamily:'Inter_700Bold',fontSize:24,color:'#09386b'}}>CareQueue</Text><ActivityIndicator color="#09386b" accessibilityLabel="Loading CareQueue"/></View>;}
-function Navigation(){const {booted,onboardingComplete,ready,isLive,user,authPending,state,adminSession,accountProfile}=useStore();if(!booted)return <Loading/>;const admin=Boolean(isLive&&user&&state.role==='admin'&&adminSession),pending=Boolean(isLive&&user&&accountProfile?.accountType==='staff'&&state.role==='patient'),base=onboardingComplete&&ready&&!authPending&&(!isLive||Boolean(user))&&(state.role!=='admin'||admin);return <View style={{flex:1}}><Stack screenOptions={{headerShown:false,animation:'slide_from_right'}}>
+function Navigation(){const reducedMotion=useReducedMotion();const {booted,onboardingComplete,ready,isLive,user,authPending,state,adminSession,accountProfile}=useStore();if(!booted)return <Loading/>;const admin=Boolean(isLive&&user&&state.role==='admin'&&adminSession),pending=Boolean(isLive&&user&&accountProfile?.accountType==='staff'&&state.role==='patient'),base=onboardingComplete&&ready&&!authPending&&(!isLive||Boolean(user))&&(state.role!=='admin'||admin);return <View style={{flex:1}}><Stack screenOptions={{headerShown:false,animation:reducedMotion?'none':'fade',animationDuration:200,contentStyle:{backgroundColor:'#f8fafc'}}}>
  <Stack.Protected guard={base}>
   <Stack.Screen name="index"/><Stack.Screen name="account"/>
  </Stack.Protected>

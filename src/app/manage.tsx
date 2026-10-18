@@ -10,6 +10,8 @@ import type {Command} from '../services/domain';
 import {exportReport,exportSlip} from '../services/report';
 import {WorkspaceLinks} from '../components/WorkspaceUI';
 import {linkTicket} from '../services/firebase';
+import {AppFooter} from '../components/AppFooter';
+import {LogoutButton} from '../components/LogoutButton';
 
 export default function Manage(){
  const {state,isLive,user,ready,connected,execute,update}=useStore(),router=useRouter();
@@ -26,7 +28,7 @@ export default function Manage(){
  const selected=state.queue.find(q=>q.token===token);
  const status=state.ticketStatus||state.queue.find(q=>q.token===state.myToken)?.status;
  return <SafeAreaView style={{flex:1,backgroundColor:'#f8fafc'}}><ScrollView contentContainerStyle={s.page} keyboardShouldPersistTaps="handled">
-  <BackButton onPress={()=>navigateBack(router,'/')} disabled={busy}/>
+  <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}><BackButton onPress={()=>navigateBack(router,'/')} disabled={busy}/><LogoutButton disabled={busy}/></View>
   <Text style={s.brand}>CareQueue</Text><Text style={s.heading}>{staff?'Queue operations':'My visit and settings'}</Text>
   <Text style={[s.text,textStyle]}>{isLive?'Connected Firebase account':'Demo · records saved on this device'} · {state.role}</Text>
   {button('Return to designed screens',()=>router.replace('/'))}
@@ -62,6 +64,6 @@ export default function Manage(){
    <View style={s.card}><Text style={s.title}>Audit history</Text>{state.audit.slice(0,30).map(e=><Text key={e.id} style={[s.text,textStyle]}>{e.at} · {e.role} · {e.action} {e.detail||''}</Text>)}</View>
   </>}
   {button('Open token display',()=>router.push('/display'))}
- </ScrollView></SafeAreaView>;
+ </ScrollView><AppFooter disabled={busy}/></SafeAreaView>;
 }
 const s=StyleSheet.create({page:{padding:24,paddingBottom:60,gap:16,backgroundColor:'#f8fafc',maxWidth:800,width:'100%',alignSelf:'center'},brand:{fontFamily:'Inter_700Bold',color:'#09386b',fontSize:22},heading:{fontFamily:'Inter_700Bold',fontSize:26,color:'#141f2b'},title:{fontFamily:'Inter_700Bold',fontSize:21,color:'#09386b'},card:{backgroundColor:'white',padding:20,borderRadius:16,borderWidth:1,borderColor:'#d3e1eb',gap:14},text:{fontFamily:'Inter_400Regular',color:'#141f2b'},label:{fontFamily:'Inter_600SemiBold',color:'#52697a'},field:{gap:8},input:{borderWidth:1,borderColor:'#d3e1eb',borderRadius:12,padding:14,backgroundColor:'#f8fafc',color:'#141f2b',minHeight:52},button:{padding:16,minHeight:52,backgroundColor:'#09386b',borderRadius:12,alignItems:'center'},white:{fontFamily:'Inter_600SemiBold',color:'white'},warning:{backgroundColor:'#fff7e2',color:'#7a4300',padding:16,borderRadius:12},record:{padding:16,borderWidth:1,borderColor:'#d3e1eb',borderRadius:12,minHeight:52}});

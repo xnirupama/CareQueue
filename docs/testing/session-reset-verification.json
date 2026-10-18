@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-18",
+  "checks": {
+    "typecheck": "pass",
+    "lint": "pass; no errors or warnings",
+    "sourceUnitTests": {
+      "pass": 44,
+      "fail": 0
+    },
+    "authRegressionEmulatorGroups": 12,
+    "emailCodeEmulatorGroups": 5,
+    "platformExports": [
+      "android",
+      "ios",
+      "web"
+    ],
+    "functionsWrapperSyntax": "pass",
+    "serverCodeAbsentFromWebBundle": "pass"
+  },
+  "behaviour": {
+    "logout": "all three roles and pending staff; Firebase sign out, private state/draft/portal cleanup, stale queued-action/listener/refresh guards",
+    "footer": "role-specific tabs; selected section follows design/feature route; all 74 design states mapped",
+    "transitions": "fade; reduced-motion preference disables animation",
+    "passwordReset": "encrypted background email delivery; code-only Resend email; expiry, cooldown, attempts, replay denial; actual emulator passwords and preserved claims/profiles"
+  },
+  "pending": {
+    "liveEmail": "Owner must configure verified Resend sender, server secrets and deploy the accounts Functions codebase; no real email sent",
+    "functionsDependencyInstall": "Blocked by npm HTTPS certificate verification; untrusted Fortinet issuer; TLS verification retained",
+    "functionsSDKRuntime": "Not loaded locally; deployment wrapper syntax and core service tested separately",
+    "browserVisual": "Unavailable: browser tool could not initialize its kernel assets",
+    "phoneVisual": "Not verified",
+    "standaloneAPK": "Existing 17 October build unchanged; source changes require rebuild"
+  },
+  "sourceHashes": {
+    "src/app/_layout.tsx": "c4f733333630a017ca1f420d4b47399be6175be565a5dd200930935475ccc215",
+    "src/app/forgot-password.tsx": "dd5341645d07fd08f086deebbdb99fe636abe7f5c15e99e455ae315706ba14ed",
+    "src/app/screen/[id].tsx": "5baa92de737f429789862960c96b6743bffad43938476f2d877ef4e367a8cdd9",
+    "src/components/AppFooter.tsx": "0ce4452c573ee8b528313013265a47665849f86920b1d8e5537f3efb153da818",
+    "src/components/LogoutButton.tsx": "51d658c3fc832c5e038ae8522bea24573fe57c7be642351dfcbd350754cc6c85",
+    "src/services/store.tsx": "2ee074f41ec4230f0f6e4ff88e0cb485a74bfbf4d0783ad56eee38bce4f84465",
+    "src/services/design-drafts.ts": "f32e927d7c3bd00df67637455504b2d93f75b861067a63bb7957b073b78be4ff",
+    "src/services/password-reset.ts": "7d15d313f8c2d2d2356d7b162a36e40b630fb5da80b588f78494a9b7675a2603",
+    "functions/index.mjs": "8ff746d5e6e164783ec2ccb62d22da1b07c20636c1461847dbc6ccc96b6381c5",
+    "functions/reset-service.mjs": "59c9932fe6e0d53092f75baef2a9656a1b44f457255d52f9b5786f150e9b8d5d",
+    "functions/resend-mailer.mjs": "a2816386f0cabae9d0b91f8a2bdf32d7b0c97e9621359de9f77b742ae7f8bf71",
+    "functions/package.json": "80626c61533b049ed3fc94eefeb6ef238bbe9ee93c1c7f660a53a936055610b3",
+    "firebase.json": "f26323c4c2873444e1237b434db6aa93304da70487a47122f3f6812b244a3ff4",
+    "tests/reset-code-smoke.mjs": "2bb078ae1265f318314ac31c5283d9fa54f380f1b8685ccd5cb1932a8f30e686",
+    "tests/password-reset.test.mjs": "0d597a4e92b72fa0a41311842e4cfd8f56e7d28a7ff51687c0a02542c505ebff",
+    "tests/design-drafts.test.mjs": "134698bede6f649cbc17dc1549a1b98602eae8275b9ae5d68fd3cf29a123617e"
+  }
+}

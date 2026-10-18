@@ -5,7 +5,7 @@ root=Path(__file__).resolve().parents[1];out=root/'output';out.mkdir(exist_ok=Tr
 archive=out/'CareQueue_Milestone03_review-package.zip'
 excluded={'.git','.agents','.codex','.aws','.expo','.firebase','.qodo','node_modules','tmp','tmp-gradle','android','ios','dist','web-build','coverage','artifacts','__pycache__'}
 allowed_root={'.gitignore','.firebaserc','README.md','app.json','eas.json','firebase.json','eslint.config.js','metro.config.js','tsconfig.json','package.json','package-lock.json','.env.example'}
-allowed_dirs={'assets','design','docs','firebase','scripts','src','tests','.github'}
+allowed_dirs={'assets','design','docs','firebase','functions','scripts','src','tests','.github'}
 files=[]
 for directory,dirs,names in os.walk(root):
  rel=Path(directory).relative_to(root)
@@ -14,7 +14,7 @@ for directory,dirs,names in os.walk(root):
   p=Path(directory)/name;r=p.relative_to(root)
   if len(r.parts)==1 and name not in allowed_root:continue
   if name.startswith('.env') and name!='.env.example':continue
-  if name in {'credentials.json','firebase-debug.log','firestore-debug.log'} or 'service-account' in name.lower() or 'serviceaccount' in name.lower():continue
+  if name in {'.secret.local','credentials.json','firebase-debug.log','firestore-debug.log'} or 'service-account' in name.lower() or 'serviceaccount' in name.lower():continue
   if p.suffix.lower() in {'.jks','.keystore','.p8','.p12','.mobileprovision','.pyc'}:continue
   files.append(p)
 pdf=root/'output/pdf/IT3060HCI2026_Milestone03_GroupWE_79.pdf'

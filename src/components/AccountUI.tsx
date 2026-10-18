@@ -4,6 +4,8 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {LinearGradient} from 'expo-linear-gradient';
 import WelcomeArt, {CareQueueMark} from './WelcomeArt';
 import {BackButton} from './BackButton';
+import {LogoutButton} from './LogoutButton';
+import {AppFooter} from './AppFooter';
 
 export const colors={navy:'#09386b',ink:'#141f2b',muted:'#52697a',mint:'#b8e5d5',paper:'#f8fafc',border:'#d3e1eb',red:'#a82e3b'};
 export function Brand(){return <View style={styles.brand}><CareQueueMark/><Text style={styles.brandText}>CareQueue<Text style={styles.brandDot}>.</Text></Text></View>;}
@@ -33,12 +35,12 @@ export function MobileAccountShell({title,subtitle,children,onBack,backDisabled=
  return <View style={[styles.mobileOuter,framed&&styles.mobilePreview,framed&&polished&&styles.authPreview]}><SafeAreaView style={[styles.mobileDevice,polished&&styles.authDevice,framed&&{flex:undefined,width:375,height:Math.min(844,height-32),borderRadius:28,borderWidth:1,borderColor:'#d5e2dd'},framed&&polished&&styles.deviceShadow]}>
   {polished?<LinearGradient colors={['#edf6f0','#f8fafb','#ffffff']} locations={[0,.5,1]} style={[StyleSheet.absoluteFill,{pointerEvents:'none'}]}/>:null}
   <View style={[styles.mobileHeader,polished&&styles.authHeader]}>{onBack?<BackButton onPress={onBack} disabled={backDisabled} iconOnly={polished}/>:!polished?<CareQueueMark size={32}/>:null}
-   {polished?<View style={styles.authBrand}><CareQueueMark size={32}/><View style={{gap:2}}><Text style={styles.authBrandText}>CareQueue<Text style={styles.brandDot}>.</Text></Text><Text style={styles.authBrandCaption}>GENERAL OPD</Text></View></View>:<View style={{flex:1,gap:3}}><Text style={styles.mobileBrand}>CareQueue</Text><Text style={styles.mobileCaption}>Your hospital queue companion</Text></View>}
+   {polished?<View style={[styles.authBrand,{flex:1,minWidth:0}]}><CareQueueMark size={32}/><View style={{gap:2}}><Text style={styles.authBrandText}>CareQueue<Text style={styles.brandDot}>.</Text></Text><Text style={styles.authBrandCaption}>GENERAL OPD</Text></View></View>:<View style={{flex:1,minWidth:0,gap:3}}><Text style={styles.mobileBrand}>CareQueue</Text><Text style={styles.mobileCaption}>Your hospital queue companion</Text></View>}<LogoutButton disabled={backDisabled}/>
   </View>
   <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS==='ios'?'padding':undefined}><ScrollView keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" showsVerticalScrollIndicator={!polished} contentContainerStyle={[styles.mobileScroll,polished&&styles.authScroll,appearance==='welcome'&&styles.welcomeScroll]}>
    <View style={[styles.mobileIntro,polished&&styles.authIntro]}>{eyebrow?<Text style={styles.authEyebrow}>{eyebrow}</Text>:null}<Text accessibilityRole="header" style={[styles.mobileTitle,polished&&styles.authTitle]}>{title}</Text><Text style={[styles.subtitle,polished&&styles.authSubtitle]}>{subtitle}</Text></View>
    <View style={[styles.mobileForm,polished&&styles.authForm]}>{children}</View><Text style={[styles.footer,polished&&styles.authFooter]}>CareQueue · General OPD</Text>
-  </ScrollView></KeyboardAvoidingView>
+  </ScrollView></KeyboardAvoidingView><AppFooter disabled={backDisabled}/>
  </SafeAreaView></View>;
 }
 export const styles=StyleSheet.create({

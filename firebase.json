@@ -13,5 +13,22 @@
     "ui": {
       "enabled": true
     }
-  }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "accounts",
+      "runtime": "nodejs22",
+      "ignore": [
+        "node_modules",
+        ".git",
+        ".env*",
+        ".secret.local",
+        "*.log"
+      ],
+      "predeploy": [
+        "npm --prefix functions run check"
+      ]
+    }
+  ]
 }
